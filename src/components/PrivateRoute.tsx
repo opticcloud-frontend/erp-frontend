@@ -9,7 +9,7 @@ export function PrivateRoute({ children }: PrivateRouteProps) {
   const token = localStorage.getItem('dataSession');
 
   if (!token) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
