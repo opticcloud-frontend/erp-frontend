@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../contexts/AuthContext';
 
 export function RegisterPage() {
   const navigate = useNavigate();
@@ -154,7 +154,7 @@ export function RegisterPage() {
           </div>
 
           <div className="text-sm text-center">
-            <Link to="/login" className="text-blue-600 hover:text-blue-700">
+            <Link to="/" className="text-blue-600 hover:text-blue-700">
               Já tem uma conta? Faça login
             </Link>
           </div>
