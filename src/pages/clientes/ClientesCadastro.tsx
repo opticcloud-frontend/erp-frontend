@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sidebar } from '../../layout/Sidebar';
-import { useAuthContext } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 import { infosClientes, infos_metodos_pagamentos } from '../../utils/infosClientes';
 import { FormatInfos } from '../../utils/FormatInfos';
 import { ValidateInfos } from '../../utils/ValidateInfos';
-import Popup from "./CustomPopUp";
+import Popup from "../../layout/CustomPopUp";
+import { useNavigate } from 'react-router-dom';
 
 const METODOS_PAGAMENTO = infos_metodos_pagamentos;
 const initialFormData = infosClientes
@@ -23,16 +24,17 @@ interface PopupState {
   isOpen: boolean;
 }
 
-export function ClientesPage() {
+export function ClientesCadastro() {
   const [formData, setFormData] = useState(initialFormData);
   const isInitialized = useRef(false);
   const [documentoError, setDocumentoError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [telefoneError, setTelefoneError] = useState('');
   const [displayDocumento, setDisplayDocumento] = useState(''); 
-  const { userData, isAuthenticated } = useAuthContext();  
+  const { userData, isAuthenticated, logout } = useAuth();  
   const apiUrl = import.meta.env.VITE_API_URL;
-
+  const navigate = useNavigate()
+  
 
   const [popup, setPopup] = useState<PopupState>({
     type: null,
@@ -62,21 +64,20 @@ export function ClientesPage() {
   const closePopup = () => {
     setPopup(prev => ({ ...prev, isOpen: false }));
   };
-
   
   useEffect(() => {
     if (!isInitialized.current) {
       setFormData({
         ...formData,
-        emailUsuarioCadastro: userData.email ?? "",
-        oticaId: String(userData.id_oticas[0]),
+        emailUsuarioCadastro: userData?.email ?? "",
+        oticaId: String(userData?.id_oticas[0]),
       });
       isInitialized.current = true;
     }
   }, []);
    
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />; 
+    return <Navigate to="/" replace />; 
   }
  
   const setInputDocumento = (value: string) =>{
@@ -128,11 +129,6 @@ export function ClientesPage() {
       }
     } else if (name === 'tipoCliente') {
       setInputtipoCliente(value)
-      // setFormData({
-      //   ...initialFormData,
-      //   tipoCliente: value as string,
-      // });
-      // setDisplayDocumento('');
     } else if (name === 'emailCliente') {
       setFormData(current => ({
         ...current,
@@ -163,7 +159,6 @@ export function ClientesPage() {
         [name]: formattedTelefone,
       }));
     } else if (name === 'enderecoCep') {
-      // const formattedCEP = formatCEP(value);
       const formattedCEP = FormatInfos.formatCep(value);
       setFormData(current => ({
         ...current,
@@ -178,10 +173,11 @@ export function ClientesPage() {
   };
 
   const validateInfos = () =>{
-    if (formData.tipoCliente === 'PESSOA_FISICA' && !ValidateInfos.validateCPF(formData.documento)) {
-      setDocumentoError('CPF inválido');
-      return false;
-    }
+    // if (formData.tipoCliente === 'PESSOA_FISICA' && !ValidateInfos.validateCPF(formData.documento)) {
+    //   setDocumentoError('CPF inválido');
+    //   return false;
+    // }
+    console.log('validando')
     
     if (!ValidateInfos.validateEmail(formData.emailCliente)) { 
       setEmailError('E-mail inválido');
@@ -192,25 +188,22 @@ export function ClientesPage() {
       setTelefoneError('Telefone inválido');
       return false;
     }
+    
     return true
   }
-
-
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData)
     if(!validateInfos()){
       return 
     }
-
 
     try {
       const response = await fetch(apiUrl + 'clientes', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + userData.token
+          'Authorization': 'Bearer ' + userData?.token
         },
         body: JSON.stringify(formData),
       });
@@ -219,6 +212,11 @@ export function ClientesPage() {
       const responseMessage = responseData.message || response.statusText || 'Erro ao cadastrar cliente';
 
       handleApiResponse(response.ok, responseMessage)
+
+      if (response.status == 401){
+        logout()
+        navigate('/', {state: {status: 401, message: "sessão expirada"}})
+      }
 
       if (!response.ok) {
         throw new Error(responseMessage)
@@ -378,6 +376,7 @@ export function ClientesPage() {
                       value={formData.nomeFantasia}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      required
                     />
                   </div>
                   <div>
@@ -402,7 +401,7 @@ export function ClientesPage() {
                       htmlFor="razaoSocial"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
-                      Inscrição Estadual *
+                      Inscrição Estadual 
                     </label>
                     <input
                       type="text"
@@ -411,7 +410,6 @@ export function ClientesPage() {
                       value={formData.inscricaoEstadual}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      required
                     />
                   </div>
                 </>
@@ -476,7 +474,7 @@ export function ClientesPage() {
               <div className="grid grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Logradouro
+                    Logradouro *
                   </label>
                   <input
                     type="text"
@@ -484,6 +482,7 @@ export function ClientesPage() {
                     value={formData.enderecoLogradouro}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    required
                   />
                 </div>
                 <div>
@@ -510,6 +509,7 @@ export function ClientesPage() {
                     value={formData.enderecoNumero}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    required
                   />
                 </div>
                 <div>
@@ -643,4 +643,4 @@ export function ClientesPage() {
   );
 }
 
-export default ClientesPage;
+export default ClientesCadastro;

@@ -1,6 +1,6 @@
 import {Sidebar} from '../../layout/Sidebar'
 
-export function VendasPage() {
+export function VendasCadastro() {
 
   return (
     <>
@@ -14,4 +14,4 @@ export function VendasPage() {
   );
 }
 
-export default VendasPage
+export default VendasCadastro
