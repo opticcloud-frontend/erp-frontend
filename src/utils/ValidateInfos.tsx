@@ -31,7 +31,7 @@ export class ValidateInfos{
 
 
    public static validateTelefone = (telefone: string): boolean => {
-      const telefoneRegex = /^\(\d{2}\) \d{5}-\d{4}$/;
+      const telefoneRegex = /^\(\d{2}\) \d{4}-\d{4}$/;
       return telefoneRegex.test(telefone);
    };
 }
