@@ -43,6 +43,93 @@ export function ClientesCadastro() {
     isOpen: false
   });
 
+  const handleBlurCNPJ = async (event: FormInputEvent) => {
+    const inputValue = typeof event.target.value === 'string' ? event.target.value : '';
+    const cnpj = inputValue.replace(/\D/g, ''); 
+
+    if(!cnpj){
+      return
+    }
+
+    const data = await fetchCNPJData(cnpj);
+    if(data){
+      data.enderecoCep = FormatInfos.formatCep(data.enderecoCep);
+      data.telefone = FormatInfos.formatTelefone(data.telefone);
+
+      setFormData(prev => ({
+        ...prev,
+        ...data
+      }));
+    }
+  };
+
+  const handleBlurCEP = async (event: FormInputEvent) => {
+    const inputValue = typeof event.target.value === 'string' ? event.target.value : '';
+    const cep = inputValue.replace(/\D/g, '');
+
+    if(!cep){
+      return
+    }
+
+    const data = await fetchCEPData(cep);
+
+    if(data){
+      data.enderecoCep = FormatInfos.formatCep(data.enderecoCep);
+  
+      setFormData(prev => ({
+        ...prev,
+        ...data
+      }));
+    }
+  };
+
+  const fetchCNPJData = async (cnpj: string) => {
+    try {
+      if(!cnpj){
+        return
+      }
+      const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
+      if (!response.ok) {
+        throw new Error('CNPJ não encontrado');
+      }
+      const data = await response.json();
+      
+      return {
+        razaoSocial: data.razao_social,
+        email: data.email || '',
+        enderecoLogradouro: data.logradouro,
+        enderecoNumero: data.numero,
+        enderecoCidade: data.municipio,
+        enderecoBairro: data.bairro,
+        nomeFantasia: data.nome_fantasia,
+        enderecoComplemento: data.complemento,
+        enderecoCep: data.cep,
+        telefone: data.ddd_telefone_1,
+      };
+    } catch (error) {
+      console.log('Erro ao buscar dados do CNPJ ', error);
+    }
+  };
+
+  const fetchCEPData = async (cep: string) => {
+    try {
+      const response = await fetch(`https://brasilapi.com.br/api/cep/v1/${cep}`);
+      if (!response.ok) { 
+        throw new Error('CEP não encontrado');
+      }
+
+      const data = await response.json();      
+      
+      return {
+        enderecoBairro: data.neighborhood,
+        enderecoCidade: data.city,
+        enderecoCep: data.cep, 
+      }; 
+    } catch (error) {
+      console.log('Erro ao buscar dados do CEP ', error);
+    }
+  };
+
   const handleApiResponse = (success: boolean, message: string) => {
     if (success) {
       setPopup({
@@ -66,21 +153,19 @@ export function ClientesCadastro() {
   };
   
   useEffect(() => {
-    if (!isInitialized.current) {
-      setFormData({
-        ...formData,
-        emailUsuarioCadastro: userData?.email ?? "",
-        oticaId: String(userData?.id_oticas[0]),
-      });
-      isInitialized.current = true;
-    }
-  }, []);
+    setFormData({
+      ...formData,
+      emailUsuarioCadastro: userData?.email ?? "",
+      oticaId: String(userData?.id_oticas[0]), 
+    });
+    isInitialized.current = true;
+  }, []);  
    
   if (!isAuthenticated) {
     return <Navigate to="/" replace />; 
   }
  
-  const setInputDocumento = (value: string) =>{
+  const setInputDocumento = async (value: string) =>{
     const documentoDigitos = value.replace(/\D/g, '');
     let formattedDoc = '';
 
@@ -119,11 +204,11 @@ export function ClientesCadastro() {
   }
   
 
-  const handleInputChange = (event: FormInputEvent) => {
+  const handleInputChange = async (event: FormInputEvent) => {
     const { name, value } = event.target;
 
     if (name === 'documento') {
-      const resp = setInputDocumento(value)
+      const resp = await setInputDocumento(value)
       if(resp){
         return
       }
@@ -177,7 +262,6 @@ export function ClientesCadastro() {
     //   setDocumentoError('CPF inválido');
     //   return false;
     // }
-    console.log('validando')
     
     if (!ValidateInfos.validateEmail(formData.emailCliente)) { 
       setEmailError('E-mail inválido');
@@ -213,10 +297,7 @@ export function ClientesCadastro() {
 
       handleApiResponse(response.ok, responseMessage)
 
-      if (response.status == 401){
-        logout()
-        navigate('/', {state: {status: 401, message: "sessão expirada"}})
-      }
+      setErrorTokenExpirado(response.status)
 
       if (!response.ok) {
         throw new Error(responseMessage)
@@ -225,6 +306,13 @@ export function ClientesCadastro() {
       console.error("error: " + err);
     }
   };
+
+  const setErrorTokenExpirado = (codStatus: number) => {
+    if (codStatus == 401){
+      logout()
+      navigate('/', {state: {status: 401, message: "sessão expirada"}})
+    }
+  }
 
   return (
     <div className='flex w-full'>
@@ -356,6 +444,7 @@ export function ClientesCadastro() {
                       name="documento"
                       id="documento"
                       value={displayDocumento}
+                      onBlur={handleBlurCNPJ}
                       onChange={handleInputChange}
                       maxLength={18}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -494,6 +583,7 @@ export function ClientesCadastro() {
                     name="enderecoCep"
                     value={formData.enderecoCep}
                     onChange={handleInputChange}
+                    onBlur={handleBlurCEP}
                     maxLength={9} // XXXXX-XXX tem 9 caracteres
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                     required
