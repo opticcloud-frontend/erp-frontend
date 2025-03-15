@@ -107,7 +107,7 @@ export function ClientesCadastro() {
         telefone: data.ddd_telefone_1,
       };
     } catch (error) {
-      console.log('Erro ao buscar dados do CNPJ ', error);
+      console.error('Erro ao buscar dados do CNPJ ', error);
     }
   };
 
@@ -126,7 +126,7 @@ export function ClientesCadastro() {
         enderecoCep: data.cep, 
       }; 
     } catch (error) {
-      console.log('Erro ao buscar dados do CEP ', error);
+      console.error('Erro ao buscar dados do CEP ', error);
     }
   };
 
@@ -156,7 +156,7 @@ export function ClientesCadastro() {
     setFormData({
       ...formData,
       emailUsuarioCadastro: userData?.email ?? "",
-      oticaId: String(userData?.id_oticas[0]), 
+      oticaId: String(userData?.id_oticas[0]), //   TODO
     });
     isInitialized.current = true;
   }, []);  
@@ -175,7 +175,7 @@ export function ClientesCadastro() {
 
       if (!value) {
         setDocumentoError('');
-        return false;
+        return false; 
       }
 
       if (!ValidateInfos.validateCPF(documentoDigitos)) { 
@@ -202,6 +202,7 @@ export function ClientesCadastro() {
     });
     setDisplayDocumento('');
   }
+  
   
 
   const handleInputChange = async (event: FormInputEvent) => {
@@ -258,10 +259,10 @@ export function ClientesCadastro() {
   };
 
   const validateInfos = () =>{
-    // if (formData.tipoCliente === 'PESSOA_FISICA' && !ValidateInfos.validateCPF(formData.documento)) {
-    //   setDocumentoError('CPF inválido');
-    //   return false;
-    // }
+    if (formData.tipoCliente === 'PESSOA_FISICA' && !ValidateInfos.validateCPF(formData.documento)) {
+      setDocumentoError('CPF inválido');
+      return false;
+    }
     
     if (!ValidateInfos.validateEmail(formData.emailCliente)) { 
       setEmailError('E-mail inválido');

@@ -10,6 +10,7 @@ import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage';
 import { DashboardPage } from './pages/dashboard/DashboardPage';
 import { ClientesCadastro } from './pages/clientes/ClientesCadastro'
 import { Clientes } from './pages/clientes/Clientes'
+import { ClientesPage } from './pages/clientes/ClientesPage'
 
 import { Produtos } from './pages/produtos/Produtos'
 import { ProdutosCadastro } from './pages/produtos/ProdutosCadastro'
@@ -28,7 +29,7 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/clientes/cadastrar" element={<ClientesCadastro />} />
-          <Route path="/clientes" element={<Clientes />} />
+          <Route path="/clientes" element={<ClientesPage />} />
           <Route path="/produtos" element={<Produtos />} />
           <Route path="/produtos/cadastrar" element={<ProdutosCadastro />} />
           <Route path="/vendas" element={<VendasPage />} />
