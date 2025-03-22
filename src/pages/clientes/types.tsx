@@ -1,11 +1,11 @@
 export interface Cliente {
    id: string;
    name: string;
-   email: string;
+   emailCliente: string;
    telefone: string;
    enderecoCidade: string;
-   nomeCompleto: string;
-   tipoPessoa: {descricao: string};
+   nome: string;
+   tipoCliente: string;
    documento: string;
    descricao: string;
    enderecoEstado: string;

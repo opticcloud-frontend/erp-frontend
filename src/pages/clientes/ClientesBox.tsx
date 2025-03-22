@@ -4,20 +4,22 @@ import { FormatInfos } from '../../utils/FormatInfos';
 
 interface CustomerListProps {
   clientes: Cliente[];
+  handleClick: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
 }
 
-export function ClientesBox({ clientes }: CustomerListProps) {
+export function ClientesBox({ clientes, handleClick }: CustomerListProps) {
   const getDocumento = (cliente: Cliente) =>{
-    const tipoPessoa = cliente.tipoPessoa 
+    const tipoPessoa = cliente.tipoCliente 
     const documento = cliente.documento 
 
-    return tipoPessoa.descricao == "PESSOA_FISICA" ? FormatInfos.formatCPF(documento) : FormatInfos.formatCNPJ(documento)
+    return tipoPessoa == "PESSOA_FISICA" ? FormatInfos.formatCPF(documento) : FormatInfos.formatCNPJ(documento)
   }
 
   const getNome = (cliente: Cliente) =>{
-    const tipoPessoa = cliente.tipoPessoa 
+    const tipoPessoa = cliente.tipoCliente 
+    console.log(cliente)
 
-    return tipoPessoa.descricao == "PESSOA_FISICA" ? cliente.nomeCompleto : cliente.nomeFantasia
+    return tipoPessoa == "PESSOA_FISICA" ? cliente.nome : cliente.nomeFantasia
   }
 
   return (
@@ -26,7 +28,9 @@ export function ClientesBox({ clientes }: CustomerListProps) {
       {clientes.map((cliente) => (
         <div
           key={cliente.id}
-          className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow"
+          data-id={cliente.id}
+          onClick={handleClick}
+          className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow cursor-pointer transform hover:scale-105 transition-transform duration-100"
         >
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center space-x-3">
@@ -52,7 +56,7 @@ export function ClientesBox({ clientes }: CustomerListProps) {
           <div className="space-y-2">
             <div className="flex items-center text-sm text-gray-500">
               <Mail className="h-4 w-4 mr-2" />
-              {cliente.email}
+              {cliente.emailCliente}
             </div>
             <div className="flex items-center text-sm text-gray-500">
               <Phone className="h-4 w-4 mr-2" />
