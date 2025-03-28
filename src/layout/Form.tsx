@@ -14,10 +14,9 @@ export const ClientForm: React.FC<ClientFormProps> = ({
   onBlurCNPJ, 
   buttonText,
 }) => {
-  {console.log(formData)}
   return (
     <form onSubmit={onSubmit} className="space-y-3">
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         <div>
           <label
             htmlFor="tipoCliente"

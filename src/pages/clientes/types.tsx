@@ -1,16 +1,27 @@
 export interface Cliente {
-   id: string;
-   name: string;
-   emailCliente: string;
-   telefone: string;
-   enderecoCidade: string;
-   nome: string;
-   tipoCliente: string;
-   documento: string;
-   descricao: string;
-   enderecoEstado: string;
-   razaoSocial: string;
-   nomeFantasia: string;
-   ativo: boolean;
-   status: 'active' | 'inativo';
+  nome: string,
+  emailUsuarioCadastro: string,
+  tipoCliente: string,
+  oticaId: string,
+  telefone: string, 
+  dataNascimento: string,
+  razaoSocial: string,
+  nomeFantasia: string,
+  responsavelLegal: string,
+  limiteCredito: string,
+  metodoPagamentoPreferido: string,
+  indicadorCliente: string,
+  preferencias: string,
+  observacoes: string,
+  ativo: boolean,
+  emailCliente: string,
+  documento: string,
+  enderecoCep: string,
+  enderecoLogradouro: string,
+  enderecoNumero: string,
+  enderecoComplemento: string,
+  enderecoBairro: string,
+  enderecoCidade: string,
+  enderecoEstado: string,
+  inscricaoEstadual: string,
  }

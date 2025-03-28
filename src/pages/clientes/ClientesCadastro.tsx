@@ -157,10 +157,10 @@ export function ClientesCadastro() {
     setFormData({
       ...formData,
       emailUsuarioCadastro: userData?.email ?? "",
-      oticaId: String(userData?.id_oticas[0]), //   TODO
+      oticaId: String(userData?.id_oticas[0]), //   TODO 
     });
     isInitialized.current = true;
-  }, []);  
+  }, []);  //   TODO: Não captura emailUsuarioCadastro
    
   if (!isAuthenticated) {
     return <Navigate to="/" replace />; 

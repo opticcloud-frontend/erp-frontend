@@ -4,7 +4,7 @@ import { FormatInfos } from '../../utils/FormatInfos';
 
 interface CustomerListProps {
   clientes: Cliente[];
-  handleClick: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
+  handleClick: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 export function ClientesBox({ clientes, handleClick }: CustomerListProps) {
@@ -17,8 +17,6 @@ export function ClientesBox({ clientes, handleClick }: CustomerListProps) {
 
   const getNome = (cliente: Cliente) =>{
     const tipoPessoa = cliente.tipoCliente 
-    console.log(cliente)
-
     return tipoPessoa == "PESSOA_FISICA" ? cliente.nome : cliente.nomeFantasia
   }
 
@@ -27,8 +25,8 @@ export function ClientesBox({ clientes, handleClick }: CustomerListProps) {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {clientes.map((cliente) => (
         <div
-          key={cliente.id}
-          data-id={cliente.id}
+          key={cliente.documento}
+          data-id={cliente.documento}
           onClick={handleClick}
           className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow cursor-pointer transform hover:scale-105 transition-transform duration-100"
         >

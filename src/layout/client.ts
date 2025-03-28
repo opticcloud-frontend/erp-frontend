@@ -33,7 +33,7 @@ export interface ClientFormData {
    displayDocumento: string;
    METODOS_PAGAMENTO: Array<{ value: string; label: string }>;
    onSubmit: (e: React.FormEvent) => void;
-   onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
+   onInputChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
    onBlurCEP: (e: React.FocusEvent<HTMLInputElement>) => void;
    onBlurCNPJ: (e: React.FocusEvent<HTMLInputElement>) => void;
  }
