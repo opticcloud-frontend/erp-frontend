@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, ChangeEvent } from 'react';
 import { Sidebar } from '../../layout/Sidebar';
 import { useAuth } from '../../contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
@@ -166,7 +166,10 @@ export function ClientesCadastro() {
     return <Navigate to="/" replace />; 
   }
  
-  const setInputDocumento = async (value: string) =>{
+  const handleInputChangeDocumento = async (
+    e: ChangeEvent<HTMLInputElement>
+  ) =>{
+    const {value} = e.target;
     const documentoDigitos = value.replace(/\D/g, '');
     let formattedDoc = '';
 
@@ -176,7 +179,6 @@ export function ClientesCadastro() {
 
       if (!value) {
         setDocumentoError('');
-        return false; 
       }
 
       if (!ValidateInfos.validateCPF(documentoDigitos)) { 
@@ -193,70 +195,69 @@ export function ClientesCadastro() {
       ...current,
       documento: documentoDigitos,
     }));
-    return true
   }
 
-  const setInputtipoCliente = (value: string) => {
-    setFormData({
-      ...initialFormData,
-      tipoCliente: value as string,
-    });
-    setDisplayDocumento('');
+  const handleInputChangeEmailCliente = (
+    e: ChangeEvent<HTMLInputElement> 
+  ) => {
+    const {name, value } = e.target;
+
+    setFormData(current => ({
+      ...current,
+      [name]: value,
+    }));
+
+    if (!value) {
+      setEmailError('');
+      return;
+    }
+
+    if (!ValidateInfos.validateEmail(value)) {
+      setEmailError('Email inválido');
+    } else {
+      setEmailError('');
+    }
   }
-  
-  
+
+  const handleInputChangeTelefeone = (
+    e: ChangeEvent<HTMLInputElement> 
+  ) => {
+    const { name, value } = e.target;
+
+    const formattedTelefone = FormatInfos.formatTelefone(value);
+
+    if (!ValidateInfos.validateTelefone(formattedTelefone)) {
+      setTelefoneError('Telefone inválido');
+    } else {
+      setTelefoneError('');
+    }
+
+    setFormData(current => ({
+      ...current,
+      [name]: formattedTelefone,
+    }));
+  }
+
+  const handleInputChangeEnderecoCep = (
+    e: ChangeEvent<HTMLInputElement> 
+  ) => {
+    const { name, value } = e.target;
+
+    const formattedCEP = FormatInfos.formatCep(value);
+
+    setFormData(current => ({
+      ...current,
+      [name]: formattedCEP,
+    }));
+  }
 
   const handleInputChange = async (event: FormInputEvent) => {
     const { name, value } = event.target;
 
-    if (name === 'documento') {
-      const resp = await setInputDocumento(value)
-      if(resp){
-        return
-      }
-    } else if (name === 'tipoCliente') {
-      setInputtipoCliente(value)
-    } else if (name === 'emailCliente') {
-      setFormData(current => ({
-        ...current,
-        [name]: value,
-      }));
-
-      if (!value) {
-        setEmailError('');
-        return;
-      }
-
-      if (!ValidateInfos.validateEmail(value)) {
-        setEmailError('Email inválido');
-      } else {
-        setEmailError('');
-      }
-    } else if (name === 'telefone') {
-      const formattedTelefone = FormatInfos.formatTelefone(value);
-
-      if (!ValidateInfos.validateTelefone(formattedTelefone)) {
-        setTelefoneError('Telefone inválido');
-      } else {
-        setTelefoneError('');
-      }
-
-      setFormData(current => ({
-        ...current,
-        [name]: formattedTelefone,
-      }));
-    } else if (name === 'enderecoCep') {
-      const formattedCEP = FormatInfos.formatCep(value);
-      setFormData(current => ({
-        ...current,
-        [name]: formattedCEP,
-      }));
-    } else {
-      setFormData(current => ({
-        ...current,
-        [name]: value,
-      }));
-    }
+    setFormData(current => ({
+      ...current,
+      [name]: value,
+    }));
   };
 
   const validateInfos = () =>{
@@ -340,6 +341,10 @@ export function ClientesCadastro() {
             METODOS_PAGAMENTO={METODOS_PAGAMENTO}
             onSubmit={handleSubmit}
             onInputChange={handleInputChange}
+            onInputChangeDocumento={handleInputChangeDocumento}
+            onInputChangeEmailCliente={handleInputChangeEmailCliente}
+            onInputChangeTelefone={handleInputChangeTelefeone}
+            onInputChangeEnderecoCep={handleInputChangeEnderecoCep}
             onBlurCEP={handleBlurCEP}
             onBlurCNPJ={handleBlurCNPJ}
             buttonText="Cadastrar"

@@ -10,7 +10,6 @@ import { FormatInfos } from '../../utils/FormatInfos';
 import { ValidateInfos } from '../../utils/ValidateInfos';
 
 
-
 import { infosClientes, infos_metodos_pagamentos } from '../../utils/infosClientes';
 
 const dadosClientes: Cliente[] = [];
@@ -26,32 +25,36 @@ export function ClientesPage() {
    const apiUrl = import.meta.env.VITE_API_URL;
    const [clientes, setClientes] = useState<Cliente[]>(dadosClientes);
    const [formData, setFormData] = useState<Cliente>({} as Cliente);
-   const [click, setClick] = useState(false)
    const { userData} = useAuth(); 
    const [documentoError, setDocumentoError] = useState('');
    const [emailError, setEmailError] = useState('');
    const [telefoneError, setTelefoneError] = useState('');
 
-   
-
+   const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault()
+   }
+    
    const handleBlurCNPJ = async (event: React.ChangeEvent<HTMLInputElement>) => {
-      const inputValue = typeof event.target.value === 'string' ? event.target.value : '';
-      const cnpj = inputValue.replace(/\D/g, ''); 
+      const cnpj = event.target.value.replace(/\D/g, ''); 
 
-      if(!cnpj){
-         return
+      if(!cnpj) return
+
+      try {
+         const data = await fetchCNPJData(cnpj);
+
+         if(data){
+            data.enderecoCep = FormatInfos.formatCep(data.enderecoCep);
+            data.telefone = FormatInfos.formatTelefone(data.telefone);
+   
+            setFormData(prev => ({
+               ...prev,
+               ...data
+            }));
+         }
+      } catch (error) {
+         console.error('Erro ao buscar dados do CNPJ', error)
       }
 
-      const data = await fetchCNPJData(cnpj);
-      if(data){
-         data.enderecoCep = FormatInfos.formatCep(data.enderecoCep);
-         data.telefone = FormatInfos.formatTelefone(data.telefone);
-
-         setFormData(prev => ({
-            ...prev,
-            ...data
-         }));
-      }
    };
 
    const setInputDocumento = async (value: string) =>{
@@ -90,29 +93,53 @@ export function ClientesPage() {
       return true
    }
 
-   const setInputipoCliente = (value: string) => {
-      setFormData({
-        ...initialFormData,
-        tipoCliente: value as string,
-      });
-      setDisplayDocumento('');
+   const handleInputChangeDocumento = async (
+      e: ChangeEvent<HTMLInputElement>
+   ) => {
+      const {value} = e.target;
+      const resp = await setInputDocumento(value)
+      if(resp){
+         return
+      }
    }
 
-   const handleInputChange = async (
-      event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-   ) => {
-      const { name, value } = event.target;
+   const handleInputChangeTelefeone = (
+       e: ChangeEvent<HTMLInputElement> 
+     ) => {
+      const { name, value } = e.target;
+      const formattedTelefone = FormatInfos.formatTelefone(value);
 
-      if (name === 'documento') {
-         const resp = await setInputDocumento(value)
-         if(resp){
-            return
-         }
-      } else if (name === 'tipoCliente') {
-         setInputipoCliente(value)
-      } else if (name === 'emailCliente') {
-         setFormData(current => ({
-         ...current!,
+      if (!ValidateInfos.validateTelefone(formattedTelefone)) {
+         setTelefoneError('Telefone inválido');
+      } else {
+         setTelefoneError('');
+      }
+
+      setFormData(current => ({
+         ...current,
+         [name]: formattedTelefone,
+      }));
+   }
+
+   const handleInputChangeEnderecoCep = (
+      e: ChangeEvent<HTMLInputElement> 
+   ) => {
+      const { name, value } = e.target;
+
+      const formattedCEP = FormatInfos.formatCep(value);
+      setFormData(current => ({
+         ...current,
+         [name]: formattedCEP,
+      }));
+   }
+
+   const handleInputChangeEmailCliente = (
+       e: ChangeEvent<HTMLInputElement> 
+     ) => {
+      const {name, value } = e.target;
+
+      setFormData(current => ({
+         ...current,
          [name]: value,
       }));
 
@@ -126,25 +153,19 @@ export function ClientesPage() {
       } else {
          setEmailError('');
       }
-      } else if (name === 'telefone') {
-      const formattedTelefone = FormatInfos.formatTelefone(value);
+   }
 
-      if (!ValidateInfos.validateTelefone(formattedTelefone)) {
-         setTelefoneError('Telefone inválido');
-      } else {
-         setTelefoneError('');
-      }
+   const handleInputChange = async (
+      e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+   ) => {
+      const { name, value } = e.target;
 
-      setFormData(current => ({
-         ...current,
-         [name]: formattedTelefone,
-      }));
-      } else if (name === 'enderecoCep') {
-      const formattedCEP = FormatInfos.formatCep(value);
-      setFormData(current => ({
-         ...current,
-         [name]: formattedCEP,
-      }));
+      if (name === 'enderecoCep') {
+         const formattedCEP = FormatInfos.formatCep(value);
+         setFormData(current => ({
+            ...current,
+            [name]: formattedCEP,
+         }));
       } else {
       setFormData(current => ({
          ...current,
@@ -155,27 +176,24 @@ export function ClientesPage() {
 
    const fetchCNPJData = async (cnpj: string) => {
       try {
-        if(!cnpj){
-          return
-        }
-        const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
-        if (!response.ok) {
-          throw new Error('CNPJ não encontrado');
-        }
-        const data = await response.json();
+         const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
+         if (!response.ok) {
+            throw new Error('CNPJ não encontrado');
+         }
+         const data = await response.json();
         
-        return {
-          razaoSocial: data.razao_social,
-          email: data.email || '',
-          enderecoLogradouro: data.logradouro,
-          enderecoNumero: data.numero,
-          enderecoCidade: data.municipio,
-          enderecoBairro: data.bairro,
-          nomeFantasia: data.nome_fantasia,
-          enderecoComplemento: data.complemento,
-          enderecoCep: data.cep,
-          telefone: data.ddd_telefone_1,
-        };
+         return {
+            razaoSocial: data.razao_social || formData.razaoSocial,
+            email: data.email || formData.emailCliente,
+            enderecoLogradouro: data.logradouro || formData.enderecoLogradouro,
+            enderecoNumero: data.numero || formData.enderecoNumero,
+            enderecoCidade: data.municipio || formData.enderecoCidade,
+            enderecoBairro: data.bairro || formData.enderecoBairro,
+            nomeFantasia: data.nome_fantasia || formData.nomeFantasia,
+            enderecoComplemento: data.complemento || formData.enderecoComplemento,
+            enderecoCep: data.cep || formData.enderecoCep,
+            telefone: data.ddd_telefone_1 || formData.telefone,
+         };
       } catch (error) {
         console.error('Erro ao buscar dados do CNPJ ', error);
       }
@@ -183,51 +201,49 @@ export function ClientesPage() {
    
    
    const handleBlurCEP = async (event: React.ChangeEvent<HTMLInputElement>) => {
-      const inputValue = typeof event.target.value === 'string' ? event.target.value : '';
-      const cep = inputValue.replace(/\D/g, '');
+      const cep = event.target.value.replace(/\D/g, ''); 
 
-      if(!cep){
-         return
-      }
-
-      const data = await fetchCEPData(cep);
-
-      if(data){
-         data.enderecoCep = FormatInfos.formatCep(data.enderecoCep);
+      if(!cep) return
       
-         setFormData(prev => ({
-            ...prev,
-            ...data
-         }));
+      try {
+         const data = await fetchCEPData(cep);
+   
+         if (data) {
+            data.enderecoCep = FormatInfos.formatCep(data.enderecoCep);
+         
+            setFormData(prev => ({
+               ...prev,
+               ...data
+            }));
+         }
+      } catch (error) {
+         console.error('Erro ao buscar dados do CEP', error);
       }
+
    };
 
    const fetchCEPData = async (cep: string) => {
-      try {
-        const response = await fetch(`https://brasilapi.com.br/api/cep/v1/${cep}`);
-        if (!response.ok) { 
-          throw new Error('CEP não encontrado');
-        }
-  
-        const data = await response.json();      
-        
-        return {
-          enderecoBairro: data.neighborhood,
-          enderecoCidade: data.city,
-          enderecoCep: data.cep, 
-        }; 
-      } catch (error) {
-        console.error('Erro ao buscar dados do CEP ', error);
+      const response = await fetch(`https://brasilapi.com.br/api/cep/v1/${cep}`);
+      if (!response.ok) { 
+         throw new Error('CEP não encontrado');
       }
+
+      const data = await response.json();      
+      
+      return {
+         enderecoBairro: data.neighborhood || formData.enderecoBairro,
+         enderecoCidade: data.city || formData.enderecoCidade,
+         enderecoCep: data.cep || formData.enderecoCep, 
+      }; 
    };
    
    const handleInputChangeSelect = async (event:  ChangeEvent<HTMLSelectElement>) => {
       const { value } = event.target;
 
-      setClick(false)
       setTipoFiltro(value);
       setClientes([])
       setInfoBuscaCliente('')
+      setFormData(initialFormData)
    }
 
    const getClienteSelecionado = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -255,7 +271,6 @@ export function ClientesPage() {
    
          if(clienteEncontrado){
             setFormData(clienteEncontrado)
-            setClick(true)
          }
       }
 
@@ -263,7 +278,7 @@ export function ClientesPage() {
 
    const handleClick = async () => {
       const idOtica = userData?.id_oticas[0]
-      setClick(false)
+      setFormData(initialFormData)
 
       const infoPesquisa = infoBuscaCliente.replace(/[\\/.-]/g, '');
       const filtroPesquisa = tipoFiltro == "CPF/CNPJ" ? "documento": tipoFiltro
@@ -328,7 +343,7 @@ export function ClientesPage() {
                      Buscar
                   </button>
                </div>
-               {click ? (
+               {formData.documento ? (
                   <ClientForm
                      formData={formData}
                      METODOS_PAGAMENTO={METODOS_PAGAMENTO}
@@ -337,9 +352,15 @@ export function ClientesPage() {
                      onBlurCEP={handleBlurCEP}
                      onBlurCNPJ={handleBlurCNPJ}
                      onInputChange={handleInputChange}
+                     onInputChangeDocumento={handleInputChangeDocumento}
+                     onInputChangeEmailCliente={handleInputChangeEmailCliente}
+                     onInputChangeTelefone={handleInputChangeTelefeone}
+                     onInputChangeEnderecoCep={handleInputChangeEnderecoCep}
                      documentoError={documentoError}
                      emailError={emailError}
                      telefoneError={telefoneError}
+                     onSubmit={handleSubmit}
+                     disabled={true}
                      />
                ): (
 
