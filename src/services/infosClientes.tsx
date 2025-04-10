@@ -1,7 +1,7 @@
 export const infosClientes = {
-   nome: '',
+   nomeCompleto: '',
    emailUsuarioCadastro: '',
-   tipoCliente: 'PESSOA_FISICA',
+   descricaoTipoCliente: 'PESSOA_FISICA',
    oticaId: '',
    telefone: '', 
    dataNascimento: "",
@@ -14,7 +14,7 @@ export const infosClientes = {
    preferencias: '',
    observacoes: '',
    ativo: true,
-   emailCliente: '',
+   email: '',
    documento: '', // cpf/cnpj
    enderecoCep: '',
    enderecoLogradouro: '',

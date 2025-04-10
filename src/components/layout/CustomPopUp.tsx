@@ -8,7 +8,7 @@ interface PopupProps {
   message: string;
   autoCloseTime?: number; 
   position?: 'center' | 'bottom-right' | 'bottom-left'; 
-  type?: 'success' | 'error' | null;
+  type?: 'success' | 'error' | 'alert'| null;
 }
 
 const Popup: React.FC<PopupProps> = ({
@@ -58,6 +58,9 @@ const Popup: React.FC<PopupProps> = ({
     iconColor = "text-blue-500";
   } else if (type === 'error') {
     accentColor = "bg-red-500";
+    iconColor = "text-red-500";
+  } else if (type == 'alert') {
+    accentColor = "bg-yellow-500";
     iconColor = "text-red-500";
   }
 

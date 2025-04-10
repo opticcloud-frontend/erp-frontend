@@ -1,7 +1,7 @@
 export interface Cliente {
-  nome: string,
+  nomeCompleto: string,
   emailUsuarioCadastro: string,
-  tipoCliente: string,
+  descricaoTipoCliente: string,
   oticaId: string,
   telefone: string, 
   dataNascimento: string,
@@ -14,7 +14,7 @@ export interface Cliente {
   preferencias: string,
   observacoes: string,
   ativo: boolean,
-  emailCliente: string,
+  email: string,
   documento: string,
   enderecoCep: string,
   enderecoLogradouro: string,
@@ -24,4 +24,4 @@ export interface Cliente {
   enderecoCidade: string,
   enderecoEstado: string,
   inscricaoEstadual: string,
- }
+}  

@@ -1,5 +1,5 @@
 export interface ClientFormData {
-  tipoCliente: string;
+  descricaoTipoCliente: string;
   ativo: boolean;
   nome: string;
   razaoSocial: string;
@@ -8,7 +8,7 @@ export interface ClientFormData {
   inscricaoEstadual: string;
   documento: string;
   dataNascimento: string;
-  emailCliente: string;
+  email: string;
   telefone: string;
   enderecoLogradouro: string;
   enderecoCep: string;

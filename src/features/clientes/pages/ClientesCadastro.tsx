@@ -8,6 +8,7 @@ import { ValidateInfos } from '../../../services/ValidateInfos';
 import Popup from "../../../components/layout/CustomPopUp"
 import { useNavigate } from 'react-router-dom';
 import { ClientForm } from '../components/ClienteForm'
+import { Header } from '../../../components/layout/Header';
 
 const METODOS_PAGAMENTO = infos_metodos_pagamentos;
 const initialFormData = infosClientes
@@ -33,6 +34,8 @@ export function ClientesCadastro() {
   const [telefoneError, setTelefoneError] = useState('');
   const [displayDocumento, setDisplayDocumento] = useState(''); 
   const { userData, isAuthenticated, logout } = useAuth();  
+  const [infosAdicionais, setInfosAdicionais] = useState(false);
+  
   const apiUrl = import.meta.env.VITE_API_URL;
   const navigate = useNavigate()
   
@@ -173,7 +176,7 @@ export function ClientesCadastro() {
     const documentoDigitos = value.replace(/\D/g, '');
     let formattedDoc = '';
 
-    if (formData.tipoCliente === 'PESSOA_FISICA') {
+    if (formData.descricaoTipoCliente === 'PESSOA_FISICA') {
       formattedDoc = FormatInfos.formatCPF(value);
       setDisplayDocumento(formattedDoc);
 
@@ -261,12 +264,12 @@ export function ClientesCadastro() {
   };
 
   const validateInfos = () =>{
-    if (formData.tipoCliente === 'PESSOA_FISICA' && !ValidateInfos.validateCPF(formData.documento)) {
+    if (formData.descricaoTipoCliente === 'PESSOA_FISICA' && !ValidateInfos.validateCPF(formData.documento)) {
       setDocumentoError('CPF inválido');
       return false;
     }
     
-    if (!ValidateInfos.validateEmail(formData.emailCliente)) { 
+    if (!ValidateInfos.validateEmail(formData.email)) { 
       setEmailError('E-mail inválido');
       return false;
     }
@@ -319,18 +322,40 @@ export function ClientesCadastro() {
     }
   }
 
+  const handleClickInfosAdicionais = () =>{
+    setInfosAdicionais(true)
+ }
+
+ const handleClickInfosGerais = () =>{
+    setInfosAdicionais(false)
+ }
+
   return (
-    <div className='flex w-full'>
+    <div className='flex w-full h-full'>
       <Sidebar />
       <div className="min-h-screen bg-gray-100 p-4 flex-1">
-        <div className="bg-white rounded-lg shadow-md p-6 ">
+        <div className="bg-white h-lvh rounded-lg shadow-md p-6 ">
           <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 ">
               <h2 className="text-2xl font-semibold text-gray-800">
                 Cadastro de Cliente
               </h2>
             </div>
           </div>
+
+           <div className='flex items-center gap-5 mb-5 text-center'>
+              <p 
+                  className={`${infosAdicionais ? "bg-gray-100": "bg-gray-200"} p-2 w-3/6 cursor-pointer`}
+                  onClick={handleClickInfosGerais}
+              >
+                  Informações gerais
+              </p>
+              <p 
+                  className={`${infosAdicionais ? "bg-gray-200": "bg-gray-100"} p-2 w-3/6 cursor-pointer`} 
+                  onClick={handleClickInfosAdicionais}>
+                  Informações adicionais
+              </p>
+            </div>
 
           <ClientForm
             formData={formData}
@@ -348,6 +373,7 @@ export function ClientesCadastro() {
             onBlurCEP={handleBlurCEP}
             onBlurCNPJ={handleBlurCNPJ}
             buttonText="Cadastrar"
+            infosAdicionais={infosAdicionais}
           />
           {popup.isOpen && (
             <Popup

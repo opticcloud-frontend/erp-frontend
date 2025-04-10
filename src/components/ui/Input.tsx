@@ -6,10 +6,10 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 export const Input: React.FC<InputProps> = ({ label, error, value, disabled = false, ...props }) => (
    <div>
-   <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+   <label className="block text-sm font-medium text-gray-700">{label}</label>
    <input
       readOnly={disabled}
-      className={` w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 ${
+      className={` my-2 w-5/6 px-3 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 ${
          error ? 'border-red-500' : 'border-gray-300'
       }
       

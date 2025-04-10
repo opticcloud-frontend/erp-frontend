@@ -25,7 +25,6 @@ import { FornecedoresPage } from './features/fornecedores/pages/FornecedoresPage
 function App() {
   return (
     <AuthProvider>
-      <Header/>
       <div className='flex flex-row'>
         <Routes>
           <Route path="/" element={<LoginPage />} />

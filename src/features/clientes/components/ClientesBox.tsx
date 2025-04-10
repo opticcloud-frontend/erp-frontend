@@ -1,4 +1,4 @@
-import { User, Building2, Phone, Mail, MapPin } from 'lucide-react';
+import { User, Building2, Phone, Mail, MapPin, FileText    } from 'lucide-react';
 import type { Cliente } from '../types/types';
 import { FormatInfos } from '../../../services/FormatInfos';
 
@@ -9,15 +9,15 @@ interface CustomerListProps {
 
 export function ClientesBox({ clientes, handleClick }: CustomerListProps) {
   const getDocumento = (cliente: Cliente) =>{
-    const tipoPessoa = cliente.tipoCliente 
+    const tipoPessoa = cliente.descricaoTipoCliente 
     const documento = cliente.documento 
 
     return tipoPessoa == "PESSOA_FISICA" ? FormatInfos.formatCPF(documento) : FormatInfos.formatCNPJ(documento)
   }
 
   const getNome = (cliente: Cliente) =>{
-    const tipoPessoa = cliente.tipoCliente 
-    return tipoPessoa == "PESSOA_FISICA" ? cliente.nome : cliente.nomeFantasia
+    const tipoPessoa = cliente.descricaoTipoCliente 
+    return tipoPessoa == "PESSOA_FISICA" ? cliente.nomeCompleto : cliente.nomeFantasia
   }
 
   return (
@@ -54,14 +54,14 @@ export function ClientesBox({ clientes, handleClick }: CustomerListProps) {
           <div className="space-y-2">
             <div className="flex items-center text-sm text-gray-500">
               <Mail className="h-4 w-4 mr-2" />
-              {cliente.emailCliente}
+              {cliente.email}
             </div>
             <div className="flex items-center text-sm text-gray-500">
               <Phone className="h-4 w-4 mr-2" />
               {cliente.telefone}
             </div>
             <div className="flex items-center text-sm text-gray-500">
-              <Building2 className="h-4 w-4 mr-2" />
+              <FileText   className="h-4 w-4 mr-2" />
               {getDocumento(cliente)}
             </div>
             <div className="flex items-center text-sm text-gray-500">

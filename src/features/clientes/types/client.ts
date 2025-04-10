@@ -1,14 +1,14 @@
 export interface ClientFormData {
-  tipoCliente: string;
+  descricaoTipoCliente: string;
   ativo: boolean;
-  nome: string;
+  nomeCompleto: string;
   razaoSocial: string;
   nomeFantasia: string;
   responsavelLegal: string;
   inscricaoEstadual: string;
   documento: string;
   dataNascimento: string;
-  emailCliente: string;
+  email: string;
   telefone: string;
   enderecoLogradouro: string;
   enderecoCep: string;
@@ -33,6 +33,7 @@ export interface ClientFormData {
    displayDocumento: string;
    METODOS_PAGAMENTO: Array<{ value: string; label: string }>;
    disabled?: boolean;
+   infosAdicionais?: boolean;
    onSubmit: (e: React.FormEvent) => void;
    onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
    onInputChangeDocumento: (e: React.ChangeEvent<HTMLInputElement>) => void;
