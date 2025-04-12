@@ -61,7 +61,7 @@ const Popup: React.FC<PopupProps> = ({
     iconColor = "text-red-500";
   } else if (type == 'alert') {
     accentColor = "bg-yellow-500";
-    iconColor = "text-red-500";
+    iconColor = "text-yellow-500";
   }
 
   const Icon = type === 'success' 

@@ -5,7 +5,7 @@ export interface User {
    role: string;
    created_at: string;
    updated_at: string;
-   id_oticas: [];
+   id_oticas: number[];
    token: string;
  }
  

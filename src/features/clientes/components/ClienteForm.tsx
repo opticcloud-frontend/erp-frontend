@@ -2,6 +2,9 @@ import React from 'react';
 import { ClientFormProps } from '../types/client';
 import { Input } from '../../../components/ui/Input'
 import { Select } from '../../../components/ui/Select'
+import { infos_metodos_pagamentos } from '../../../services/infosClientes';
+
+const METODOS_PAGAMENTO = infos_metodos_pagamentos;
 
 export const ClientForm: React.FC<ClientFormProps> = ({
   formData,
@@ -9,7 +12,6 @@ export const ClientForm: React.FC<ClientFormProps> = ({
   emailError,
   telefoneError,
   displayDocumento,
-  METODOS_PAGAMENTO,
   onSubmit,
   onInputChange,
   onInputChangeDocumento,
@@ -25,7 +27,7 @@ export const ClientForm: React.FC<ClientFormProps> = ({
   return (
     <form onSubmit={onSubmit} className="space-y-3 my-10">
       {infosAdicionais ? (
-        <div className='h-[700px]'>
+        <div className=''>
           <div className="grid grid-cols-2 gap-3">
             <Select
               label="Método de Pagamento Preferido *"
@@ -55,7 +57,7 @@ export const ClientForm: React.FC<ClientFormProps> = ({
         </div>
       ): (
         <div className='h-[700px]'>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2 ">
             <Select
               label="Tipo de Cliente *"
               name="descricaoTipoCliente"

@@ -1,16 +1,16 @@
 import React, { useState, ChangeEvent  } from 'react';
-import { Users, ArrowLeft } from 'lucide-react';
+import { Users } from 'lucide-react';
 import type { Cliente } from '../types/types';
 import { ClientesBox } from '../components/ClientesBox';
 import { SearchBar } from '../components/SearchBarProps';
 import {Sidebar} from '../../../components/layout/Sidebar'
 import { useAuth } from '../../../contexts/AuthContext'
-import { ClientForm } from '../components/ClienteForm'
 import { FormatInfos } from '../../../services/FormatInfos';
 import { ValidateInfos } from '../../../services/ValidateInfos';
 import { infosClientes, infos_metodos_pagamentos } from '../../../services/infosClientes';
 import Popup from "../../../components/layout/CustomPopUp"
-import { p } from 'framer-motion/client';
+import { Header } from '../../../components/layout/Header';
+import {ClienteEditeDados} from './ClienteEditeDados'
 
 type PopupType = 'success' | 'error' | 'alert' | null;
 interface PopupState {
@@ -88,7 +88,7 @@ export function ClientesPage() {
       e.preventDefault()
       const updatedFields = getUpdatedFields()
       if (Object.keys(updatedFields).length === 0) {
-         handleApiResponse( "alert", "NÃO HÁ DADOS PARA ATUALIZAR")
+         handleApiResponse( "alert", "Não há dados para atualizar")
          return;
       }
 
@@ -315,9 +315,12 @@ export function ClientesPage() {
       setError('')
    }
 
-   const getClienteSelecionado = (e: React.MouseEvent<HTMLDivElement>) => {
+   const getClienteSelecionado = (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
       const clienteDocumento = e.currentTarget.getAttribute("data-id")
+      console.log(clienteDocumento)
       setClienteSelecionado(true)
+      setClientes([])
+      setInfoBuscaCliente('')
       
       if(clienteDocumento){
          setError('')
@@ -408,6 +411,13 @@ export function ClientesPage() {
         throw new Error('CNPJ não encontrado');
       }
       const data = await response.json();
+      console.log(data)
+      if (!data.length){
+         handleApiResponse( "alert", "Nenhum cliente encontrado!")
+         setClientes([])
+         setInfoBuscaCliente('')
+         return
+      }
       setClientes(data)
    }
 
@@ -424,65 +434,34 @@ export function ClientesPage() {
    }
 
    return (
-      <div className='flex w-full'>
+      <div className='flex w-full '>
          <Sidebar/>
-         <div className="min-h-screen bg-gray-100 p-4 flex-1">
-            <div className="bg-white rounded-lg shadow-md p-6 h-full">
-               
-
+         <div className="min-h-screen bg-white-100  flex-1">
+            <Header/>
+            <div className="bg-white-200 rounded-lg shadow-md p-6 h-full">
                {clienteSelecionado ? (
-                  <>
-                     <div className="flex justify-between items-center mb-6">
-                        <div className="flex items-center space-x-2">
-                           <ArrowLeft className='cursor-pointer' onClick={handleClickBack}/>
-                           <div className="bg-blue-600 p-2 rounded-lg">
-                           <Users className="h-6 w-6 text-white" />
-                           </div>
-                           <h1 className="text-2xl font-semibold text-gray-800">
-                           Editar Cliente
-                           </h1>
-                        </div>
-                        <div className="text-sm text-gray-500">
-                           {clientes.length} clientes encontrados
-                        </div>
-                     </div>
-                     <div className='flex items-center gap-5 mb-5 text-center'>
-                        <p 
-                           className={`${infosAdicionais ? "bg-gray-100": "bg-gray-200"} p-2 w-3/6 cursor-pointer`}
-                           onClick={handleClickInfosGerais}
-                        >
-                           Informações gerais
-                        </p>
-                        <p 
-                           className={`${infosAdicionais ? "bg-gray-200": "bg-gray-100"} p-2 w-3/6 cursor-pointer`} 
-                           onClick={handleClickInfosAdicionais}>
-                           Informações adicionais
-                        </p>
-                     </div>
-  
-                     <ClientForm
-                        formData={formData}
-                        METODOS_PAGAMENTO={METODOS_PAGAMENTO}
-                        buttonText="Salvar"
-                        displayDocumento={displayDocumento}
-                        onBlurCEP={handleBlurCEP}
-                        onBlurCNPJ={handleBlurCNPJ}
-                        onInputChange={handleInputChange}
-                        onInputChangeDocumento={handleInputChangeDocumento}
-                        onInputChangeEmailCliente={handleInputChangeEmailCliente}
-                        onInputChangeTelefone={handleInputChangeTelefeone}
-                        onInputChangeEnderecoCep={handleInputChangeEnderecoCep}
-                        documentoError={documentoError}
-                        emailError={emailError}
-                        telefoneError={telefoneError}
-                        onSubmit={handleSubmit}
-                        disabled={true}
-                        infosAdicionais={infosAdicionais}
-                     />
-                     
-                  </>
+                  <ClienteEditeDados
+                     formData={formData}
+                     documentoError={documentoError}
+                     emailError={emailError}
+                     telefoneError={telefoneError}
+                     displayDocumento={displayDocumento}
+                     clientes={clientes}
+                     handleSubmit={handleSubmit}
+                     handleClickBack={handleClickBack}
+                     handleClickInfosGerais={handleClickInfosGerais}
+                     handleClickInfosAdicionais={handleClickInfosAdicionais}
+                     handleInputChangeDocumento={handleInputChangeDocumento}
+                     handleInputChangeEmailCliente={handleInputChangeEmailCliente}
+                     handleInputChangeTelefeone={handleInputChangeTelefeone}
+                     handleInputChange={handleInputChange}
+                     handleInputChangeEnderecoCep={handleInputChangeEnderecoCep}
+                     handleBlurCEP={handleBlurCEP}
+                     handleBlurCNPJ={handleBlurCNPJ}
+                     infosAdicionais={infosAdicionais}
+                  />
                ): (
-                  <>
+                  <div className=''>
                      <div className="flex justify-between items-center mb-6">
                         <div className="flex items-center space-x-2">
                            <div className="bg-blue-600 p-2 rounded-lg">
@@ -493,12 +472,12 @@ export function ClientesPage() {
                            </h1>
                         </div>
                         <div className="text-sm text-gray-500">
-                           {clientes.length} clientes encontrados
+                           {clientes.length} Cliente(s) encontrado(s)
                         </div>
                      </div>
                      <div className='flex items-center gap-5 mb-5'>
                         <select 
-                           className=" block w-1/5 p-3 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                           className=" block w-1/5 p-3 rounded-md border-gray-400 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm font-medium text-gray-700"
                            id="selectFilter"
                            name="selectFilter"
                            value={tipoFiltro} 
@@ -525,7 +504,7 @@ export function ClientesPage() {
                         </button>
                      </div>
                      <ClientesBox clientes={clientes} handleClick={getClienteSelecionado}/>
-                  </>
+                  </div>
                )}
 
                {popup.isOpen && (

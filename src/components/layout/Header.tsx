@@ -11,9 +11,9 @@ export function Header() {
    };
 
     return (
-      <nav className="bg-white shadow-sm">
+      <nav className="bg-white shadow-md">
          <div className="max-w-[90%] mx-auto px-4 sm:px-6 lg:px-8">
-            <div className=" mx-auto flex justify-between h-16">
+            <div className=" mx-auto flex justify-end h-16">
                <div className="flex items-center">
                   <button
                      onClick={handleLogout}

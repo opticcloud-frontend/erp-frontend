@@ -9,7 +9,7 @@ export const Input: React.FC<InputProps> = ({ label, error, value, disabled = fa
    <label className="block text-sm font-medium text-gray-700">{label}</label>
    <input
       readOnly={disabled}
-      className={` my-2 w-5/6 px-3 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 ${
+      className={` my-2 w-5/6 px-3 py-2 border rounded-md border-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 ${
          error ? 'border-red-500' : 'border-gray-300'
       }
       

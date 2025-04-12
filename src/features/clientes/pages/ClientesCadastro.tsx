@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, ChangeEvent } from 'react';
 import {Sidebar} from '../../../components/layout/Sidebar'
 import { useAuth } from '../../../contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
-import { infosClientes, infos_metodos_pagamentos } from '../../../services/infosClientes';
+import { infosClientes } from '../../../services/infosClientes';
 import { FormatInfos } from './../../../services/FormatInfos';
 import { ValidateInfos } from '../../../services/ValidateInfos';
 import Popup from "../../../components/layout/CustomPopUp"
@@ -10,7 +10,6 @@ import { useNavigate } from 'react-router-dom';
 import { ClientForm } from '../components/ClienteForm'
 import { Header } from '../../../components/layout/Header';
 
-const METODOS_PAGAMENTO = infos_metodos_pagamentos;
 const initialFormData = infosClientes
 
 type FormInputEvent =
@@ -331,10 +330,10 @@ export function ClientesCadastro() {
  }
 
   return (
-    <div className='flex w-full h-full'>
+    <div className='flex w-full'>
       <Sidebar />
       <div className="min-h-screen bg-gray-100 p-4 flex-1">
-        <div className="bg-white h-lvh rounded-lg shadow-md p-6 ">
+        <div className="bg-white h-full rounded-lg shadow-md p-6 ">
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center space-x-2 ">
               <h2 className="text-2xl font-semibold text-gray-800">
@@ -343,19 +342,19 @@ export function ClientesCadastro() {
             </div>
           </div>
 
-           <div className='flex items-center gap-5 mb-5 text-center'>
-              <p 
-                  className={`${infosAdicionais ? "bg-gray-100": "bg-gray-200"} p-2 w-3/6 cursor-pointer`}
-                  onClick={handleClickInfosGerais}
-              >
-                  Informações gerais
-              </p>
-              <p 
-                  className={`${infosAdicionais ? "bg-gray-200": "bg-gray-100"} p-2 w-3/6 cursor-pointer`} 
-                  onClick={handleClickInfosAdicionais}>
-                  Informações adicionais
-              </p>
-            </div>
+          <div className='flex items-center gap-5 mb-5 text-center bg-gray-200 p-1 rounded-lg'>
+            <p 
+              className={`${infosAdicionais ? "bg-gray-200": "bg-gray-100 "} text-sm font-medium text-gray-700 p-2 w-3/6 cursor-pointer rounded-lg transition duration-300`}
+              onClick={handleClickInfosGerais}
+            >
+              Dados Pessoais
+            </p>
+            <p 
+              className={`${infosAdicionais ? "bg-gray-100": "bg-gray-200"} rounded-lg text-sm font-medium text-gray-700 p-2 w-3/6 cursor-pointer duration-300`} 
+              onClick={handleClickInfosAdicionais}>
+              Informações Adicionais
+            </p>
+          </div>
 
           <ClientForm
             formData={formData}
@@ -363,7 +362,6 @@ export function ClientesCadastro() {
             emailError={emailError}
             telefoneError={telefoneError}
             displayDocumento={displayDocumento}
-            METODOS_PAGAMENTO={METODOS_PAGAMENTO}
             onSubmit={handleSubmit}
             onInputChange={handleInputChange}
             onInputChangeDocumento={handleInputChangeDocumento}

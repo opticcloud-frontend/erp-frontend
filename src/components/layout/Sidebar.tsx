@@ -77,7 +77,7 @@ export function Sidebar() {
   };
 
   return (
-    <nav className={`h-screen bg-gray-800 text-white flex flex-col shrink-0 transition-all duration-300 max-w-full ${isCollapsed ? 'w-20' : 'w-64'}`}>
+    <nav className={`h-full bg-gray-800 text-white flex flex-col shrink-0 transition-all duration-300 max-w-full ${isCollapsed ? 'w-20' : 'w-60'}`}>
       {/* Header with toggle button */}
       <div className="p-4 flex items-center justify-between border-b border-gray-700">
         {!isCollapsed && <span className="text-lg font-semibold">Sistema ERP</span>}

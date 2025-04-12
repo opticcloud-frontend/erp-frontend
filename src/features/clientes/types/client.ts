@@ -1,3 +1,5 @@
+import type { Cliente } from '../types/types';
+
 export interface ClientFormData {
   descricaoTipoCliente: string;
   ativo: boolean;
@@ -23,15 +25,36 @@ export interface ClientFormData {
   emailUsuarioCadastro: string;
   oticaId: string;
 }
+
+export interface ClientEditProps {
+  formData: ClientFormData;
+  documentoError?: string;
+  emailError?: string;
+  telefoneError?: string;
+  displayDocumento: string;
+  clientes: Cliente[];
+  disabled?: boolean;
+  infosAdicionais?: boolean;
+  handleSubmit: (e: React.FormEvent) => void;
+  handleClickBack: (e: React.FormEvent) => void;
+  handleClickInfosGerais: (e: React.FormEvent) => void;
+  handleClickInfosAdicionais: (e: React.FormEvent) => void;
+  handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
+  handleInputChangeDocumento: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleInputChangeEmailCliente: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleInputChangeTelefeone: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleInputChangeEnderecoCep: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleBlurCEP: (e: React.FocusEvent<HTMLInputElement>) => void;
+  handleBlurCNPJ: (e: React.FocusEvent<HTMLInputElement>) => void;
+}
  
- export interface ClientFormProps {
+export interface ClientFormProps {
    formData: ClientFormData;
    documentoError?: string;
    emailError?: string;
    buttonText: string;
    telefoneError?: string;
    displayDocumento: string;
-   METODOS_PAGAMENTO: Array<{ value: string; label: string }>;
    disabled?: boolean;
    infosAdicionais?: boolean;
    onSubmit: (e: React.FormEvent) => void;
@@ -42,7 +65,7 @@ export interface ClientFormData {
    onInputChangeEnderecoCep: (e: React.ChangeEvent<HTMLInputElement>) => void;
    onBlurCEP: (e: React.FocusEvent<HTMLInputElement>) => void;
    onBlurCNPJ: (e: React.FocusEvent<HTMLInputElement>) => void;
- }
+}
  
  export type CustomSelectEvent = {
    target: {
