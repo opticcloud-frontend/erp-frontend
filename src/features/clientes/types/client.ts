@@ -42,7 +42,7 @@ export interface ClientEditProps {
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
   handleInputChangeDocumento: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleInputChangeEmailCliente: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleInputChangeTelefeone: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleInputChangeTelefone: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleInputChangeEnderecoCep: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleBlurCEP: (e: React.FocusEvent<HTMLInputElement>) => void;
   handleBlurCNPJ: (e: React.FocusEvent<HTMLInputElement>) => void;

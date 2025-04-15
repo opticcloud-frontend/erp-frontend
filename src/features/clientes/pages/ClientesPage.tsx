@@ -11,6 +11,7 @@ import { infosClientes, infos_metodos_pagamentos } from '../../../services/infos
 import Popup from "../../../components/layout/CustomPopUp"
 import { Header } from '../../../components/layout/Header';
 import {ClienteEditeDados} from './ClienteEditeDados'
+import { useNavigate } from 'react-router-dom';
 
 type PopupType = 'success' | 'error' | 'alert' | null;
 interface PopupState {
@@ -21,14 +22,12 @@ interface PopupState {
 }
 
 const dadosClientes: Cliente[] = [];
-const METODOS_PAGAMENTO = infos_metodos_pagamentos;
 const initialFormData = infosClientes
 
 
 export function ClientesPage() {
    const [infoBuscaCliente, setInfoBuscaCliente] = useState('');
    const [error, setError] = useState('');
-
    const [displayDocumento, setDisplayDocumento] = useState(''); 
    const [tipoFiltro, setTipoFiltro] = useState('nome');
    const apiUrl = import.meta.env.VITE_API_URL;
@@ -36,12 +35,14 @@ export function ClientesPage() {
    const [formData, setFormData] = useState<Cliente>({} as Cliente);
    const [originalData, setOriginalData] = useState<Cliente>({} as Cliente);
 
-   const { userData} = useAuth(); 
+   const { userData, setCliente, clienteData} = useAuth(); 
    const [documentoError, setDocumentoError] = useState('');
    const [emailError, setEmailError] = useState('');
    const [telefoneError, setTelefoneError] = useState('');
    const [clienteSelecionado, setClienteSelecionado] = useState(false);
    const [infosAdicionais, setInfosAdicionais] = useState(false);
+   const navigate = useNavigate();
+
 
    const [popup, setPopup] = useState<PopupState>({
       type: null,
@@ -93,7 +94,6 @@ export function ClientesPage() {
       }
 
       updateCliente(updatedFields)
-      
    }
     
    const handleBlurCNPJ = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -165,7 +165,7 @@ export function ClientesPage() {
       }
    }
 
-   const handleInputChangeTelefeone = (
+   const handleInputChangeTelefone = (
        e: ChangeEvent<HTMLInputElement> 
      ) => {
       const { name, value } = e.target;
@@ -317,7 +317,6 @@ export function ClientesPage() {
 
    const getClienteSelecionado = (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
       const clienteDocumento = e.currentTarget.getAttribute("data-id")
-      console.log(clienteDocumento)
       setClienteSelecionado(true)
       setClientes([])
       setInfoBuscaCliente('')
@@ -329,24 +328,67 @@ export function ClientesPage() {
                return cliente
             }
          });
-         
+
          const documentoDigitos = clienteEncontrado?.documento.replace(/\D/g, '');
-
-         if (clienteEncontrado?.descricaoTipoCliente === 'PESSOA_FISICA' && documentoDigitos != undefined) {
-            const formattedDoc: string = FormatInfos.formatCPF(documentoDigitos);
-            setDisplayDocumento(formattedDoc);
-         }
-
-         if (clienteEncontrado?.descricaoTipoCliente === 'PESSOA_JURIDICA' && documentoDigitos != undefined) {
-            const formattedDoc: string = FormatInfos.formatCNPJ(documentoDigitos);
-            setDisplayDocumento(formattedDoc);
-         }
          
+         const formatters: Record<string, (doc: string) => string> = {
+            PESSOA_FISICA: (doc) => {
+              return FormatInfos.formatCPF(doc);
+            },
+            PESSOA_JURIDICA: FormatInfos.formatCNPJ,
+         };
+          
+         const tipo = clienteEncontrado?.descricaoTipoCliente;
+         if (tipo && documentoDigitos) {
+            const formatter = formatters[tipo];
+            if (formatter) {
+              setDisplayDocumento(formatter(documentoDigitos));
+            }
+         }
    
          if(clienteEncontrado){
+            setCliente(clienteEncontrado)
             setFormData(clienteEncontrado)
             setOriginalData(clienteEncontrado)
          }
+      }
+   }
+
+   const handleClickClienteHistorico = (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+      const clienteDocumento = e.currentTarget.getAttribute("data-id")
+      setClientes([])
+      setInfoBuscaCliente('')
+      
+      if(clienteDocumento){
+         setError('')
+         const clienteEncontrado = clientes.find((cliente) => {
+            if( cliente.documento === clienteDocumento) {
+               return cliente
+            }
+         });
+         
+         // const documentoDigitos = clienteEncontrado?.documento.replace(/\D/g, '');
+
+         // if (clienteEncontrado?.descricaoTipoCliente === 'PESSOA_FISICA' && documentoDigitos != undefined) {
+         //    const formattedDoc: string = FormatInfos.formatCPF(documentoDigitos);
+         //    setDisplayDocumento(formattedDoc);
+         // }
+
+         // if (clienteEncontrado?.descricaoTipoCliente === 'PESSOA_JURIDICA' && documentoDigitos != undefined) {
+         //    const formattedDoc: string = FormatInfos.formatCNPJ(documentoDigitos);
+         //    setDisplayDocumento(formattedDoc);
+         // }
+         
+   
+         // if(clienteEncontrado){
+         //    setFormData(clienteEncontrado)
+         //    setOriginalData(clienteEncontrado)
+         // }
+         
+         setCliente(clienteEncontrado as Cliente)
+         navigate('/cliente/historico', {
+            state: {data: clienteEncontrado}
+         });
       }
 
    }
@@ -411,7 +453,6 @@ export function ClientesPage() {
         throw new Error('CNPJ não encontrado');
       }
       const data = await response.json();
-      console.log(data)
       if (!data.length){
          handleApiResponse( "alert", "Nenhum cliente encontrado!")
          setClientes([])
@@ -453,7 +494,7 @@ export function ClientesPage() {
                      handleClickInfosAdicionais={handleClickInfosAdicionais}
                      handleInputChangeDocumento={handleInputChangeDocumento}
                      handleInputChangeEmailCliente={handleInputChangeEmailCliente}
-                     handleInputChangeTelefeone={handleInputChangeTelefeone}
+                     handleInputChangeTelefone={handleInputChangeTelefone}
                      handleInputChange={handleInputChange}
                      handleInputChangeEnderecoCep={handleInputChangeEnderecoCep}
                      handleBlurCEP={handleBlurCEP}
@@ -503,7 +544,7 @@ export function ClientesPage() {
                            Buscar
                         </button>
                      </div>
-                     <ClientesBox clientes={clientes} handleClick={getClienteSelecionado}/>
+                     <ClientesBox clientes={clientes} handleClick={getClienteSelecionado} onClickHistorico={handleClickClienteHistorico}/>
                   </div>
                )}
 

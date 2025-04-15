@@ -17,7 +17,7 @@ export const ClienteEditeDados: React.FC<ClientEditProps> = ({
    handleClickInfosAdicionais,
    handleInputChangeDocumento,
    handleInputChangeEmailCliente,
-   handleInputChangeTelefeone,
+   handleInputChangeTelefone,
    handleInputChange,
    handleInputChangeEnderecoCep,
    handleBlurCEP,
@@ -63,7 +63,7 @@ export const ClienteEditeDados: React.FC<ClientEditProps> = ({
             onInputChange={handleInputChange}
             onInputChangeDocumento={handleInputChangeDocumento}
             onInputChangeEmailCliente={handleInputChangeEmailCliente}
-            onInputChangeTelefone={handleInputChangeTelefeone}
+            onInputChangeTelefone={handleInputChangeTelefone}
             onInputChangeEnderecoCep={handleInputChangeEnderecoCep}
             documentoError={documentoError}
             emailError={emailError}

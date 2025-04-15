@@ -5,9 +5,10 @@ import { FormatInfos } from '../../../services/FormatInfos';
 interface CustomerListProps {
   clientes: Cliente[];
   handleClick: (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => void;
+  onClickHistorico: (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => void;
 }
 
-export function ClientesBox({ clientes, handleClick }: CustomerListProps) {
+export function ClientesBox({ clientes, handleClick, onClickHistorico }: CustomerListProps) {
   const getDocumento = (cliente: Cliente) =>{
     const tipoPessoa = cliente.descricaoTipoCliente 
     const documento = cliente.documento 
@@ -91,7 +92,12 @@ export function ClientesBox({ clientes, handleClick }: CustomerListProps) {
               </div>
 
               <div className="relative group py-3">
-                <ClipboardList size={20} className=" text-gray-700 cursor-pointer " />
+                <ClipboardList 
+                  size={20} 
+                  className="text-gray-700 cursor-pointer" 
+                  onClick={onClickHistorico}
+                  data-id={cliente.documento}
+                />
                 <div className="absolute right-full mb-2 top-1/2 -translate-y-1/2 whitespace-nowrap bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-100">
                   Visualizar Dados
                 </div>

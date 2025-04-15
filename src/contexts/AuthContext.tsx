@@ -1,15 +1,19 @@
 import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
-import { User, AuthContextType } from '../types/auth';
+import { User, AuthContextType, Cliente } from '../types/auth';
+ 
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [userData, setUserData] = useState<User | null>(() => {
     const storedUser = localStorage.getItem('dataSession');
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
-  
+  const [clienteData, setClienteData] = useState<Cliente | undefined>(undefined)
+
+  const removeCliente = () => {
+    setClienteData(undefined);
+  };
 
   let isAuthenticated = !!userData;
 
@@ -24,16 +28,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = (user: User) => {
     setUserData(user);
   };
+
+  const setCliente = (cliente: Cliente) =>{
+    setClienteData(cliente)
+  }
   
 
   const logout = () => {
     isAuthenticated = false
     localStorage.removeItem('dataSession');
     setUserData(null);
+    removeCliente()
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, userData, }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout, userData, setCliente, clienteData  }}>
       {children}
     </AuthContext.Provider>
   );
