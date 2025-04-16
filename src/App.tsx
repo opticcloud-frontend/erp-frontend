@@ -1,6 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { PrivateRoute } from './components/PrivateRoute';
-import { Header } from './components/layout/Header'
 import { AuthProvider } from './contexts/AuthContext'
 // Paginas
 import { DashboardPage } from './features/dashboardHome/pages/DashboardPage';
@@ -22,6 +21,7 @@ import { DespesasPage } from './features/despesas/pages/DespesasPage'
 
 import { FornecedoresPage } from './features/fornecedores/pages/FornecedoresPage'
 import { ClienteHistorico } from './features/clientes/pages/ClienteHistorico';
+import { ClienteEditeDados } from './features/clientes/pages/ClienteEditeDados';
 
 function App() {
   return (
@@ -38,6 +38,7 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/clientes/cadastrar" element={<ClientesCadastro />} />
           <Route path="/cliente/historico" element={<ClienteHistorico />} />
+          <Route path="/cliente/editar" element={<ClienteEditeDados />} />
           <Route path="/clientes" element={<ClientesPage />} />
           <Route path="/produtos/cadastrar" element={<ProdutosCadastro />} />
           <Route path="/produtos" element={<Produtos />} />

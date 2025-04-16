@@ -36,11 +36,7 @@ export function ClientesPage() {
    const [originalData, setOriginalData] = useState<Cliente>({} as Cliente);
 
    const { userData, setCliente, clienteData} = useAuth(); 
-   const [documentoError, setDocumentoError] = useState('');
-   const [emailError, setEmailError] = useState('');
-   const [telefoneError, setTelefoneError] = useState('');
-   const [clienteSelecionado, setClienteSelecionado] = useState(false);
-   const [infosAdicionais, setInfosAdicionais] = useState(false);
+
    const navigate = useNavigate();
 
 
@@ -85,220 +81,6 @@ export function ClientesPage() {
       setPopup(prev => ({ ...prev, isOpen: false }));
    };
 
-   const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault()
-      const updatedFields = getUpdatedFields()
-      if (Object.keys(updatedFields).length === 0) {
-         handleApiResponse( "alert", "Não há dados para atualizar")
-         return;
-      }
-
-      updateCliente(updatedFields)
-   }
-    
-   const handleBlurCNPJ = async (event: React.ChangeEvent<HTMLInputElement>) => {
-      const cnpj = event.target.value.replace(/\D/g, ''); 
-
-      if(!cnpj) return
-
-      try {
-         const data = await fetchCNPJData(cnpj);
-
-         if(data){
-            data.enderecoCep = FormatInfos.formatCep(data.enderecoCep);
-            data.telefone = FormatInfos.formatTelefone(data.telefone);
-   
-            setFormData(prev => ({
-               ...prev,
-               ...data
-            }));
-         }
-      } catch (error) {
-         console.error('Erro ao buscar dados do CNPJ', error)
-      }
-
-   };
-
-   const setInputDocumento = async (value: string) =>{
-      const documentoDigitos = value.replace(/\D/g, '');
-      let formattedDoc = '';
-
-
-      if (formData.descricaoTipoCliente === 'PESSOA_FISICA') {
-         formattedDoc = FormatInfos.formatCPF(value);
-         setDisplayDocumento(formattedDoc);
-
-         if (!value) {
-            setDocumentoError('');
-            return false; 
-         }
-
-         if (!ValidateInfos.validateCPF(documentoDigitos)) { 
-            setDocumentoError('CPF inválido'); 
-         } else {
-            setDocumentoError('');
-         }
-      } else {
-         formattedDoc = FormatInfos.formatCNPJ(value);
-         setDisplayDocumento(formattedDoc);
-      }
-
-      setFormData(current => {
-         if (current) {
-           return {
-             ...current,
-             documento: documentoDigitos,
-           };
-         }
-         return current; 
-      });
-      return true
-   }
-
-   const handleInputChangeDocumento = async (
-      e: ChangeEvent<HTMLInputElement>
-   ) => {
-      const {value} = e.target;
-      const resp = await setInputDocumento(value)
-      if(resp){
-         return
-      }
-   }
-
-   const handleInputChangeTelefone = (
-       e: ChangeEvent<HTMLInputElement> 
-     ) => {
-      const { name, value } = e.target;
-      const formattedTelefone = FormatInfos.formatTelefone(value);
-
-      if (!ValidateInfos.validateTelefone(formattedTelefone)) {
-         setTelefoneError('Telefone inválido');
-      } else {
-         setTelefoneError('');
-      }
-
-      setFormData(current => ({
-         ...current,
-         [name]: formattedTelefone,
-      }));
-   }
-
-   const handleInputChangeEnderecoCep = (
-      e: ChangeEvent<HTMLInputElement> 
-   ) => {
-      const { name, value } = e.target;
-
-      const formattedCEP = FormatInfos.formatCep(value);
-      setFormData(current => ({
-         ...current,
-         [name]: formattedCEP,
-      }));
-   }
-
-   const handleInputChangeEmailCliente = (
-       e: ChangeEvent<HTMLInputElement> 
-     ) => {
-      const {name, value } = e.target;
-
-      setFormData(current => ({
-         ...current,
-         [name]: value,
-      }));
-
-      if (!value) {
-         setEmailError('');
-         return;
-      }
-
-      if (!ValidateInfos.validateEmail(value)) {
-         setEmailError('Email inválido');
-      } else {
-         setEmailError('');
-      }
-   }
-
-   const handleInputChange = async (
-      e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-   ) => {
-      const { name, value } = e.target;
-
-      if (name === 'enderecoCep') {
-         const formattedCEP = FormatInfos.formatCep(value);
-         setFormData(current => ({
-            ...current,
-            [name]: formattedCEP,
-         }));
-      } else {
-      setFormData(current => ({
-         ...current,
-         [name]: value,
-      }));
-      }
-   };
-
-   const fetchCNPJData = async (cnpj: string) => {
-      try {
-         const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
-         if (!response.ok) {
-            throw new Error('CNPJ não encontrado');
-         }
-         const data = await response.json();
-        
-         return {
-            razaoSocial: data.razao_social || formData.razaoSocial,
-            email: data.email || formData.email,
-            enderecoLogradouro: data.logradouro || formData.enderecoLogradouro,
-            enderecoNumero: data.numero || formData.enderecoNumero,
-            enderecoCidade: data.municipio || formData.enderecoCidade,
-            enderecoBairro: data.bairro || formData.enderecoBairro,
-            nomeFantasia: data.nome_fantasia || formData.nomeFantasia,
-            enderecoComplemento: data.complemento || formData.enderecoComplemento,
-            enderecoCep: data.cep || formData.enderecoCep,
-            telefone: data.ddd_telefone_1 || formData.telefone,
-         };
-      } catch (error) {
-        console.error('Erro ao buscar dados do CNPJ ', error);
-      }
-   };
-   
-   
-   const handleBlurCEP = async (event: React.ChangeEvent<HTMLInputElement>) => {
-      const cep = event.target.value.replace(/\D/g, ''); 
-
-      if(!cep) return
-      
-      try {
-         const data = await fetchCEPData(cep);
-   
-         if (data) {
-            data.enderecoCep = FormatInfos.formatCep(data.enderecoCep);
-         
-            setFormData(prev => ({
-               ...prev,
-               ...data
-            }));
-         }
-      } catch (error) {
-         console.error('Erro ao buscar dados do CEP', error);
-      }
-
-   };
-
-   const fetchCEPData = async (cep: string) => {
-      const response = await fetch(`https://brasilapi.com.br/api/cep/v1/${cep}`);
-      if (!response.ok) { 
-         throw new Error('CEP não encontrado');
-      }
-
-      const data = await response.json();      
-      
-      return {
-         enderecoBairro: data.neighborhood || formData.enderecoBairro,
-         enderecoCidade: data.city || formData.enderecoCidade,
-         enderecoCep: data.cep || formData.enderecoCep, 
-      }; 
-   };
-   
    const handleInputChangeSelect = async (event:  ChangeEvent<HTMLSelectElement>) => {
       const { value } = event.target;
 
@@ -317,7 +99,7 @@ export function ClientesPage() {
 
    const getClienteSelecionado = (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
       const clienteDocumento = e.currentTarget.getAttribute("data-id")
-      setClienteSelecionado(true)
+      // setClienteSelecionado(true)
       setClientes([])
       setInfoBuscaCliente('')
       
@@ -331,19 +113,15 @@ export function ClientesPage() {
 
          const documentoDigitos = clienteEncontrado?.documento.replace(/\D/g, '');
          
-         const formatters: Record<string, (doc: string) => string> = {
-            PESSOA_FISICA: (doc) => {
-              return FormatInfos.formatCPF(doc);
-            },
-            PESSOA_JURIDICA: FormatInfos.formatCNPJ,
-         };
-          
-         const tipo = clienteEncontrado?.descricaoTipoCliente;
-         if (tipo && documentoDigitos) {
-            const formatter = formatters[tipo];
-            if (formatter) {
-              setDisplayDocumento(formatter(documentoDigitos));
-            }
+
+         if (clienteEncontrado?.descricaoTipoCliente === 'PESSOA_FISICA' && documentoDigitos != undefined) {
+            const formattedDoc: string = FormatInfos.formatCPF(documentoDigitos);
+            setDisplayDocumento(formattedDoc);
+         }
+
+         if (clienteEncontrado?.descricaoTipoCliente === 'PESSOA_JURIDICA' && documentoDigitos != undefined) {
+            const formattedDoc: string = FormatInfos.formatCNPJ(documentoDigitos);
+            setDisplayDocumento(formattedDoc);
          }
    
          if(clienteEncontrado){
@@ -351,6 +129,8 @@ export function ClientesPage() {
             setFormData(clienteEncontrado)
             setOriginalData(clienteEncontrado)
          }
+
+         navigate('/cliente/editar')
       }
    }
 
@@ -367,23 +147,23 @@ export function ClientesPage() {
             }
          });
          
-         // const documentoDigitos = clienteEncontrado?.documento.replace(/\D/g, '');
+         const documentoDigitos = clienteEncontrado?.documento.replace(/\D/g, '');
 
-         // if (clienteEncontrado?.descricaoTipoCliente === 'PESSOA_FISICA' && documentoDigitos != undefined) {
-         //    const formattedDoc: string = FormatInfos.formatCPF(documentoDigitos);
-         //    setDisplayDocumento(formattedDoc);
-         // }
+         if (clienteEncontrado?.descricaoTipoCliente === 'PESSOA_FISICA' && documentoDigitos != undefined) {
+            const formattedDoc: string = FormatInfos.formatCPF(documentoDigitos);
+            setDisplayDocumento(formattedDoc);
+         }
 
-         // if (clienteEncontrado?.descricaoTipoCliente === 'PESSOA_JURIDICA' && documentoDigitos != undefined) {
-         //    const formattedDoc: string = FormatInfos.formatCNPJ(documentoDigitos);
-         //    setDisplayDocumento(formattedDoc);
-         // }
+         if (clienteEncontrado?.descricaoTipoCliente === 'PESSOA_JURIDICA' && documentoDigitos != undefined) {
+            const formattedDoc: string = FormatInfos.formatCNPJ(documentoDigitos);
+            setDisplayDocumento(formattedDoc);
+         }
          
    
-         // if(clienteEncontrado){
-         //    setFormData(clienteEncontrado)
-         //    setOriginalData(clienteEncontrado)
-         // }
+         if(clienteEncontrado){
+            setFormData(clienteEncontrado)
+            setOriginalData(clienteEncontrado)
+         }
          
          setCliente(clienteEncontrado as Cliente)
          navigate('/cliente/historico', {
@@ -391,43 +171,6 @@ export function ClientesPage() {
          });
       }
 
-   }
-
-   const getUpdatedFields = (): Partial<Cliente> => {
-      const updatedFields: Partial<Cliente> = {};
-      for (const key in formData) {
-         const newValue = formData[key as keyof Cliente];
-         const originalValue = originalData[key as keyof Cliente];
-
-   
-         if (newValue !== originalValue) {
-            updatedFields[key as keyof Cliente] = newValue as any;
-            setOriginalData(current => ({
-               ...current,
-               [key]: newValue,
-            }));
-         }
-      }
-      return updatedFields;
-   };
-
-
-   const updateCliente = async (updatedFields: Partial<Cliente> ) => {
-      const idOtica = userData?.id_oticas[0]
-
-      const response = await fetch(`${apiUrl}clientes/idOtica=${idOtica}?documento=${formData.documento}` , {
-         method: 'PATCH',
-         headers: {
-           'Content-Type': 'application/json',
-           'Authorization': 'Bearer ' + userData?.token
-         },
-         body: JSON.stringify(updatedFields),
-      });
-
-      handleApiResponse('sucess', "Usuario editado com sucesso")
-      if (!response.ok) {
-        throw new Error('Erro ao atualizar informações do cliente');
-      }
    }
 
    const handleClick = async () => {
@@ -462,91 +205,56 @@ export function ClientesPage() {
       setClientes(data)
    }
 
-   const handleClickBack = () =>{
-      setClienteSelecionado(false)
-   }
-
-   const handleClickInfosAdicionais = () =>{
-      setInfosAdicionais(true)
-   }
-
-   const handleClickInfosGerais = () =>{
-      setInfosAdicionais(false)
-   }
-
    return (
       <div className='flex w-full '>
          <Sidebar/>
          <div className="min-h-screen bg-white-100  flex-1">
             <Header/>
             <div className="bg-white-200 rounded-lg shadow-md p-6 h-full">
-               {clienteSelecionado ? (
-                  <ClienteEditeDados
-                     formData={formData}
-                     documentoError={documentoError}
-                     emailError={emailError}
-                     telefoneError={telefoneError}
-                     displayDocumento={displayDocumento}
-                     clientes={clientes}
-                     handleSubmit={handleSubmit}
-                     handleClickBack={handleClickBack}
-                     handleClickInfosGerais={handleClickInfosGerais}
-                     handleClickInfosAdicionais={handleClickInfosAdicionais}
-                     handleInputChangeDocumento={handleInputChangeDocumento}
-                     handleInputChangeEmailCliente={handleInputChangeEmailCliente}
-                     handleInputChangeTelefone={handleInputChangeTelefone}
-                     handleInputChange={handleInputChange}
-                     handleInputChangeEnderecoCep={handleInputChangeEnderecoCep}
-                     handleBlurCEP={handleBlurCEP}
-                     handleBlurCNPJ={handleBlurCNPJ}
-                     infosAdicionais={infosAdicionais}
-                  />
-               ): (
-                  <div className=''>
-                     <div className="flex justify-between items-center mb-6">
-                        <div className="flex items-center space-x-2">
-                           <div className="bg-blue-600 p-2 rounded-lg">
-                           <Users className="h-6 w-6 text-white" />
-                           </div>
-                           <h1 className="text-2xl font-semibold text-gray-800">
-                           Busca de Clientes
-                           </h1>
+               <div className=''>
+                  <div className="flex justify-between items-center mb-6">
+                     <div className="flex items-center space-x-2">
+                        <div className="bg-blue-600 p-2 rounded-lg">
+                        <Users className="h-6 w-6 text-white" />
                         </div>
-                        <div className="text-sm text-gray-500">
-                           {clientes.length} Cliente(s) encontrado(s)
-                        </div>
+                        <h1 className="text-2xl font-semibold text-gray-800">
+                        Busca de Clientes
+                        </h1>
                      </div>
-                     <div className='flex items-center gap-5 mb-5'>
-                        <select 
-                           className=" block w-1/5 p-3 rounded-md border-gray-400 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm font-medium text-gray-700"
-                           id="selectFilter"
-                           name="selectFilter"
-                           value={tipoFiltro} 
-                           onChange={(e) => handleInputChangeSelect(e)}
-                        >
-                           <option value="nome">Nome</option>
-                           <option value="CPF/CNPJ">CPF / CNPJ</option>
-                           <option value="email">Email</option>
-                        </select>
-                        <div className="w-2/5">
-                              <SearchBar
-                                 value={infoBuscaCliente}
-                                 onChange={(e) => handleInputChangeSearch(e)}
-                                 type= {tipoFiltro}
-                                 error={error}
-                              />
-                           
-                        </div>
-                        <button 
-                           className='bg-blue-600 text-white p-2 w-28 rounded-md'
-                           onClick={handleClick}
-                        >
-                           Buscar
-                        </button>
+                     <div className="text-sm text-gray-500">
+                        {clientes.length} Cliente(s) encontrado(s)
                      </div>
-                     <ClientesBox clientes={clientes} handleClick={getClienteSelecionado} onClickHistorico={handleClickClienteHistorico}/>
                   </div>
-               )}
+                  <div className='flex items-center gap-5 mb-5'>
+                     <select 
+                        className=" block w-1/5 p-3 rounded-md border-gray-400 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm font-medium text-gray-700"
+                        id="selectFilter"
+                        name="selectFilter"
+                        value={tipoFiltro} 
+                        onChange={(e) => handleInputChangeSelect(e)}
+                     >
+                        <option value="nome">Nome</option>
+                        <option value="CPF/CNPJ">CPF / CNPJ</option>
+                        <option value="email">Email</option>
+                     </select>
+                     <div className="w-2/5">
+                           <SearchBar
+                              value={infoBuscaCliente}
+                              onChange={(e) => handleInputChangeSearch(e)}
+                              type= {tipoFiltro}
+                              error={error}
+                           />
+                        
+                     </div>
+                     <button 
+                        className='bg-blue-600 text-white p-2 w-28 rounded-md'
+                        onClick={handleClick}
+                     >
+                        Buscar
+                     </button>
+                  </div>
+                  <ClientesBox clientes={clientes} handleClick={getClienteSelecionado} onClickHistorico={handleClickClienteHistorico}/>
+               </div>
 
                {popup.isOpen && (
                   <Popup
