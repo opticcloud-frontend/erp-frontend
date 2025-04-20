@@ -177,12 +177,13 @@ export function ClientesCadastro() {
 
     if (formData.descricaoTipoCliente === 'PESSOA_FISICA') {
       formattedDoc = FormatInfos.formatCPF(value);
-      setDisplayDocumento(formattedDoc);
+
+      // setDisplayDocumento(formattedDoc);
 
       if (!value) {
         setDocumentoError('');
       }
-
+ 
       if (!ValidateInfos.validateCPF(documentoDigitos)) { 
         setDocumentoError('CPF inválido'); 
       } else {
@@ -190,12 +191,12 @@ export function ClientesCadastro() {
       }
     } else {
       formattedDoc = FormatInfos.formatCNPJ(value);
-      setDisplayDocumento(formattedDoc);
+      // setDisplayDocumento(formattedDoc);
     }
-
+ 
     setFormData(current => ({
       ...current,
-      documento: documentoDigitos,
+      documento: formattedDoc,
     }));
   }
 

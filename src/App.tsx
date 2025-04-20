@@ -21,7 +21,7 @@ import { DespesasPage } from './features/despesas/pages/DespesasPage'
 
 import { FornecedoresPage } from './features/fornecedores/pages/FornecedoresPage'
 import { ClienteHistorico } from './features/clientes/pages/ClienteHistorico';
-import { ClienteEditeDados } from './features/clientes/pages/ClienteEditeDados';
+import { ClienteEditarDados } from './features/clientes/pages/ClienteEditarDados';
 
 function App() {
   return (
@@ -38,7 +38,7 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/clientes/cadastrar" element={<ClientesCadastro />} />
           <Route path="/cliente/historico" element={<ClienteHistorico />} />
-          <Route path="/cliente/editar" element={<ClienteEditeDados />} />
+          <Route path="/cliente/editar" element={<ClienteEditarDados />} />
           <Route path="/clientes" element={<ClientesPage />} />
           <Route path="/produtos/cadastrar" element={<ProdutosCadastro />} />
           <Route path="/produtos" element={<Produtos />} />

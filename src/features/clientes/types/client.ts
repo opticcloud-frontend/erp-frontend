@@ -54,7 +54,6 @@ export interface ClientFormProps {
    emailError?: string;
    buttonText: string;
    telefoneError?: string;
-   displayDocumento: string;
    disabled?: boolean;
    infosAdicionais?: boolean;
    onSubmit: (e: React.FormEvent) => void;

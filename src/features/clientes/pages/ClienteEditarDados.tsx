@@ -18,11 +18,10 @@ interface PopupState {
   message: string;
   isOpen: boolean;
 }
-const initialFormData = infosClientes
 
-export function ClienteEditeDados() {
+export function ClienteEditarDados() {
    const navigate = useNavigate();
-   const { userData, setCliente, clienteData} = useAuth(); 
+   const { userData, setClienteData, clienteData} = useAuth(); 
    const [formData, setFormData] = useState<Cliente>({} as Cliente);
    const [originalData, setOriginalData] = useState<Cliente>({} as Cliente);
    const [infosAdicionais, setInfosAdicionais] = useState(false);
@@ -40,6 +39,7 @@ export function ClienteEditeDados() {
    
    const handleClickBack = () =>{
       navigate('/clientes');
+      setClienteData(undefined)
    }
    const handleClickInfosGerais = () =>{
       setInfosAdicionais(false)
@@ -59,11 +59,13 @@ export function ClienteEditeDados() {
    
          if (data) {
             data.enderecoCep = FormatInfos.formatCep(data.enderecoCep);
-         
-            setFormData(prev => ({
-               ...prev,
-               ...data
-            }));
+
+            if (clienteData) {
+               setClienteData({
+                 ...clienteData,
+                 ...data
+               });
+            }
          }
       } catch (error) {
          console.error('Erro ao buscar dados do CEP', error);
@@ -80,9 +82,9 @@ export function ClienteEditeDados() {
       const data = await response.json();      
       
       return {
-         enderecoBairro: data.neighborhood || formData.enderecoBairro,
-         enderecoCidade: data.city || formData.enderecoCidade,
-         enderecoCep: data.cep || formData.enderecoCep, 
+         enderecoBairro: data.neighborhood || clienteData?.enderecoBairro,
+         enderecoCidade: data.city || clienteData?.enderecoCidade,
+         enderecoCep: data.cep || clienteData?.enderecoCep, 
       }; 
    };
 
@@ -98,10 +100,12 @@ export function ClienteEditeDados() {
             data.enderecoCep = FormatInfos.formatCep(data.enderecoCep);
             data.telefone = FormatInfos.formatTelefone(data.telefone);
    
-            setFormData(prev => ({
-               ...prev,
-               ...data
-            }));
+            if (clienteData) {
+               setClienteData({
+                 ...clienteData,
+                 ...data
+               });
+            }
          }
       } catch (error) {
          console.error('Erro ao buscar dados do CNPJ', error)
@@ -118,16 +122,16 @@ export function ClienteEditeDados() {
          const data = await response.json();
         
          return {
-            razaoSocial: data.razao_social || formData.razaoSocial,
-            email: data.email || formData.email,
-            enderecoLogradouro: data.logradouro || formData.enderecoLogradouro,
-            enderecoNumero: data.numero || formData.enderecoNumero,
-            enderecoCidade: data.municipio || formData.enderecoCidade,
-            enderecoBairro: data.bairro || formData.enderecoBairro,
-            nomeFantasia: data.nome_fantasia || formData.nomeFantasia,
-            enderecoComplemento: data.complemento || formData.enderecoComplemento,
-            enderecoCep: data.cep || formData.enderecoCep,
-            telefone: data.ddd_telefone_1 || formData.telefone,
+            razaoSocial: data.razao_social || clienteData?.razaoSocial,
+            email: data.email || clienteData?.email,
+            enderecoLogradouro: data.logradouro || clienteData?.enderecoLogradouro,
+            enderecoNumero: data.numero || clienteData?.enderecoNumero,
+            enderecoCidade: data.municipio || clienteData?.enderecoCidade,
+            enderecoBairro: data.bairro || clienteData?.enderecoBairro,
+            nomeFantasia: data.nome_fantasia || clienteData?.nomeFantasia,
+            enderecoComplemento: data.complemento || clienteData?.enderecoComplemento,
+            enderecoCep: data.cep || clienteData?.enderecoCep,
+            telefone: data.ddd_telefone_1 || clienteData?.telefone,
          };
       } catch (error) {
         console.error('Erro ao buscar dados do CNPJ ', error);
@@ -140,16 +144,21 @@ export function ClienteEditeDados() {
       const { name, value } = e.target;
 
       if (name === 'enderecoCep') {
-         const formattedCEP = FormatInfos.formatCep(value);
-         setFormData(current => ({
-            ...current,
-            [name]: formattedCEP,
-         }));
+         const formattedCEP = FormatInfos.formatCep(value); // TODO
+         if (clienteData) {
+            setClienteData({
+               ...clienteData,
+               ['enderecoCep']: formattedCEP,
+             });
+         }
       } else {
-      setFormData(current => ({
-         ...current,
-         [name]: value,
-      }));
+         if (clienteData) {
+            setClienteData({
+              ...clienteData,
+              [name]: value,
+            });
+         }
+         
       }
    };
 
@@ -187,6 +196,7 @@ export function ClienteEditeDados() {
          setDisplayDocumento(formattedDoc);
       }
 
+
       setFormData(current => {
          if (current) {
             return {
@@ -204,10 +214,12 @@ export function ClienteEditeDados() {
       ) => {
       const {name, value } = e.target;
 
-      setFormData(current => ({
-         ...current,
-         [name]: value,
-      }));
+      if (clienteData) {
+         setClienteData({
+           ...clienteData,
+           [name]: value,
+         });
+      }
 
       if (!value) {
          setEmailError('');
@@ -233,10 +245,12 @@ export function ClienteEditeDados() {
          setTelefoneError('');
       }
 
-      setFormData(current => ({
-         ...current,
-         [name]: formattedTelefone,
-      }));
+      if (clienteData) {
+         setClienteData({
+           ...clienteData,
+           [name]: formattedTelefone,
+         });
+      }
    }
 
    const handleInputChangeEnderecoCep = (
@@ -245,10 +259,13 @@ export function ClienteEditeDados() {
       const { name, value } = e.target;
 
       const formattedCEP = FormatInfos.formatCep(value);
-      setFormData(current => ({
-         ...current,
-         [name]: formattedCEP,
-      }));
+      if (clienteData) {
+         setClienteData({
+           ...clienteData,
+           [name]: formattedCEP,
+         });
+      }
+
    }
 
    const handleSubmit = async (e: React.FormEvent) => {
@@ -265,7 +282,7 @@ export function ClienteEditeDados() {
    const updateCliente = async (updatedFields: Partial<Cliente> ) => {
       const idOtica = userData?.id_oticas[0]
 
-      const response = await fetch(`${apiUrl}clientes/idOtica=${idOtica}?documento=${formData.documento}` , {
+      const response = await fetch(`${apiUrl}clientes/idOtica=${idOtica}?documento=${clienteData?.documento.replace(/\D/g, '')}` , {
          method: 'PATCH',
          headers: {
             'Content-Type': 'application/json',
@@ -282,8 +299,8 @@ export function ClienteEditeDados() {
 
    const getUpdatedFields = (): Partial<Cliente> => {
       const updatedFields: Partial<Cliente> = {};
-      for (const key in formData) {
-         const newValue = formData[key as keyof Cliente];
+      for (const key in clienteData) {
+         const newValue = clienteData[key as keyof Cliente];
          const originalValue = originalData[key as keyof Cliente];
 
    
@@ -367,7 +384,6 @@ export function ClienteEditeDados() {
                   <ClientForm
                      formData={clienteData as Cliente}
                      buttonText="Salvar"
-                     displayDocumento={displayDocumento}
                      onBlurCEP={handleBlurCEP}
                      onBlurCNPJ={handleBlurCNPJ}
                      onInputChange={handleInputChange}

@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent  } from 'react';
+import React, { useState, ChangeEvent, useEffect, useRef  } from 'react';
 import { Users } from 'lucide-react';
 import type { Cliente } from '../types/types';
 import { ClientesBox } from '../components/ClientesBox';
@@ -7,11 +7,11 @@ import {Sidebar} from '../../../components/layout/Sidebar'
 import { useAuth } from '../../../contexts/AuthContext'
 import { FormatInfos } from '../../../services/FormatInfos';
 import { ValidateInfos } from '../../../services/ValidateInfos';
-import { infosClientes, infos_metodos_pagamentos } from '../../../services/infosClientes';
+import { infosClientes } from '../../../services/infosClientes';
 import Popup from "../../../components/layout/CustomPopUp"
 import { Header } from '../../../components/layout/Header';
-import {ClienteEditeDados} from './ClienteEditeDados'
 import { useNavigate } from 'react-router-dom';
+import { useEffectSkipFirst } from '../../../components/ui/useEffectSkipFirst';
 
 type PopupType = 'success' | 'error' | 'alert' | null;
 interface PopupState {
@@ -28,14 +28,35 @@ const initialFormData = infosClientes
 export function ClientesPage() {
    const [infoBuscaCliente, setInfoBuscaCliente] = useState('');
    const [error, setError] = useState('');
-   const [displayDocumento, setDisplayDocumento] = useState(''); 
    const [tipoFiltro, setTipoFiltro] = useState('nome');
    const apiUrl = import.meta.env.VITE_API_URL;
    const [clientes, setClientes] = useState<Cliente[]>(dadosClientes);
    const [formData, setFormData] = useState<Cliente>({} as Cliente);
    const [originalData, setOriginalData] = useState<Cliente>({} as Cliente);
+   const { userData, setClienteData, clienteData} = useAuth(); 
+   const [currentPage, setCurrentPage] = useState(0)
+   const [clientePerPage, setClientePerPage] = useState(5)
+   const [hasNext, setHasNext] = useState()
+   const [hasPrevious, setHasPrevious] = useState()
+   const [totalPage, setTotalPage] = useState(0)
+   const [containsClient, setContainsClient] = useState(true)
 
-   const { userData, setCliente, clienteData} = useAuth(); 
+
+   useEffectSkipFirst(() => {
+      getClientes();
+   }, [currentPage])
+
+
+   // useEffect(() =>{
+   //    console.log(isFirstRender.current)
+   //    if (isFirstRender.current) {
+   //       isFirstRender.current = false;
+   //       return;
+   //    }
+
+
+   //    void getClientes();
+   // }, [currentPage])
 
    const navigate = useNavigate();
 
@@ -99,7 +120,6 @@ export function ClientesPage() {
 
    const getClienteSelecionado = (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
       const clienteDocumento = e.currentTarget.getAttribute("data-id")
-      // setClienteSelecionado(true)
       setClientes([])
       setInfoBuscaCliente('')
       
@@ -116,17 +136,17 @@ export function ClientesPage() {
 
          if (clienteEncontrado?.descricaoTipoCliente === 'PESSOA_FISICA' && documentoDigitos != undefined) {
             const formattedDoc: string = FormatInfos.formatCPF(documentoDigitos);
-            setDisplayDocumento(formattedDoc);
+            clienteEncontrado.documento = formattedDoc
          }
 
          if (clienteEncontrado?.descricaoTipoCliente === 'PESSOA_JURIDICA' && documentoDigitos != undefined) {
             const formattedDoc: string = FormatInfos.formatCNPJ(documentoDigitos);
-            setDisplayDocumento(formattedDoc);
+            clienteEncontrado.documento = formattedDoc
          }
    
          if(clienteEncontrado){
-            setCliente(clienteEncontrado)
-            setFormData(clienteEncontrado)
+            setClienteData(clienteEncontrado)
+            setFormData(clienteEncontrado) 
             setOriginalData(clienteEncontrado)
          }
 
@@ -148,15 +168,15 @@ export function ClientesPage() {
          });
          
          const documentoDigitos = clienteEncontrado?.documento.replace(/\D/g, '');
-
+         // TODO
          if (clienteEncontrado?.descricaoTipoCliente === 'PESSOA_FISICA' && documentoDigitos != undefined) {
             const formattedDoc: string = FormatInfos.formatCPF(documentoDigitos);
-            setDisplayDocumento(formattedDoc);
+            clienteEncontrado.documento = formattedDoc
          }
 
          if (clienteEncontrado?.descricaoTipoCliente === 'PESSOA_JURIDICA' && documentoDigitos != undefined) {
             const formattedDoc: string = FormatInfos.formatCNPJ(documentoDigitos);
-            setDisplayDocumento(formattedDoc);
+            clienteEncontrado.documento = formattedDoc
          }
          
    
@@ -165,50 +185,80 @@ export function ClientesPage() {
             setOriginalData(clienteEncontrado)
          }
          
-         setCliente(clienteEncontrado as Cliente)
-         navigate('/cliente/historico', {
-            state: {data: clienteEncontrado}
-         });
+         setClienteData(clienteEncontrado as Cliente)
+         navigate('/cliente/historico');
       }
 
    }
 
-   const handleClick = async () => {
+   const getClientes = async () => {
       const idOtica = userData?.id_oticas[0]
       setFormData(initialFormData)
 
       const infoPesquisa = infoBuscaCliente.replace(/[\\/.-]/g, '');
-      if (infoPesquisa.trim() == ""){
-         setError('Campo vazio, digite para pesquisar ')
-         return 
-      }
       const filtroPesquisa = tipoFiltro == "CPF/CNPJ" ? "documento": tipoFiltro
 
+      console.log(`${apiUrl}clientes?idOtica=${idOtica}&${filtroPesquisa}=${infoPesquisa}&page=${currentPage}&size=${clientePerPage}`)
 
-      const response = await fetch(`${apiUrl}clientes?idOtica=${idOtica}&${filtroPesquisa}=${infoPesquisa}` , {
+      const response = await fetch(`${apiUrl}clientes?idOtica=${idOtica}&${filtroPesquisa}=${infoPesquisa}&page=${currentPage}&size=${clientePerPage}` , {
          method: 'GET',
          headers: {
            'Content-Type': 'application/json',
            'Authorization': 'Bearer ' + userData?.token
          },
       });
+
       if (!response.ok) {
-        throw new Error('CNPJ não encontrado');
+        throw new Error('Cliente não encontrado');
       }
+
+      
       const data = await response.json();
-      if (!data.length){
+      setTotalPage(data.totalPages)
+      
+      setHasNext(data.hasNext)
+      setHasPrevious(data.hasPrevious)
+      const listClientes = data.content;
+      if (!listClientes.length){
          handleApiResponse( "alert", "Nenhum cliente encontrado!")
          setClientes([])
          setInfoBuscaCliente('')
          return
       }
-      setClientes(data)
+      setClientes(listClientes)
+   }
+
+   const handleClick = async () => {
+      getClientes()
+   }
+
+   const previousPage = async () => {
+      if (hasPrevious){
+         setContainsClient(true)
+         console.log(currentPage)
+         setCurrentPage(currentPage-1)
+      }else{
+         setContainsClient(false)
+      }
+   }
+
+   const nextPage = async () => {
+      if (hasNext) {
+         setContainsClient(true)
+         setCurrentPage(currentPage+1)
+      } else{
+         setContainsClient(false)
+      }
+   }
+
+   const handleClickPage = (index) => {
+      setCurrentPage(index+1)
    }
 
    return (
       <div className='flex w-full '>
          <Sidebar/>
-         <div className="min-h-screen bg-white-100  flex-1">
+         <div className="min-h-screen bg-white-100   flex-1">
             <Header/>
             <div className="bg-white-200 rounded-lg shadow-md p-6 h-full">
                <div className=''>
@@ -253,7 +303,33 @@ export function ClientesPage() {
                         Buscar
                      </button>
                   </div>
-                  <ClientesBox clientes={clientes} handleClick={getClienteSelecionado} onClickHistorico={handleClickClienteHistorico}/>
+                  <ClientesBox containsClient={containsClient} clientes={clientes} handleClick={getClienteSelecionado} onClickHistorico={handleClickClienteHistorico}/>
+
+                  {clientes.length > 0 && (
+                     <div className='w-full bg-white-300 gap-2 flex justify-between p-1'>
+                     <div className=''>
+                        <p>Exibindo 5 de {clientes.length}</p>
+                     </div>
+                     <div className='flex gap-2'>
+                        <div className='cursor-pointer' onClick={previousPage}>
+                           <p>Anterior</p>
+                        </div>
+                        {Array.from({ length: totalPage }).map((_, index) => (
+                           <div key={index} 
+                              className={`bg-white-300 w-10 text-center cursor-pointer border border-gray-300 hover:border-blue-300 hover:shadow-md
+                              ${currentPage == index ? 'bg-blue-300' : ''}   
+                              `}
+                              onClick={() =>  setCurrentPage(index)}
+                           >
+                              <p>{index + 1}</p>
+                           </div>
+                        ))}
+                        <div className='cursor-pointer' onClick={nextPage}>
+                           <p>Próximo</p>
+                        </div>
+                     </div>
+                     </div>
+                  )}
                </div>
 
                {popup.isOpen && (

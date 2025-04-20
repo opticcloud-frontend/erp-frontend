@@ -45,6 +45,6 @@ export interface User {
    login: (user: User) => void;
    logout: (status?: StatusType) => void;
    userData: User | null;
-   setCliente: (cliente: Cliente) => void;
+   setClienteData: (cliente: Cliente | undefined) => void;
    clienteData: Cliente | undefined;
  }

@@ -11,7 +11,6 @@ export const ClientForm: React.FC<ClientFormProps> = ({
   documentoError,
   emailError,
   telefoneError,
-  displayDocumento,
   onSubmit,
   onInputChange,
   onInputChangeDocumento,
@@ -19,7 +18,7 @@ export const ClientForm: React.FC<ClientFormProps> = ({
   onInputChangeTelefone,
   onInputChangeEnderecoCep,
   onBlurCEP,
-  onBlurCNPJ,
+  onBlurCNPJ, 
   buttonText,
   disabled = false,
   infosAdicionais
@@ -81,7 +80,6 @@ export const ClientForm: React.FC<ClientFormProps> = ({
                 { value: 'active', label: 'Ativo' },
                 { value: 'inactive', label: 'Inativo'},
               ]}
-              disabled={disabled}
             />
 
             
@@ -100,7 +98,7 @@ export const ClientForm: React.FC<ClientFormProps> = ({
                 <Input
                   label="CPF *"
                   name="documento"
-                  value={displayDocumento}
+                  value={formData.documento}
                   onChange={onInputChangeDocumento}
                   maxLength={14}
                   error={documentoError}
@@ -120,7 +118,7 @@ export const ClientForm: React.FC<ClientFormProps> = ({
                 <Input
                   label="CNPJ *"
                   name="documento"
-                  value={displayDocumento}
+                  value={formData.documento}
                   onBlur={onBlurCNPJ}
                   onChange={onInputChangeDocumento}
                   maxLength={18}
