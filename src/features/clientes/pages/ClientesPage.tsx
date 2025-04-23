@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, useEffect, useRef  } from 'react';
+import React, { useState, ChangeEvent  } from 'react';
 import { Users } from 'lucide-react';
 import type { Cliente } from '../types/types';
 import { ClientesBox } from '../components/ClientesBox';
@@ -6,8 +6,6 @@ import { SearchBar } from '../components/SearchBarProps';
 import {Sidebar} from '../../../components/layout/Sidebar'
 import { useAuth } from '../../../contexts/AuthContext'
 import { FormatInfos } from '../../../services/FormatInfos';
-import { ValidateInfos } from '../../../services/ValidateInfos';
-import { infosClientes } from '../../../services/infosClientes';
 import Popup from "../../../components/layout/CustomPopUp"
 import { Header } from '../../../components/layout/Header';
 import { useNavigate } from 'react-router-dom';
@@ -22,7 +20,6 @@ interface PopupState {
 }
 
 const dadosClientes: Cliente[] = [];
-const initialFormData = infosClientes
 
 
 export function ClientesPage() {
@@ -31,32 +28,22 @@ export function ClientesPage() {
    const [tipoFiltro, setTipoFiltro] = useState('nome');
    const apiUrl = import.meta.env.VITE_API_URL;
    const [clientes, setClientes] = useState<Cliente[]>(dadosClientes);
-   const [formData, setFormData] = useState<Cliente>({} as Cliente);
-   const [originalData, setOriginalData] = useState<Cliente>({} as Cliente);
-   const { userData, setClienteData, clienteData} = useAuth(); 
+   const { userData, setClienteData} = useAuth(); 
    const [currentPage, setCurrentPage] = useState(0)
-   const [clientePerPage, setClientePerPage] = useState(5)
-   const [hasNext, setHasNext] = useState()
-   const [hasPrevious, setHasPrevious] = useState()
+   const clientePerPage = 5
+   const [hasNext, setHasNext] = useState(Boolean)
+   const [hasPrevious, setHasPrevious] = useState(Boolean)
    const [totalPage, setTotalPage] = useState(0)
    const [containsClient, setContainsClient] = useState(true)
+   const [totalCliente, setTotalCliente] = useState(0)
 
 
    useEffectSkipFirst(() => {
-      getClientes();
+      if(currentPage >= 0 && currentPage < totalPage){
+         setContainsClient(true)
+         getClientes();
+      }
    }, [currentPage])
-
-
-   // useEffect(() =>{
-   //    console.log(isFirstRender.current)
-   //    if (isFirstRender.current) {
-   //       isFirstRender.current = false;
-   //       return;
-   //    }
-
-
-   //    void getClientes();
-   // }, [currentPage])
 
    const navigate = useNavigate();
 
@@ -108,7 +95,6 @@ export function ClientesPage() {
       setTipoFiltro(value);
       setClientes([])
       setInfoBuscaCliente('')
-      setFormData(initialFormData)
    }
 
    const handleInputChangeSearch = (event: ChangeEvent<HTMLInputElement>) =>{
@@ -146,8 +132,6 @@ export function ClientesPage() {
    
          if(clienteEncontrado){
             setClienteData(clienteEncontrado)
-            setFormData(clienteEncontrado) 
-            setOriginalData(clienteEncontrado)
          }
 
          navigate('/cliente/editar')
@@ -181,19 +165,15 @@ export function ClientesPage() {
          
    
          if(clienteEncontrado){
-            setFormData(clienteEncontrado)
-            setOriginalData(clienteEncontrado)
+            setClienteData(clienteEncontrado as Cliente)
+            navigate('/cliente/historico');
          }
          
-         setClienteData(clienteEncontrado as Cliente)
-         navigate('/cliente/historico');
       }
-
    }
 
    const getClientes = async () => {
       const idOtica = userData?.id_oticas[0]
-      setFormData(initialFormData)
 
       const infoPesquisa = infoBuscaCliente.replace(/[\\/.-]/g, '');
       const filtroPesquisa = tipoFiltro == "CPF/CNPJ" ? "documento": tipoFiltro
@@ -214,10 +194,12 @@ export function ClientesPage() {
 
       
       const data = await response.json();
+
+      setTotalCliente(data.totalElements)
       setTotalPage(data.totalPages)
-      
       setHasNext(data.hasNext)
       setHasPrevious(data.hasPrevious)
+
       const listClientes = data.content;
       if (!listClientes.length){
          handleApiResponse( "alert", "Nenhum cliente encontrado!")
@@ -233,30 +215,25 @@ export function ClientesPage() {
    }
 
    const previousPage = async () => {
-      if (hasPrevious){
-         setContainsClient(true)
-         console.log(currentPage)
-         setCurrentPage(currentPage-1)
-      }else{
-         setContainsClient(false)
+      if (currentPage <= 0) return
+
+      if (currentPage <= totalPage){
+         setCurrentPage(prev => prev -1)
       }
+
+      setContainsClient(!!hasPrevious)
    }
 
    const nextPage = async () => {
-      if (hasNext) {
-         setContainsClient(true)
-         setCurrentPage(currentPage+1)
-      } else{
-         setContainsClient(false)
+      if (currentPage < totalPage){
+         setCurrentPage(prev => prev +1)
       }
-   }
 
-   const handleClickPage = (index) => {
-      setCurrentPage(index+1)
+      setContainsClient(!!hasNext)
    }
 
    return (
-      <div className='flex w-full '>
+      <div className='flex w-full'>
          <Sidebar/>
          <div className="min-h-screen bg-white-100   flex-1">
             <Header/>
@@ -303,33 +280,49 @@ export function ClientesPage() {
                         Buscar
                      </button>
                   </div>
-                  <ClientesBox containsClient={containsClient} clientes={clientes} handleClick={getClienteSelecionado} onClickHistorico={handleClickClienteHistorico}/>
-
-                  {clientes.length > 0 && (
-                     <div className='w-full bg-white-300 gap-2 flex justify-between p-1'>
-                     <div className=''>
-                        <p>Exibindo 5 de {clientes.length}</p>
-                     </div>
-                     <div className='flex gap-2'>
-                        <div className='cursor-pointer' onClick={previousPage}>
-                           <p>Anterior</p>
+                  <div className='w-full'>
+                     {!containsClient ?  (
+                        <div className='w-full text-center min-h-72 h-full flex justify-center items-center border-gray-300 shadow-sm border rounded-lg'>
+                           <h2 className=''>Nenhum registro encontrado</h2>
                         </div>
-                        {Array.from({ length: totalPage }).map((_, index) => (
-                           <div key={index} 
-                              className={`bg-white-300 w-10 text-center cursor-pointer border border-gray-300 hover:border-blue-300 hover:shadow-md
-                              ${currentPage == index ? 'bg-blue-300' : ''}   
-                              `}
-                              onClick={() =>  setCurrentPage(index)}
-                           >
-                              <p>{index + 1}</p>
+                     ):(
+                        <ClientesBox clientes={clientes} handleClick={getClienteSelecionado} onClickHistorico={handleClickClienteHistorico}/>
+                     )}
+                     {clientes.length > 0 && (
+                        <div className='w-full bg-white-300 gap-2 flex justify-between p-1'>
+                        <div className=''>
+                           <p>Exibindo {clientePerPage} de {totalCliente}</p>
+                        </div>
+                        <div className='flex gap-2 '>
+                           <div className='cursor-pointer' onClick={previousPage}>
+                              <p>Anterior</p>
                            </div>
-                        ))}
-                        <div className='cursor-pointer' onClick={nextPage}>
-                           <p>Próximo</p>
+                           <div className='grid grid-cols-3 gap-2 bg-cyan-100'>
+                              {Array.from({ length: totalPage })
+                              .slice(Math.floor(currentPage / 3) * 3, Math.floor(currentPage / 3) * 3 + 3)
+                              .map((_, index) => {
+                                 const pageIndex = Math.floor(currentPage / 3) * 3 + index;
+                                 return (
+                                 <div
+                                    key={pageIndex}
+                                    className={`w-10 text-center cursor-pointer border border-gray-300 hover:border-blue-300 hover:shadow-md flex justify-center items-center
+                                    ${currentPage === pageIndex ? 'bg-blue-200' : 'bg-white'}
+                                    `}
+                                    onClick={() => setCurrentPage(pageIndex)}
+                                 >
+                                    <p>{pageIndex + 1}</p>
+                                 </div>
+                                 );
+                              })}
+                           </div>
+                           <div className='cursor-pointer' onClick={nextPage}>
+                              <p>Próximo</p>
+                           </div>
                         </div>
-                     </div>
-                     </div>
-                  )}
+                        </div>
+                     )}
+                  </div>
+
                </div>
 
                {popup.isOpen && (

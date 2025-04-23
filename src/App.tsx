@@ -20,7 +20,7 @@ import { VendasCadastro } from './features/vendas/pages/VendasCadastro'
 import { DespesasPage } from './features/despesas/pages/DespesasPage'
 
 import { FornecedoresPage } from './features/fornecedores/pages/FornecedoresPage'
-import { ClienteHistorico } from './features/clientes/pages/ClienteHistorico';
+import { ClienteVisualizarDados } from './features/clientes/pages/ClienteVisualizarDados';
 import { ClienteEditarDados } from './features/clientes/pages/ClienteEditarDados';
 
 function App() {
@@ -37,7 +37,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/clientes/cadastrar" element={<ClientesCadastro />} />
-          <Route path="/cliente/historico" element={<ClienteHistorico />} />
+          <Route path="/cliente/historico" element={<ClienteVisualizarDados />} />
           <Route path="/cliente/editar" element={<ClienteEditarDados />} />
           <Route path="/clientes" element={<ClientesPage />} />
           <Route path="/produtos/cadastrar" element={<ProdutosCadastro />} />
