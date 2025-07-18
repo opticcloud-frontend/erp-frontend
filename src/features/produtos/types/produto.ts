@@ -19,12 +19,15 @@ export interface ProdutoFormData {
   cor: string,
   ativo: boolean,
   observacoes : string,
+  metodoPagamentoPreferido : string,
+  limiteCredito : string,
 }
  
 export interface produtoFormProps {
   formData: ProdutoFormData;
   buttonText: string;
   disabled?: boolean;
+  infosAdicionais?: boolean;
   onSubmit: (e: React.FormEvent) => void;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
   onInputChangeEmailCliente: (e: React.ChangeEvent<HTMLInputElement>) => void;

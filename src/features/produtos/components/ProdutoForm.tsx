@@ -20,55 +20,12 @@ export const ProdutoForm: React.FC<produtoFormProps> = ({
   infosAdicionais
 }) => {
   return (
-    <form onSubmit={onSubmit} className=" ">
+    <form onSubmit={onSubmit} className="shadow-md p-5 rounded-lg">
       {infosAdicionais ? (
-        <div className=''>
-          <div className="grid grid-cols-2 gap-3">
-            <Select
-              label="Método de Pagamento Preferido *"
-              name="metodoPagamentoPreferido"
-              value={formData.metodoPagamentoPreferido}
-              onChange={onInputChange}
-              options={infos_metodos_pagamentos}
-            />
-            <Input
-              label="Limite de Crédito"
-              name="limiteCredito"
-              value={formData.limiteCredito}
-              onChange={onInputChange}
-            />
-          </div>
-
-         
-        </div>
-      ): (
-        <div className='h-[700px]'>
-          <div className="grid grid-cols-3 gap-2 ">
-            <Select
-              label="Tipo de Produto *"
-              name="tipoProduto"
-              value={formData.tipoProduto}
-              onChange={onInputChange}
-              options={infos_tipo_produto}
-              disabled={disabled}
-            />
-           <Select
-              label="Gênero de Produto *"
-              name="genero"
-              value={formData.genero}
-              onChange={onInputChange}
-              options={infos_genero_produto}
-              disabled={disabled}
-            />
-            <Select
-              label="Origem do Produto *"
-              name="origem"
-              value={formData.origem}
-              onChange={onInputChange}
-              options={infos_origem_produto}
-              disabled={disabled}
-            />
-
+        <div className='border-t'>
+          <h2 className="text-xl my-5 text-primary">Informações Gerais</h2>
+          
+          <div className="grid grid-cols-3 gap-2">
             <Select
               label="Unidade do Produto *"
               name="unidade"
@@ -77,7 +34,6 @@ export const ProdutoForm: React.FC<produtoFormProps> = ({
               options={infos_unidade_produto}
               disabled={disabled}
             />
-
             <Select
               label="Situação *"
               name="ativo"
@@ -88,12 +44,112 @@ export const ProdutoForm: React.FC<produtoFormProps> = ({
               }}
               options={infos_situacao}
             />
-
-            
+            <Select
+              label="Método de Pagamento Preferido *"
+              name="metodoPagamentoPreferido"
+              value={formData.metodoPagamentoPreferido}
+              onChange={onInputChange}
+              options={infos_metodos_pagamentos}
+            />
           </div>
 
-          <div className='grid grid-cols-2 gap-2'>
-          
+          <div className='grid grid-cols-2 gap-2 my-5'>
+            <Input
+              label="Limite de Crédito"
+              name="limiteCredito"
+              value={formData.limiteCredito}
+              onChange={onInputChange}
+            />
+
+            <Input
+              label="codigo de Barras *"
+              name="codigoBarras"
+              value={formData.codigoBarras}
+              onChange={onInputChange}
+            />
+            <Input
+              label="ncm *"
+              name="ncm"
+              value={formData.ncm}
+              onChange={onInputChange}
+            />
+            <Input
+              label="cest *"
+              name="cest"
+              value={formData.cest}
+              onChange={onInputChange}
+            />
+            <Input
+              label="cfop *"
+              name="cfop"
+              value={formData.cfop}
+              onChange={onInputChange}
+              required
+            />
+              <Input
+              label="Custo Reposicao *"
+              name="custoReposicao"
+              value={formData.custoReposicao}
+              onChange={onInputChange}
+              required
+            />
+            <Input
+              label="Lucro Percentual *"
+              name="lucroPercentual"
+              value={formData.lucroPercentual}
+              onChange={onInputChange}
+              required
+            />
+            <Input
+              label="Valor Venda"
+              name="valorVenda"
+              value={formData.valorVenda}
+              onChange={onInputChange}
+            />
+            <Input
+              label="Material *"
+              name="material"
+              value={formData.material}
+              onChange={onInputChange}
+            />
+
+          </div>
+
+         
+        </div>
+      ): (
+        <div className=''>
+          <h2 className="text-xl my-5 text-primary">Informações Gerais</h2>
+
+          <div className=''>
+            <div className="grid grid-cols-3 gap-2">
+              <Select
+                label="Tipo de Produto *"
+                name="tipoProduto"
+                value={formData.tipoProduto}
+                onChange={onInputChange}
+                options={infos_tipo_produto}
+                disabled={disabled}
+              />
+              <Select
+                label="Gênero de Produto *"
+                name="genero"
+                value={formData.genero}
+                onChange={onInputChange}
+                options={infos_genero_produto}
+                disabled={disabled}
+              />
+              <Select
+                label="Origem do Produto *"
+                name="origem"
+                value={formData.origem}
+                onChange={onInputChange}
+                options={infos_origem_produto}
+                disabled={disabled}
+              />
+            </div>
+
+            <div className='grid grid-cols-2 gap-2 my-5'>
               <Input
                 label="Descricao *"
                 name="descricao"
@@ -137,64 +193,7 @@ export const ProdutoForm: React.FC<produtoFormProps> = ({
                 required
                 disabled={disabled}
               />
-              <Input
-                label="codigo de Barras *"
-                name="codigoBarras"
-                value={formData.codigoBarras}
-                onChange={onInputChange}
-              />
-              <Input
-                label="ncm *"
-                name="ncm"
-                value={formData.ncm}
-                onChange={onInputChange}
-              />
-              <Input
-                label="cest *"
-                name="cest"
-                value={formData.cest}
-                onChange={onInputChange}
-              />
-          </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            <Input
-              label="cfop *"
-              name="cfop"
-              value={formData.cfop}
-              onChange={onInputChange}
-              required
-            />
-          </div>
-
-          <div className="border-t pt-2">
-            <div className="grid grid-cols-2 gap-2">
-              <Input
-                label="Custo Reposicao *"
-                name="custoReposicao"
-                value={formData.custoReposicao}
-                onChange={onInputChange}
-                required
-              />
-              <Input
-                label="Lucro Percentual *"
-                name="lucroPercentual"
-                value={formData.lucroPercentual}
-                onChange={onInputChange}
-                required
-              />
-              <Input
-                label="Valor Venda"
-                name="valorVenda"
-                value={formData.valorVenda}
-                onChange={onInputChange}
-              />
-              <Input
-                label="Material *"
-                name="material"
-                value={formData.material}
-                onChange={onInputChange}
-              />
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Observações</label>
                 <textarea

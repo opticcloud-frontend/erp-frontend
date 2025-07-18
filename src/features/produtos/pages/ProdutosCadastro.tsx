@@ -139,16 +139,14 @@ export function ProdutosCadastro() {
  }
 
   return (
-    <div className='flex w-full'>
+    <div className='flex w-full h-auto min-h-screen'>
       <Sidebar />
       <div className="bg-white-100 p-4 flex-1">
+        
         <div className="h-auto rounded-lg shadow-md p-6 ">
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center space-x-2 ">
-              <h2 className="text-2xl font-semibold text-gray-800">
-                Cadastro de Produto
-              </h2>
-            </div>
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-foreground mb-2">Cadastro de Produto</h1>
+            <p className="text-muted-foreground">Preencha as informações do produto abaixo</p>
           </div>
 
           <div className='flex items-center gap-5 mb-5 text-center bg-gray-200 p-1 rounded-lg'>

@@ -19,6 +19,8 @@ export const infosProdutos = {
    cor: '',
    ativo: true,
    observacoes: '',
+   metodoPagamentoPreferido: '',
+   limiteCredito: '',
 };
 
 export const infos_tipo_produto = [
