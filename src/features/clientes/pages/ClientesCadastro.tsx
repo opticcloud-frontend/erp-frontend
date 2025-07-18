@@ -31,7 +31,6 @@ export function ClientesCadastro() {
   const [documentoError, setDocumentoError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [telefoneError, setTelefoneError] = useState('');
-  const [displayDocumento, setDisplayDocumento] = useState(''); 
   const { userData, isAuthenticated, logout } = useAuth();  
   const [infosAdicionais, setInfosAdicionais] = useState(false);
   
@@ -178,7 +177,6 @@ export function ClientesCadastro() {
     if (formData.descricaoTipoCliente === 'PESSOA_FISICA') {
       formattedDoc = FormatInfos.formatCPF(value);
 
-      // setDisplayDocumento(formattedDoc);
 
       if (!value) {
         setDocumentoError('');
@@ -191,7 +189,6 @@ export function ClientesCadastro() {
       }
     } else {
       formattedDoc = FormatInfos.formatCNPJ(value);
-      // setDisplayDocumento(formattedDoc);
     }
  
     setFormData(current => ({
@@ -322,28 +319,29 @@ export function ClientesCadastro() {
     }
   }
 
-  const handleClickInfosAdicionais = () =>{
+  const handleClickEndereco = () =>{
     setInfosAdicionais(true)
- }
+  }
 
- const handleClickInfosGerais = () =>{
+  const handleClickInfosGerais = () =>{
     setInfosAdicionais(false)
- }
+  }
 
   return (
     <div className='flex w-full'>
       <Sidebar />
-      <div className="min-h-screen bg-gray-100 p-4 flex-1">
-        <div className="bg-white h-full rounded-lg shadow-md p-6 ">
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center space-x-2 ">
+      <div className="bg-gray-100 p flex-1">
+        <div className="rounded-lg p-6">
+          <div className="flex py-5 justify-between items-center mb-6">
+            <div className="flex flex-col gap-2">
               <h2 className="text-2xl font-semibold text-gray-800">
                 Cadastro de Cliente
               </h2>
+              <p className='text-gray-600'>Preencha as informações do produto abaixo</p>
             </div>
           </div>
 
-          <div className='flex items-center gap-5 mb-5 text-center bg-gray-200 p-1 rounded-lg'>
+          <div className='flex items-center gap-5 mb-5 text-center bg-gray-200  rounded-lg'>
             <p 
               className={`${infosAdicionais ? "bg-gray-200": "bg-gray-100 "} text-sm font-medium text-gray-700 p-2 w-3/6 cursor-pointer rounded-lg transition duration-300`}
               onClick={handleClickInfosGerais}
@@ -352,8 +350,8 @@ export function ClientesCadastro() {
             </p>
             <p 
               className={`${infosAdicionais ? "bg-gray-100": "bg-gray-200"} rounded-lg text-sm font-medium text-gray-700 p-2 w-3/6 cursor-pointer duration-300`} 
-              onClick={handleClickInfosAdicionais}>
-              Informações Adicionais
+              onClick={handleClickEndereco}>
+              Endereço
             </p>
           </div>
 
@@ -362,7 +360,6 @@ export function ClientesCadastro() {
             documentoError={documentoError}
             emailError={emailError}
             telefoneError={telefoneError}
-            displayDocumento={displayDocumento}
             onSubmit={handleSubmit}
             onInputChange={handleInputChange}
             onInputChangeDocumento={handleInputChangeDocumento}
