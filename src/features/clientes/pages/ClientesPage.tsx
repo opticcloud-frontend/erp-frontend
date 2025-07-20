@@ -290,35 +290,35 @@ export function ClientesPage() {
                      )}
                      {clientes.length > 0 && (
                         <div className='w-full bg-white-300 gap-2 flex justify-between p-1'>
-                        <div className=''>
-                           <p>Exibindo {clientePerPage} de {totalCliente}</p>
-                        </div>
-                        <div className='flex gap-2 '>
-                           <div className='cursor-pointer' onClick={previousPage}>
-                              <p>Anterior</p>
+                           <div className=''>
+                              <p>Exibindo {clientePerPage} de {totalCliente}</p>
                            </div>
-                           <div className='grid grid-cols-3 gap-2 bg-cyan-100'>
-                              {Array.from({ length: totalPage })
-                              .slice(Math.floor(currentPage / 3) * 3, Math.floor(currentPage / 3) * 3 + 3)
-                              .map((_, index) => {
-                                 const pageIndex = Math.floor(currentPage / 3) * 3 + index;
-                                 return (
-                                 <div
-                                    key={pageIndex}
-                                    className={`w-10 text-center cursor-pointer border border-gray-300 hover:border-blue-300 hover:shadow-md flex justify-center items-center
-                                    ${currentPage === pageIndex ? 'bg-blue-200' : 'bg-white'}
-                                    `}
-                                    onClick={() => setCurrentPage(pageIndex)}
-                                 >
-                                    <p>{pageIndex + 1}</p>
-                                 </div>
-                                 );
-                              })}
+                           <div className='flex gap-2'>
+                              <div className='cursor-pointer' onClick={previousPage}>
+                                 <p>Anterior</p>
+                              </div>
+                              <div className='flex gap-2'>
+                                 {Array.from({ length: totalPage })
+                                 .slice(Math.floor(currentPage / 3) * 3, Math.floor(currentPage / 3) * 3 + 3)
+                                 .map((_, index) => {
+                                    const pageIndex = Math.floor(currentPage / 3) * 3 + index;
+                                    return (
+                                    <div
+                                       key={pageIndex}
+                                       className={`w-10 text-center cursor-pointer border border-gray-300 hover:border-blue-300 hover:shadow-md flex justify-center items-center
+                                       ${currentPage === pageIndex ? 'bg-blue-200' : 'bg-white'}
+                                       `}
+                                       onClick={() => setCurrentPage(pageIndex)}
+                                    >
+                                       <p>{pageIndex + 1}</p>
+                                    </div>
+                                    );
+                                 })}
+                              </div>
+                              <div className='cursor-pointer' onClick={nextPage}>
+                                 <p>Próximo</p>
+                              </div>
                            </div>
-                           <div className='cursor-pointer' onClick={nextPage}>
-                              <p>Próximo</p>
-                           </div>
-                        </div>
                         </div>
                      )}
                   </div>

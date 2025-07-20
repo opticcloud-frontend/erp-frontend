@@ -6,7 +6,7 @@ export interface ProdutoFormData {
   ncm: string,
   cest: string,
   cfop: string,
-  unidade: number,
+  unidade: string,
   origem: string,
   custoReposicao: number,
   lucroPercentual: number,
@@ -20,7 +20,8 @@ export interface ProdutoFormData {
   ativo: boolean,
   observacoes : string,
   metodoPagamentoPreferido : string,
-  limiteCredito : string,
+  limiteCredito : number,
+  idOtica : string,
 }
  
 export interface produtoFormProps {
@@ -30,7 +31,6 @@ export interface produtoFormProps {
   infosAdicionais?: boolean;
   onSubmit: (e: React.FormEvent) => void;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
-  onInputChangeEmailCliente: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
  
  export type CustomSelectEvent = {

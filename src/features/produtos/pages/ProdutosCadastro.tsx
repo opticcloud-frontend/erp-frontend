@@ -66,7 +66,7 @@ export function ProdutosCadastro() {
   useEffect(() => {
     setFormData({
       ...formData,
-      oticaId: String(userData?.id_oticas[0]), //   TODO 
+      idOtica: String(userData?.id_oticas[0]), //   TODO 
     });
     isInitialized.current = true;
   }, []);  //   TODO: Não captura emailUsuarioCadastro
@@ -78,6 +78,10 @@ export function ProdutosCadastro() {
   const handleInputChange = async (event: FormInputEvent) => {
     const { name, value } = event.target;
 
+    if (name == "unidade") {
+      console.log(value)
+    }
+
     setFormData(current => ({
       ...current,
       [name]: value,
@@ -86,7 +90,7 @@ export function ProdutosCadastro() {
 
   const validateInfos = () =>{
     
-    return false
+    return true
   }
   
   const handleSubmit = async (e: React.FormEvent) => {
