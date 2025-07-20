@@ -23,7 +23,7 @@ export interface ClientFormData {
   limiteCredito: string;
   observacoes: string;
   emailUsuarioCadastro: string;
-  oticaId: string;
+  IdOtica: string;
 }
 
 export interface ClientEditProps {

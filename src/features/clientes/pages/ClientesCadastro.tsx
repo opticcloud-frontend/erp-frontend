@@ -158,7 +158,7 @@ export function ClientesCadastro() {
     setFormData({
       ...formData,
       emailUsuarioCadastro: userData?.email ?? "",
-      oticaId: String(userData?.id_oticas[0]), //   TODO 
+      IdOtica: String(userData?.id_oticas[0]), //   TODO 
     });
     isInitialized.current = true;
   }, []);  //   TODO: Não captura emailUsuarioCadastro
@@ -278,12 +278,21 @@ export function ClientesCadastro() {
     
     return true
   }
+
+  const getDIgitosDocumentos =() =>{
+    return formData.documento.replace(/[^\d]/g, '');
+  }
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if(!validateInfos()){
       return 
     }
+
+    let payload = { ...formData };
+
+    payload.documento = getDIgitosDocumentos()
+
 
     try {
       const response = await fetch(apiUrl + 'clientes', {
@@ -292,7 +301,7 @@ export function ClientesCadastro() {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + userData?.token
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       const responseData = await response.json()

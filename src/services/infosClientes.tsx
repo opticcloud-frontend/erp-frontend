@@ -2,7 +2,7 @@ export const infosClientes = {
    nomeCompleto: '',
    emailUsuarioCadastro: '',
    descricaoTipoCliente: 'PESSOA_FISICA',
-   oticaId: '',
+   IdOtica: '',
    telefone: '', 
    dataNascimento: "",
    razaoSocial: '',
