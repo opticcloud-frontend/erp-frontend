@@ -3,13 +3,21 @@ import { produtoFormProps } from '../types/produto';
 import { Input } from '../../../components/ui/Input'
 import { Select } from '../../../components/ui/Select'
 import { 
-  infos_metodos_pagamentos, 
   infos_tipo_produto, 
   infos_genero_produto, 
   infos_origem_produto, 
   infos_unidade_produto,
-  infos_situacao
+  infos_situacao,
+  icmsSituacaoTributariaOptions,
+  pisSituacaoTributariaOptions,
+  cofinsSituacaoTributariaOptions,
+  ipiSituacaoTributariaOptions
 } from '../services/infosProdutos';
+
+type Option = { 
+  codigo: string;
+  descricao: string;
+};
 
 export const ProdutoForm: React.FC<produtoFormProps> = ({
   formData,
@@ -17,8 +25,12 @@ export const ProdutoForm: React.FC<produtoFormProps> = ({
   onInputChange,
   buttonText,
   disabled = false,
-  infosAdicionais
+  infosAdicionais,
+  tributacao 
 }) => {
+  console.log(tributacao)
+
+  
   return (
     <form onSubmit={onSubmit} className="shadow-md p-5 rounded-lg">
       {infosAdicionais ? (
@@ -44,22 +56,11 @@ export const ProdutoForm: React.FC<produtoFormProps> = ({
               }}
               options={infos_situacao}
             />
-            <Select
-              label="Método de Pagamento Preferido *"
-              name="metodoPagamentoPreferido"
-              value={formData.metodoPagamentoPreferido}
-              onChange={onInputChange}
-              options={infos_metodos_pagamentos}
-            />
+            
           </div>
 
           <div className='grid grid-cols-2 gap-2 my-5'>
-            <Input
-              label="Limite de Crédito"
-              name="limiteCredito"
-              value={formData.limiteCredito}
-              onChange={onInputChange}
-            />
+            
 
             <Input
               label="codigo de Barras *"
@@ -191,6 +192,53 @@ export const ProdutoForm: React.FC<produtoFormProps> = ({
                 value={formData.sku}
                 onChange={onInputChange}
                 required
+                disabled={disabled}
+              />
+
+              <Select
+                label="ipi Situacao Tributaria *"
+                name="tributacao.ipiSituacaoTributaria.codigo"
+                value={formData.tributacao.ipiSituacaoTributaria.codigo}
+                onChange={onInputChange}
+                options={ipiSituacaoTributariaOptions}
+                disabled={disabled}
+              />
+
+              <select
+                className="my-3 block w-5/6 border rounded-md border-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                {tributacao.cofinsSituacaoTributaria.map((option: Option) => (
+                  <option key={option.codigo} value={option.codigo}>
+                    {option.descricao}
+                  </option>
+                ))}
+              </select>
+
+              <Select
+                label="Pis Situacao Tributaria *"
+                name="tributacao.pisSituacaoTributaria.codigo"
+                value={formData.tributacao.pisSituacaoTributaria.codigo}
+                onChange={onInputChange}
+                options={pisSituacaoTributariaOptions}
+                disabled={disabled}
+              />
+
+
+              <Select
+                label="Cofins Situacao Tributaria *"
+                name="tributacao.cofinsSituacaoTributaria.codigo"
+                value={formData.tributacao.cofinsSituacaoTributaria.codigo}
+                onChange={onInputChange}
+                options={cofinsSituacaoTributariaOptions}
+                disabled={disabled}
+              />
+
+              <Select
+                label="icms situacão Tributaria *"
+                name="tributacao.icmsSituacaoTributaria.codigo"
+                value={formData.tributacao.icmsSituacaoTributaria.codigo}
+                onChange={onInputChange}
+                options={icmsSituacaoTributariaOptions}
                 disabled={disabled}
               />
 

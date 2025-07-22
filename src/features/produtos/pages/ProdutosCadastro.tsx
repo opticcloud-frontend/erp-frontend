@@ -8,6 +8,7 @@ import { ValidateInfos } from '../../../services/ValidateInfos';
 import Popup from "../../../components/layout/CustomPopUp"
 import { useNavigate } from 'react-router-dom';
 import { ProdutoForm } from '../components/ProdutoForm'
+import { sub } from 'framer-motion/client';
 
 const initialFormData = infosProdutos
 
@@ -24,15 +25,32 @@ interface PopupState {
   isOpen: boolean;
 }
 
+type Option = { 
+  codigo: string;
+  descricao: string;
+};
+ 
+type Tributacao = {
+  cofinsSituacaoTributaria: Option[];
+  icmsSituacaoTributaria: Option[];
+  ipiSituacaoTributaria: Option[];
+  pisSituacaoTributaria: Option[];
+};
+
 export function ProdutosCadastro() {
   const [formData, setFormData] = useState(initialFormData);
   const isInitialized = useRef(false);
   const { userData, isAuthenticated, logout } = useAuth();  
   const [infosAdicionais, setInfosAdicionais] = useState(false);
+  const [tributacao, setTributacao] = useState<Tributacao | null>(null);
+
+  useEffect(()=>{ 
+    getOpcoesTributacoes()
+  }, [])   
   
   const apiUrl = import.meta.env.VITE_API_URL;
-  const navigate = useNavigate()
-  
+  const navigate = useNavigate() 
+   
 
   const [popup, setPopup] = useState<PopupState>({
     type: null,
@@ -78,18 +96,56 @@ export function ProdutosCadastro() {
   const handleInputChange = async (event: FormInputEvent) => {
     const { name, value } = event.target;
 
-    if (name == "unidade") {
-      console.log(value)
-    }
+    if (name.includes('.')) {
 
-    setFormData(current => ({
-      ...current,
-      [name]: value,
-    }));
+      setFormData(prev => {
+        const keys = name.split('.'); 
+
+        const updated = { ...prev };
+
+        let nested: any = updated;
+        for (let i = 0; i < keys.length - 1; i++) {
+          nested[keys[i]] = { ...nested[keys[i]] };
+          nested = nested[keys[i]];
+        }
+
+        nested[keys[keys.length - 1]] = value;
+
+        return updated;
+      });
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const validateInfos = () =>{
-    
+      
+    return true
+  }
+
+  const getOpcoesTributacoes = async () =>{
+    try {
+      const response = await fetch(apiUrl + 'tributacoes', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + userData?.token
+        },
+      });
+
+      if (response.status != 200) {
+        return false
+      }
+
+      const data = await response.json();
+
+      setTributacao(data)
+    } catch (err) {
+      console.error("erro ao validar token: " + err);
+    }
     return true
   }
   
@@ -166,13 +222,14 @@ export function ProdutosCadastro() {
               Informações Adicionais
             </p>
           </div>
-
+ 
           <ProdutoForm
             formData={formData}
             onSubmit={handleSubmit}
             onInputChange={handleInputChange}
             buttonText="Cadastrar"
             infosAdicionais={infosAdicionais}
+            tributacao={tributacao}
           />
           {popup.isOpen && (
             <Popup
