@@ -3,12 +3,9 @@ import {Sidebar} from '../../../components/layout/Sidebar'
 import { useAuth } from '../../../contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 import { infosProdutos } from '../services/infosProdutos';
-import { FormatInfos } from './../../../services/FormatInfos';
-import { ValidateInfos } from '../../../services/ValidateInfos';
 import Popup from "../../../components/layout/CustomPopUp"
 import { useNavigate } from 'react-router-dom';
 import { ProdutoForm } from '../components/ProdutoForm'
-import { sub } from 'framer-motion/client';
 
 const initialFormData = infosProdutos
 
@@ -30,7 +27,7 @@ type Option = {
   descricao: string;
 };
  
-type Tributacao = {
+type TributacaoOpcoes  = {
   cofinsSituacaoTributaria: Option[];
   icmsSituacaoTributaria: Option[];
   ipiSituacaoTributaria: Option[];
@@ -42,7 +39,7 @@ export function ProdutosCadastro() {
   const isInitialized = useRef(false);
   const { userData, isAuthenticated, logout } = useAuth();  
   const [infosAdicionais, setInfosAdicionais] = useState(false);
-  const [tributacao, setTributacao] = useState<Tributacao | null>(null);
+  const [tributacao, setTributacao] = useState<TributacaoOpcoes | null>(null);
 
   useEffect(()=>{ 
     getOpcoesTributacoes()
@@ -140,7 +137,7 @@ export function ProdutosCadastro() {
         return false
       }
 
-      const data = await response.json();
+     const data = await response.json() as TributacaoOpcoes ;
 
       setTributacao(data)
     } catch (err) {
@@ -222,7 +219,7 @@ export function ProdutosCadastro() {
               Informações Adicionais
             </p>
           </div>
- 
+
           <ProdutoForm
             formData={formData}
             onSubmit={handleSubmit}

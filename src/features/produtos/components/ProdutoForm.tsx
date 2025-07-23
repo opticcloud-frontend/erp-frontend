@@ -1,4 +1,3 @@
-import React from 'react';
 import { produtoFormProps } from '../types/produto';
 import { Input } from '../../../components/ui/Input'
 import { Select } from '../../../components/ui/Select'
@@ -7,11 +6,7 @@ import {
   infos_genero_produto, 
   infos_origem_produto, 
   infos_unidade_produto,
-  infos_situacao,
-  icmsSituacaoTributariaOptions,
-  pisSituacaoTributariaOptions,
-  cofinsSituacaoTributariaOptions,
-  ipiSituacaoTributariaOptions
+  infos_situacao
 } from '../services/infosProdutos';
 
 type Option = { 
@@ -28,7 +23,8 @@ export const ProdutoForm: React.FC<produtoFormProps> = ({
   infosAdicionais,
   tributacao 
 }) => {
-  console.log(tributacao)
+
+
 
   
   return (
@@ -195,52 +191,107 @@ export const ProdutoForm: React.FC<produtoFormProps> = ({
                 disabled={disabled}
               />
 
-              <Select
-                label="ipi Situacao Tributaria *"
-                name="tributacao.ipiSituacaoTributaria.codigo"
-                value={formData.tributacao.ipiSituacaoTributaria.codigo}
+              <Input
+                label="icms Aliquota *"
+                name="icmsAliquota"
+                value={formData.icmsAliquota}
                 onChange={onInputChange}
-                options={ipiSituacaoTributariaOptions}
+                required
                 disabled={disabled}
               />
 
-              <select
-                className="my-3 block w-5/6 border rounded-md border-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              >
-                {tributacao.cofinsSituacaoTributaria.map((option: Option) => (
-                  <option key={option.codigo} value={option.codigo}>
-                    {option.descricao}
-                  </option>
-                ))}
-              </select>
-
-              <Select
-                label="Pis Situacao Tributaria *"
-                name="tributacao.pisSituacaoTributaria.codigo"
-                value={formData.tributacao.pisSituacaoTributaria.codigo}
+              <Input
+                label="pis Aliquota *"
+                name="pisAliquota"
+                value={formData.pisAliquota}
                 onChange={onInputChange}
-                options={pisSituacaoTributariaOptions}
+                required
                 disabled={disabled}
               />
 
-
-              <Select
-                label="Cofins Situacao Tributaria *"
-                name="tributacao.cofinsSituacaoTributaria.codigo"
-                value={formData.tributacao.cofinsSituacaoTributaria.codigo}
+              <Input
+                label="cofins Aliquota *"
+                name="cofinsAliquota"
+                value={formData.cofinsAliquota}
                 onChange={onInputChange}
-                options={cofinsSituacaoTributariaOptions}
+                required
                 disabled={disabled}
               />
 
-              <Select
-                label="icms situacão Tributaria *"
-                name="tributacao.icmsSituacaoTributaria.codigo"
-                value={formData.tributacao.icmsSituacaoTributaria.codigo}
+              <Input
+                label="ipi Aliquota *"
+                name="ipiAliquota"
+                value={formData.ipiAliquota}
                 onChange={onInputChange}
-                options={icmsSituacaoTributariaOptions}
+                required
                 disabled={disabled}
               />
+
+              {tributacao && (
+                <>
+                  <div className="">
+                    <label className="block text-sm font-medium text-gray-700 ">Cofins Situacao Tributaria</label>
+                    <select
+                      className="my-3 block w-5/6 border rounded-md border-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      onChange={onInputChange}
+                      name="tributacao.cofinsSituacaoTributaria.codigo"
+                    >
+                      {tributacao.cofinsSituacaoTributaria.map((option: Option) => (
+                        <option key={option.codigo} value={option.codigo}>
+                          {option.descricao}
+                        </option>
+                      ))} 
+                    </select> 
+                  </div>
+
+                  <div className="">
+                    <label className="block text-sm font-medium text-gray-700 ">icms Situacao Tributaria</label>
+                    <select
+                      className="my-3 block w-5/6 border rounded-md border-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      onChange={onInputChange}
+                      name="tributacao.icmsSituacaoTributaria.codigo"
+                    >
+                      {tributacao.icmsSituacaoTributaria.map((option: Option) => (
+                        <option key={option.codigo} value={option.codigo}>
+                          {option.descricao}
+                        </option>
+                      ))} 
+                    </select> 
+                  </div>
+
+                  <div className="">
+                    <label className="block text-sm font-medium text-gray-700 ">ipi Situacao Tributaria</label>
+                    <select
+                      className="my-3 block w-5/6 border rounded-md border-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      onChange={onInputChange}
+                      name="tributacao.ipiSituacaoTributaria.codigo"
+                    >
+                      {tributacao.ipiSituacaoTributaria.map((option: Option) => (
+                        <option key={option.codigo} value={option.codigo}>
+                          {option.descricao}
+                        </option>
+                      ))} 
+                    </select> 
+                  </div>
+
+                  <div className="">
+                    <label className="block text-sm font-medium text-gray-700 ">pis Situacao Tributaria</label>
+                    <select
+                      className="my-3 block w-5/6 border rounded-md border-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      onChange={onInputChange}
+                      name="tributacao.pisSituacaoTributaria.codigo"
+                    >
+                      {tributacao.pisSituacaoTributaria.map((option: Option) => (
+                        <option key={option.codigo} value={option.codigo}>
+                          {option.descricao}
+                        </option>
+                      ))} 
+                    </select> 
+                  </div>
+
+                  
+                </>
+              )}
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Observações</label>

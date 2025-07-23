@@ -19,7 +19,7 @@ export const Select: React.FC<SelectProps> = ({ label, options, ...props }) => (
         <option key={option.value} value={option.value}>
           {option.label}
         </option>
-      ))}
+      ))} 
     </select>
   </div>
 );

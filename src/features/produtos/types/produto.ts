@@ -1,12 +1,13 @@
 export interface SituacaoTributaria {
   codigo: string;
+  descricao: string;
 }
 
 export interface Tributacao {
-  icmsSituacaoTributaria: SituacaoTributaria;
-  pisSituacaoTributaria: SituacaoTributaria;
-  cofinsSituacaoTributaria: SituacaoTributaria;
-  ipiSituacaoTributaria: SituacaoTributaria;
+  icmsSituacaoTributaria: { codigo: string };
+  pisSituacaoTributaria: { codigo: string };
+  cofinsSituacaoTributaria: { codigo: string };
+  ipiSituacaoTributaria: { codigo: string };
 }
 
 export interface ProdutoFormData {
@@ -38,11 +39,23 @@ export interface ProdutoFormData {
   tributacao: Tributacao;
 }
 
+type Option = { 
+  codigo: string;
+  descricao: string;
+};
+ 
+type TributacaoOpcoes  = {
+  cofinsSituacaoTributaria: Option[];
+  icmsSituacaoTributaria: Option[];
+  ipiSituacaoTributaria: Option[];
+  pisSituacaoTributaria: Option[];
+};
+
  
 export interface produtoFormProps {
   formData: ProdutoFormData;
   buttonText: string;
-  tributacao: string[];
+  tributacao: TributacaoOpcoes | null;
   disabled?: boolean;
   infosAdicionais?: boolean;
   onSubmit: (e: React.FormEvent) => void;
