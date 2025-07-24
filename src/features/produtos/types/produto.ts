@@ -57,7 +57,7 @@ export interface produtoFormProps {
   buttonText: string;
   tributacao: TributacaoOpcoes | null;
   disabled?: boolean;
-  infosAdicionais?: boolean;
+  abaAtiva?: string;
   onSubmit: (e: React.FormEvent) => void;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
 }

@@ -38,8 +38,8 @@ export function ProdutosCadastro() {
   const [formData, setFormData] = useState(initialFormData);
   const isInitialized = useRef(false);
   const { userData, isAuthenticated, logout } = useAuth();  
-  const [infosAdicionais, setInfosAdicionais] = useState(false);
   const [tributacao, setTributacao] = useState<TributacaoOpcoes | null>(null);
+  const [abaAtiva, setAbaAtiva] = useState<"basicos" | "financeiro" | "tributarias">("basicos");
 
   useEffect(()=>{ 
     getOpcoesTributacoes()
@@ -137,14 +137,34 @@ export function ProdutosCadastro() {
         return false
       }
 
-     const data = await response.json() as TributacaoOpcoes ;
+     let data = await response.json() as TributacaoOpcoes ;
 
+     data = adicionarCodigoNaDescricao(data)
+     
+
+     console.log(data)
+ 
       setTributacao(data)
     } catch (err) {
       console.error("erro ao validar token: " + err);
     }
     return true
   }
+
+  const adicionarCodigoNaDescricao = (dados: TributacaoOpcoes) => {
+    for (const chave in dados) {
+      const key = chave as keyof TributacaoOpcoes;
+      const lista = dados[key];
+      if (Array.isArray(lista)) {
+        lista.forEach((item) => {
+          item.descricao = `${item.codigo} - ${item.descricao}`;
+        });
+      }
+    }
+    return dados;
+  }
+
+
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -187,14 +207,6 @@ export function ProdutosCadastro() {
     }
   }
 
-  const handleClickInfosAdicionais = () =>{
-    setInfosAdicionais(true)
- }
-
- const handleClickInfosGerais = () =>{
-    setInfosAdicionais(false)
- }
-
   return (
     <div className='flex w-full h-auto min-h-screen'>
       <Sidebar />
@@ -202,30 +214,38 @@ export function ProdutosCadastro() {
         
         <div className="h-auto rounded-lg shadow-md p-6 ">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-foreground mb-2">Cadastro de Produto</h1>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Cadastro de Produtos</h1>
             <p className="text-muted-foreground">Preencha as informações do produto abaixo</p>
           </div>
 
-          <div className='flex items-center gap-5 mb-5 text-center bg-gray-200 p-1 rounded-lg'>
-            <p 
-              className={`${infosAdicionais ? "bg-gray-200": "bg-gray-100 "} text-sm font-medium text-gray-700 p-2 w-3/6 cursor-pointer rounded-lg transition duration-300`}
-              onClick={handleClickInfosGerais}
-            >
-              Informações Gerais
-            </p>
-            <p 
-              className={`${infosAdicionais ? "bg-gray-100": "bg-gray-200"} rounded-lg text-sm font-medium text-gray-700 p-2 w-3/6 cursor-pointer duration-300`} 
-              onClick={handleClickInfosAdicionais}>
-              Informações Adicionais
-            </p>
-          </div>
+        <div className="flex space-x-2 mb-6 ">
+          <button
+            className={`flex-1 w-full px-4 py-2 rounded ${abaAtiva === "basicos" ? "bg-blue-600 text-white" : "bg-white"}`}
+            onClick={() => setAbaAtiva("basicos")}
+          >
+            Dados Básicos
+          </button>
+          <button
+            className={`flex-1 w-full px-4 py-2 rounded ${abaAtiva === "financeiro" ? "bg-blue-600 text-white" : "bg-white"}`}
+            onClick={() => setAbaAtiva("financeiro")}
+          >
+            FInanceiro
+          </button>
+          
+          <button
+            className={`flex-1 w-full px-4 py-2 rounded ${abaAtiva === "tributarias" ? "bg-blue-600 text-white" : "bg-white"}`}
+            onClick={() => setAbaAtiva("tributarias")}
+          >
+            Tributação
+          </button>
+        </div>
 
           <ProdutoForm
             formData={formData}
             onSubmit={handleSubmit}
             onInputChange={handleInputChange}
             buttonText="Cadastrar"
-            infosAdicionais={infosAdicionais}
+            abaAtiva={abaAtiva}
             tributacao={tributacao}
           />
           {popup.isOpen && (
