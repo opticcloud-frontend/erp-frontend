@@ -119,7 +119,7 @@ export function ProdutosCadastro() {
   };
 
   const validateInfos = () =>{
-      
+    console.log(formData)
     return true
   }
 
@@ -142,7 +142,6 @@ export function ProdutosCadastro() {
      data = adicionarCodigoNaDescricao(data)
      
 
-     console.log(data)
  
       setTributacao(data)
     } catch (err) {
@@ -218,27 +217,27 @@ export function ProdutosCadastro() {
             <p className="text-muted-foreground">Preencha as informações do produto abaixo</p>
           </div>
 
-        <div className="flex space-x-2 mb-6 ">
-          <button
-            className={`flex-1 w-full px-4 py-2 rounded ${abaAtiva === "basicos" ? "bg-blue-600 text-white" : "bg-white"}`}
-            onClick={() => setAbaAtiva("basicos")}
-          >
-            Dados Básicos
-          </button>
-          <button
-            className={`flex-1 w-full px-4 py-2 rounded ${abaAtiva === "financeiro" ? "bg-blue-600 text-white" : "bg-white"}`}
-            onClick={() => setAbaAtiva("financeiro")}
-          >
-            FInanceiro
-          </button>
-          
-          <button
-            className={`flex-1 w-full px-4 py-2 rounded ${abaAtiva === "tributarias" ? "bg-blue-600 text-white" : "bg-white"}`}
-            onClick={() => setAbaAtiva("tributarias")}
-          >
-            Tributação
-          </button>
-        </div>
+          <div className="flex space-x-2 mb-6 ">
+            <button
+              className={`flex-1 w-full px-4 py-2 rounded ${abaAtiva === "basicos" ? "bg-blue-600 text-white" : "bg-white"}`}
+              onClick={() => setAbaAtiva("basicos")}
+            >
+              Dados Básicos
+            </button>
+            <button
+              className={`flex-1 w-full px-4 py-2 rounded ${abaAtiva === "financeiro" ? "bg-blue-600 text-white" : "bg-white"}`}
+              onClick={() => setAbaAtiva("financeiro")}
+            >
+              FInanceiro
+            </button>
+            
+            <button
+              className={`flex-1 w-full px-4 py-2 rounded ${abaAtiva === "tributarias" ? "bg-blue-600 text-white" : "bg-white"}`}
+              onClick={() => setAbaAtiva("tributarias")}
+            >
+              Tributação
+            </button>
+          </div>
 
           <ProdutoForm
             formData={formData}

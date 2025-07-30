@@ -178,7 +178,6 @@ export function ClientesPage() {
       const infoPesquisa = infoBuscaCliente.replace(/[\\/.-]/g, '');
       const filtroPesquisa = tipoFiltro == "CPF/CNPJ" ? "documento": tipoFiltro
 
-      console.log(`${apiUrl}clientes?idOtica=${idOtica}&${filtroPesquisa}=${infoPesquisa}&page=${currentPage}&size=${clientePerPage}`)
 
       const response = await fetch(`${apiUrl}clientes?idOtica=${idOtica}&${filtroPesquisa}=${infoPesquisa}&page=${currentPage}&size=${clientePerPage}` , {
          method: 'GET',

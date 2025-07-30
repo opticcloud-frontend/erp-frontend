@@ -1,14 +1,14 @@
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label: string;
-  error?: string; 
-  disabled?: boolean;
-  className?: string;
-  placeholder?: string;
+   label?: string;
+   error?: string; 
+   disabled?: boolean;
+   className?: string;
+   placeholder?: string;
    classNameDiv?: string;
 }
 
 export const Input: React.FC<InputProps> = ({
-   label, 
+   label= '', 
    error, 
    value, 
    disabled = false,
@@ -20,7 +20,9 @@ export const Input: React.FC<InputProps> = ({
    <div className={`
      ${classNameDiv ?? ''}
     `}>
-      <label className="block text-sm font-medium text-gray-700">{label}</label>
+      {label?? (
+         <label className="block text-sm font-medium text-gray-700">{label}</label>
+      )}
       <input
          placeholder={placeholder ?? ' '}
          readOnly={disabled}

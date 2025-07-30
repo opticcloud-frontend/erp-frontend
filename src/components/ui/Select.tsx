@@ -5,14 +5,14 @@ interface Option {
 }
 
 interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
-  label: string;
+  label?: string;
   options: Option[];
   className?: string;
   classNameDiv?: string;
 }
 
 export const Select: React.FC<SelectProps> = ({
-   label, 
+   label = '', 
    options,
    className,
    classNameDiv,
@@ -21,7 +21,9 @@ export const Select: React.FC<SelectProps> = ({
   <div className={`
      ${classNameDiv ?? ''}
     `}>
+    {label ?? (
     <label className="block text-sm font-medium text-gray-700 ">{label}</label>
+    )}
     <select
       className={`
         my-3 block  border rounded-md border-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500
