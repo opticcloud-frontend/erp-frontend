@@ -39,6 +39,36 @@ export interface ProdutoFormData {
   tributacao: Tributacao;
 }
 
+export interface Produto {
+  nome: string;
+  descricao: string;
+  sku: string;
+  codigoBarras: string;
+  ncm: string;
+  cest: string;
+  cfop: string;
+  unidade: string;
+  origem: string;
+  custoReposicao: number;
+  lucroPercentual: number;
+  valorVenda: number;
+  genero: string;
+  material: string;
+  tipoProduto: string;
+  marca: string;
+  modelo: string;
+  cor: string;
+  ativo: boolean;
+  observacoes: string;
+  idOtica: string;
+  icmsAliquota: string;
+  pisAliquota: string;
+  cofinsAliquota: string;
+  ipiAliquota: string;
+  dataCadastro: string;
+  tributacao: TributacaoOpcoes;
+}
+
 type Option = { 
   codigo: string;
   descricao: string;

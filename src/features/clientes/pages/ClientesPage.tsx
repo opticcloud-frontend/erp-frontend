@@ -190,7 +190,6 @@ export function ClientesPage() {
       if (!response.ok) {
         throw new Error('Cliente não encontrado');
       }
-
       
       const data = await response.json();
 
