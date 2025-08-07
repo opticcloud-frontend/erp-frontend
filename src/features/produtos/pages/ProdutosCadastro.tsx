@@ -6,13 +6,14 @@ import { infosProdutos } from '../services/infosProdutos';
 import Popup from "../../../components/layout/CustomPopUp"
 import { useNavigate } from 'react-router-dom';
 import { ProdutoForm } from '../components/ProdutoForm'
+import { ProdutoFormData } from '../types/produto';
 
 const initialFormData = infosProdutos
 
 type FormInputEvent =
   | React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   | { target: { name: 'ativo'; value: boolean } }
-  | { target: { name: string; value: string } };
+  | { target: { name: string; value: string  } };
 
 type PopupType = 'success' | 'error' | null;
 interface PopupState {
@@ -35,11 +36,14 @@ type TributacaoOpcoes  = {
 };
 
 export function ProdutosCadastro() {
+  
   const [formData, setFormData] = useState(initialFormData);
   const isInitialized = useRef(false);
   const { userData, isAuthenticated, logout } = useAuth();  
   const [tributacao, setTributacao] = useState<TributacaoOpcoes | null>(null);
   const [abaAtiva, setAbaAtiva] = useState<"basicos" | "financeiro" | "tributarias">("basicos");
+
+  const infosValores: (keyof ProdutoFormData)[] = ['lucroPercentual', 'custoReposicao', 'valorVenda']
 
   useEffect(()=>{ 
     getOpcoesTributacoes()
@@ -119,6 +123,18 @@ export function ProdutosCadastro() {
   };
 
   const validateInfos = () =>{
+
+    let camposInvalidos = infosValores.forEach((campo) =>{
+      const valor = formData[campo] as number | undefined;
+      if (valor == null || valor <= 0 ){
+        console.log(`Campo ${campo} está inválido`);
+        return campo
+      }
+    })
+    console.log(camposInvalidos)
+
+    handleApiResponse(false, "Campos de valores invalidos" )
+
     console.log(formData)
     return true
   }

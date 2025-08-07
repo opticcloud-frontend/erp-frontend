@@ -20,9 +20,9 @@ export interface ProdutoFormData {
   cfop: string;
   unidade: string;
   origem: string;
-  custoReposicao: number;
-  lucroPercentual: number;
-  valorVenda: number;
+  custoReposicao: number | undefined;
+  lucroPercentual: number | undefined;
+  valorVenda: number | undefined;
   genero: string;
   material: string;
   tipoProduto: string;

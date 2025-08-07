@@ -6,7 +6,11 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { Produto } from '../types/produto';
 import { useEffectSkipFirst } from '../../../components/ui/useEffectSkipFirst';
 import { p } from 'framer-motion/client';
-import { Box, Filter } from 'lucide-react';
+import { Box, Filter, Search, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { Header } from '../../../components/layout/Header';
+import { useNavigate } from 'react-router-dom';
+import { string } from 'zod';
+
 
 type PopupType = 'success' | 'error' | 'alert' | null;
 interface PopupState {
@@ -16,6 +20,17 @@ interface PopupState {
   isOpen: boolean;
 }
 
+type FormInputEvent =
+  | React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  | { target: { name: 'ativo'; value: boolean } }
+  | { target: { name: string; value: string  } };
+
+interface Filtro {
+  nomeProduto?: string
+  tipo?: string
+  marca?: string
+  sku?: string
+}
 const dadosProduto: Produto[] = [];
 
 export function Produtos() {
@@ -26,14 +41,23 @@ export function Produtos() {
   const [hasNext, setHasNext] = useState(Boolean)
   const [hasPrevious, setHasPrevious] = useState(Boolean)
   const [currentPage, setCurrentPage] = useState(0)
-  const [containsProduto, setcontainsProduto] = useState(true)
+  const [containsProduto, setcontainsProduto] = useState(false)
   const [infoBuscaCliente, setInfoBuscaProduto] = useState('');
   const clientePerPage = 5
+  const apiUrl = import.meta.env.VITE_API_URL;
+  const idOtica = userData?.id_oticas[0]
+
+  const [filtro, setFiltro] = useState<Filtro>();
+  const navigate = useNavigate();
 
   useEffectSkipFirst(() => {
     if(currentPage >= 0 && currentPage < totalPage){
       setcontainsProduto(true)
-      getProdutos();
+      if (filtro != undefined){
+        filterProdutos()
+      } else {
+        getProdutos();
+      }
     } 
   }, [currentPage])
 
@@ -48,23 +72,19 @@ export function Produtos() {
     isOpen: false
   });
 
-  const previousPage = async () => {
-    if (currentPage <= 0) return
-
-    if (currentPage <= totalPage){
-      setCurrentPage(prev => prev -1)
+  const previousPage = () => {
+    if (hasPrevious) {
+      setCurrentPage(prev => prev - 1);
     }
+  };
 
-    setcontainsProduto(!!hasPrevious)
-  }
+  const handleChange = (event: FormInputEvent) =>{
+    const { name, value } = event.target;
 
-  const filtros = [
-    { value: 'Todos', label: 'Todos' },
-  ]
-  
-
-  const handleChange = () =>{
-
+    setFiltro((prevFiltro) => ({
+      ...prevFiltro,
+      [name]: value,
+    }));
   }
 
   const handleApiResponse = (typePopPup: string = "", message: string) => {
@@ -76,7 +96,6 @@ export function Produtos() {
           isOpen: true
         });
     }
-
 
     if (typePopPup == "sucess") {
         setPopup({
@@ -101,24 +120,21 @@ export function Produtos() {
     setPopup(prev => ({ ...prev, isOpen: false }));
   };
 
-
-  const nextPage = async () => {
-    if (currentPage < totalPage){
-        setCurrentPage(prev => prev +1)
+  const nextPage = () => {
+    if (hasNext) {
+      setCurrentPage(prev => prev + 1);
     }
+  };
 
-    setcontainsProduto(!!hasNext)
-  }
+  const filterProdutos = async () => {
+    const params = new URLSearchParams();
 
-  const getProdutos = async () => {
-    const idOtica = userData?.id_oticas[0]
-    const apiUrl = import.meta.env.VITE_API_URL;
-    const infoPesquisa = '';
-    const filtroPesquisa = ''
+    if (filtro?.nomeProduto) params.append('nomeProduto', filtro.nomeProduto);
+    if (filtro?.tipo) params.append('tipo', filtro.tipo);
+    if (filtro?.marca) params.append('marca', filtro.marca);
+    if (filtro?.sku) params.append('sku', filtro.sku);
 
-    console.log(`${apiUrl}produtos?idOtica=${idOtica}&page=${currentPage}&size=${clientePerPage}`)
-
-    const response = await fetch(`${apiUrl}produtos?idOtica=${idOtica}&page=${currentPage}&size=${clientePerPage}` , {
+    const response = await fetch(`${apiUrl}produtos/filtro?idOtica=${idOtica}&${params.toString()}&page=${currentPage}&size=${clientePerPage}` , {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -130,10 +146,7 @@ export function Produtos() {
       throw new Error('Produto não encontrado');
     }
 
-    
     const data = await response.json();
-
-    console.log(data)
 
     setTotalProduto(data.totalElements)
     setTotalPage(data.totalPages)
@@ -142,7 +155,7 @@ export function Produtos() {
 
     const listProdutos = data.content;
     if (!listProdutos.length){
-      handleApiResponse( "alert", "Nenhum cliente encontrado!")
+      handleApiResponse( "alert", "Nenhum produto encontrado!")
       setProdutos([])
       setInfoBuscaProduto('')
       return
@@ -150,149 +163,253 @@ export function Produtos() {
     setProdutos(listProdutos)
   }
 
+  const getProdutos = async () => {
+    const params = new URLSearchParams();
+  
+    const response = await fetch(`${apiUrl}produtos?idOtica=${idOtica}&page=${currentPage}&size=${clientePerPage}` , {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + userData?.token
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Produto não encontrado');
+    }
+    
+    const data = await response.json();
+
+    setTotalProduto(data.totalElements)
+    setTotalPage(data.totalPages)
+    setHasNext(data.hasNext)
+    setHasPrevious(data.hasPrevious)
+
+    const listProdutos = data.content;
+    if (!listProdutos.length){
+      handleApiResponse( "alert", "Nenhum produto encontrado!")
+      setProdutos([])
+      setInfoBuscaProduto('')
+      return
+    }
+    setProdutos(listProdutos)
+  }
+  
+  const novoProduto = () => {
+    navigate('/produtos/cadastrar');
+  }
+
+  const limparFiltros = () => setFiltro(undefined);
+  
+
   return (
-    <div className="flex w-full h-auto min-h-screen">
+    <div className="flex w-full min-h-screen bg-background">
       <Sidebar/>
-      <div className="p-4 flex-1">
-        <div className="mb-8">
-          <div className='flex items-center gap-2'>
-            <Box/>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Produtos</h1>
-          </div>
-          <p className="text-muted-foreground">Gerencie seus produtos de forma eficiente</p>
-        </div>
+      <div className="flex-1 space-y-6">
+        <Header/>
+        <div className='p-6'>
 
-        <div className='shadow-md p-3 rounded-lg'>
-          <div className='flex items-center gap-2'>
-            <Filter/>
-            <p>Filtros</p>
-          </div>
-          <div className='flex w-full space-x-2 mb-6'>
-            <Input
-              name="nomeFilter"
-              placeholder='Buscar por nome...'
-              onChange={handleChange}
-              className='flex-1 w-full'
-              classNameDiv='flex-1'
-            />
-            <Input
-              name="skuFilter"
-              placeholder='SKU'
-              onChange={handleChange}
-              required
-              className='flex-1 w-full'
-              classNameDiv='flex-1'
-            />
-            <Input
-              name="marcaFilter"
-              placeholder='Marca'
-              onChange={handleChange}
-              required
-              className='flex-1 w-full'
-              classNameDiv='flex-1'
-            />
-            <Select
-              name="tipoProduto"
-              onChange={handleChange}
-              options={filtros}
-              classNameDiv='flex-1'
-              className="w-full p-2"
-            />
-          </div>
-        </div>
-
-
-        <div className='shadow-md p-5 rounded-lg'>
-          <h2 className='text-lg font-bold text-foreground mb-2'>Lista de Produtos</h2>
-
-          <div className='rounded-md border overflow-hidden'>
-            <table className="w-full caption-bottom text-sm">
-              <thead>
-                <tr className="bg-blue-300 border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted bg-muted/50">
-                  <th className="font-semibold h-12 px-4 text-left align-middle text-muted-foreground">Nome</th>
-                  <th className="font-semibold h-12 px-4 text-left align-middle text-muted-foreground">SKU</th>
-                  <th className="font-semibold h-12 px-4 text-left align-middle text-muted-foreground">Marca</th>
-                  <th className="font-semibold h-12 px-4 text-left align-middle text-muted-foreground">Modelo</th>
-                  <th className="font-semibold h-12 px-4 text-left align-middle text-muted-foreground">Cor</th>
-                  <th className="font-semibold h-12 px-4 text-right align-middle text-muted-foreground">Preço Venda</th>
-                  <th className="font-semibold h-12 px-4 text-right align-middle text-muted-foreground">Custo</th>
-                  <th className="font-semibold h-12 px-4 text-right align-middle text-muted-foreground">Lucro</th>
-                  <th className="font-semibold h-12 px-4 text-left align-middle text-muted-foreground">Status</th>
-                  <th className="font-semibold h-12 px-4 text-left align-middle text-muted-foreground">Cadastro</th>
-                  <th className="font-semibold h-12 px-4 text-left align-middle text-muted-foreground">Ações</th>
-                </tr>
-              </thead>
-              <tbody className="text-left">
-                {!containsProduto ? (
-                  <tr>
-                    <td colSpan={11} className="text-center py-4 text-gray-500">
-                      Nenhum registro encontrado
-                    </td>
-                  </tr>
-                ) : (
-                  produtos.map((produto, index) => (
-                    <tr key={index} className=" bg-gray-100 hover:bg-gray-200 transition-colors">
-                      <td className="px-4">{produto.nome}</td>
-                      <td className="px-4">{produto.sku}</td>
-                      <td className="px-4">{produto.marca}</td>
-                      <td className="px-4">{produto.modelo}</td>
-                      <td className="px-4">{produto.cor}</td>
-                      <td className="px-4 text-right">R$ {produto.valorVenda}</td>
-                      <td className="px-4 text-right">R$ {produto.custoReposicao}</td>
-                      <td className="px-4 text-right">{produto.lucroPercentual}</td>
-                      <td className="px-4">{produto.ativo}</td>
-                      <td className="px-4">{produto.dataCadastro}</td>
-                      <td className="px-4">Ação</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-            {produtos.length > 0 && (
-              <div className='w-full p-3 bg-white-300 gap-2 flex justify-between'>
-                  <div className=''>
-                    <p>Exibindo {clientePerPage} de {totalCliente}</p>
-                  </div>
-                  <div className='flex gap-2'>
-                    <div className='cursor-pointer' onClick={previousPage}>
-                        <p>Anterior</p>
-                    </div>
-                    <div className='flex gap-2'>
-                        {Array.from({ length: totalPage })
-                        .slice(Math.floor(currentPage / 3) * 3, Math.floor(currentPage / 3) * 3 + 3)
-                        .map((_, index) => {
-                          const pageIndex = Math.floor(currentPage / 3) * 3 + index;
-                          return (
-                          <div
-                              key={pageIndex}
-                              className={`w-10 text-center cursor-pointer border border-gray-300 hover:border-blue-300 hover:shadow-md flex justify-center items-center
-                              ${currentPage === pageIndex ? 'bg-blue-200' : 'bg-white'}
-                              `}
-                              onClick={() => setCurrentPage(pageIndex)}
-                          >
-                              <p>{pageIndex + 1}</p>
-                          </div>
-                          );
-                        })}
-                    </div>
-                    <div className='cursor-pointer' onClick={nextPage}>
-                        <p>Próximo</p>
-                    </div>
-                  </div>
+        
+          <div className="space-y-2">
+            <div className='flex items-center gap-3'>
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Box className="h-6 w-6 text-primary"/>
               </div>
-            )}
-            {/* <div className=' p-3 flex justify-end'>
-              <button 
-                className='bg-blue-600 text-white p-2 w-28 rounded-md'
-                onClick={getProdutos}
-              >
-                Buscar
-              </button>
-            </div> */}
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight">Produtos</h1>
+                <p className="text-muted-foreground">Gerencie seus produtos de forma eficiente</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+            <div className="flex flex-col space-y-1.5 p-6 pb-4">
+              <h3 className="flex items-center gap-2 text-lg font-semibold leading-none tracking-tight">
+                <Filter className="h-5 w-5"/>
+                Filtros de Busca
+              </h3>
+            </div>
+            <div className="space-y-4 p-6 pt-0">
+              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Nome do Produto</label>
+                  <input
+                    placeholder='Buscar por nome...'
+                    name='nomeProduto'
+                    value={filtro?.nomeProduto ?? ''}
+                    onChange={handleChange}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">SKU</label>
+                  <input
+                    placeholder='Código SKU'
+                    name='sku'
+                    value={filtro?.sku ?? ""}
+                    onChange={handleChange}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Marca</label>
+                  <input
+                    placeholder='Nome da marca'
+                    name='marca'
+                    value={filtro?.marca ?? ""}
+                    onChange={handleChange}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Tipo</label>
+                  <select 
+                    className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    name='tipo'  
+                    onChange={handleChange}
+                    value={filtro?.tipo ?? ""}
+                  >
+                    <option value="">Selecione o tipo</option>
+                    <option value="todos">Todos</option>
+                    <option value="oculos">Óculos</option>
+                    <option value="lentes">Lentes</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex gap-2 pt-2">
+                <button onClick={filterProdutos} className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 flex items-center gap-2">
+                  <Search className="h-4 w-4"/>
+                  Buscar Produtos
+                </button>
+                <button onClick={limparFiltros} className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+                  Limpar Filtros
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+            <div className="flex flex-col space-y-1.5 p-6 pb-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg text-2xl font-semibold leading-none tracking-tight">Lista de Produtos</h3>
+                <button 
+                  onClick={novoProduto}
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 flex items-center gap-2"
+                >
+                  <Plus className="h-4 w-4"/>
+                  
+                  Novo Produto
+                </button>
+              </div>
+            </div>
+            <div className="p-0">
+              <div className='overflow-x-auto'>
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b bg-muted/50">
+                      <th className="font-medium h-12 px-4 text-left text-sm text-muted-foreground">Nome</th>
+                      <th className="font-medium h-12 px-4 text-left text-sm text-muted-foreground">SKU</th>
+                      <th className="font-medium h-12 px-4 text-left text-sm text-muted-foreground">Marca</th>
+                      <th className="font-medium h-12 px-4 text-left text-sm text-muted-foreground">Modelo</th>
+                      <th className="font-medium h-12 px-4 text-left text-sm text-muted-foreground">Cor</th>
+                      <th className="font-medium h-12 px-4 text-right text-sm text-muted-foreground">Preço Venda</th>
+                      <th className="font-medium h-12 px-4 text-right text-sm text-muted-foreground">Custo</th>
+                      <th className="font-medium h-12 px-4 text-right text-sm text-muted-foreground">Lucro %</th>
+                      <th className="font-medium h-12 px-4 text-center text-sm text-muted-foreground">Status</th>
+                      <th className="font-medium h-12 px-4 text-left text-sm text-muted-foreground">Cadastro</th>
+                      <th className="font-medium h-12 px-4 text-center text-sm text-muted-foreground">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {produtos.length === 0 ? (
+                      <tr>
+                        <td colSpan={11} className="h-32 text-center text-muted-foreground">
+                          <div className="flex flex-col items-center gap-2">
+                            <Box className="h-8 w-8 text-muted-foreground/50"/>
+                            <span>Nenhum produto encontrado</span>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      produtos.map((produto, index) => (
+                        <tr key={index} className="border-b hover:bg-muted/50 transition-colors">
+                          <td className="px-4 py-3 font-medium">{produto.nome}</td>
+                          <td className="px-4 py-3 text-sm text-muted-foreground">{produto.sku}</td>
+                          <td className="px-4 py-3">{produto.marca}</td>
+                          <td className="px-4 py-3">{produto.modelo}</td>
+                          <td className="px-4 py-3">{produto.cor}</td>
+                          <td className="px-4 py-3 text-right font-medium">
+                            R$ {produto.valorVenda.toFixed(2)}
+                          </td>
+                          <td className="px-4 py-3 text-right text-muted-foreground">
+                            R$ {produto.custoReposicao.toFixed(2)}
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <span className="text-green-600 font-medium">{produto.lucroPercentual}%</span>
+                          </td>
+                          <td className="px-4 py-3 text-center">
+                            <span className={produto.ativo ? "text-green-500" : "text-red-500"}>{produto.ativo ? 'Ativo' : 'Inativo'}</span>
+                          </td>
+                          <td className="px-4 py-3 text-sm text-muted-foreground">
+                            {produto.dataCadastro}
+                          </td>
+                          <td className="px-4 py-3 text-center">
+                            <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3">
+                              Editar
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className='w-full p-3 bg-white-300 gap-2 flex justify-between'>
+                <div>
+                  <p>Exibindo {Math.min(clientePerPage, totalCliente - currentPage * clientePerPage)} de {totalCliente}</p>
+                </div>
+                <div className='flex gap-2 items-center'>
+                  <button
+                    onClick={previousPage}
+                    disabled={!hasPrevious}
+                    className={`cursor-pointer px-3 py-1 rounded border border-gray-300 ${!hasPrevious ? 'opacity-50 cursor-not-allowed' : 'hover:border-blue-300 hover:shadow-md'}`}
+                  >
+                    Anterior
+                  </button>
+
+                  <div className='flex gap-2'>
+                    {Array.from({ length: totalPage })
+                      .slice(Math.floor(currentPage / 3) * 3, Math.floor(currentPage / 3) * 3 + 3)
+                      .map((_, index) => {
+                        const pageIndex = Math.floor(currentPage / 3) * 3 + index;
+                        return (
+                          <button
+                            key={pageIndex}
+                            onClick={() => setCurrentPage(pageIndex)}
+                            className={`w-10 text-center border rounded ${currentPage === pageIndex ? 'bg-blue-200 border-blue-400' : 'bg-white border-gray-300 hover:border-blue-300 hover:shadow-md'}`}
+                          >
+                            {pageIndex + 1}
+                          </button>
+                        );
+                      })}
+                  </div>
+
+                  <button
+                    onClick={nextPage}
+                    disabled={!hasNext}
+                    className={`cursor-pointer px-3 py-1 rounded border border-gray-300 ${!hasNext ? 'opacity-50 cursor-not-allowed' : 'hover:border-blue-300 hover:shadow-md'}`}
+                  >
+                    Próximo
+                  </button>
+                </div>
+              </div>
+
+            
+            </div>
           </div>
         </div>
       </div>
-
     </div>
   );
 }
