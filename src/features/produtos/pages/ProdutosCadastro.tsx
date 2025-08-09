@@ -124,16 +124,15 @@ export function ProdutosCadastro() {
 
   const validateInfos = () =>{
 
+    console.log()
+
     let camposInvalidos = infosValores.forEach((campo) =>{
       const valor = formData[campo] as number | undefined;
-      if (valor == null || valor <= 0 ){
-        console.log(`Campo ${campo} está inválido`);
-        return campo
+      if (valor == null || valor <= 0){
+        handleApiResponse(false, "Campos de valores invalidos" )
+        return false
       }
     })
-    console.log(camposInvalidos)
-
-    handleApiResponse(false, "Campos de valores invalidos" )
 
     console.log(formData)
     return true
@@ -184,7 +183,6 @@ export function ProdutosCadastro() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if(!validateInfos()){
-      console.log(formData)
       return 
     }
 

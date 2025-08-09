@@ -27,14 +27,14 @@ type FormInputEvent =
 
 interface Filtro {
   nomeProduto?: string
-  tipo?: string
+  tipoProduto?: string
   marca?: string
   sku?: string
 }
 const dadosProduto: Produto[] = [];
 
 export function Produtos() {
-  const { userData, setClienteData} = useAuth(); 
+  const { userData, setProdutoData} = useAuth(); 
   const [produtos, setProdutos] = useState<Produto[]>(dadosProduto);
   const [totalCliente, setTotalProduto] = useState(0)
   const [totalPage, setTotalPage] = useState(0)
@@ -130,11 +130,12 @@ export function Produtos() {
     const params = new URLSearchParams();
 
     if (filtro?.nomeProduto) params.append('nomeProduto', filtro.nomeProduto);
-    if (filtro?.tipo) params.append('tipo', filtro.tipo);
+    if (filtro?.tipoProduto) params.append('tipoProduto', filtro.tipoProduto);
     if (filtro?.marca) params.append('marca', filtro.marca);
     if (filtro?.sku) params.append('sku', filtro.sku);
 
-    const response = await fetch(`${apiUrl}produtos/filtro?idOtica=${idOtica}&${params.toString()}&page=${currentPage}&size=${clientePerPage}` , {
+
+    const response = await fetch(`${apiUrl}produtos?idOtica=${idOtica}&${params.toString()}&page=${currentPage}&size=${clientePerPage}` , {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -147,6 +148,7 @@ export function Produtos() {
     }
 
     const data = await response.json();
+
 
     setTotalProduto(data.totalElements)
     setTotalPage(data.totalPages)
@@ -186,6 +188,7 @@ export function Produtos() {
     setHasPrevious(data.hasPrevious)
 
     const listProdutos = data.content;
+    console.log(listProdutos)
     if (!listProdutos.length){
       handleApiResponse( "alert", "Nenhum produto encontrado!")
       setProdutos([])
@@ -197,6 +200,18 @@ export function Produtos() {
   
   const novoProduto = () => {
     navigate('/produtos/cadastrar');
+  }
+
+  const editarProduto = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const idProduto = e.currentTarget.getAttribute("data-id")
+    const produtoEditar = produtos.find((produto) => {
+      if( produto.id === idProduto) {
+          return produto
+      }
+    });
+    
+    setProdutoData(produtoEditar)
+    navigate('/produto/editar');
   }
 
   const limparFiltros = () => setFiltro(undefined);
@@ -265,14 +280,16 @@ export function Produtos() {
                   <label className="text-sm font-medium">Tipo</label>
                   <select 
                     className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    name='tipo'  
+                    name='tipoProduto'  
                     onChange={handleChange}
-                    value={filtro?.tipo ?? ""}
+                    value={filtro?.tipoProduto ?? ""}
                   >
                     <option value="">Selecione o tipo</option>
-                    <option value="todos">Todos</option>
-                    <option value="oculos">Óculos</option>
-                    <option value="lentes">Lentes</option>
+                    <option value="Lente">Lente</option>
+                    <option value="Armacao">Armação</option>
+                    <option value="Acessorio">Acessório</option>
+                    <option value="Outro">Outro</option>
+                    <option value="Oculos de sol">Óculos de sol</option>
                   </select>
                 </div>
               </div>
@@ -332,7 +349,7 @@ export function Produtos() {
                       </tr>
                     ) : (
                       produtos.map((produto, index) => (
-                        <tr key={index} className="border-b hover:bg-muted/50 transition-colors">
+                        <tr key={index}  className="border-b hover:bg-muted/50 transition-colors">
                           <td className="px-4 py-3 font-medium">{produto.nome}</td>
                           <td className="px-4 py-3 text-sm text-muted-foreground">{produto.sku}</td>
                           <td className="px-4 py-3">{produto.marca}</td>
@@ -354,7 +371,11 @@ export function Produtos() {
                             {produto.dataCadastro}
                           </td>
                           <td className="px-4 py-3 text-center">
-                            <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3">
+                            <button 
+                              data-id={produto.id}
+                              onClick={editarProduto}
+                              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3"
+                            >
                               Editar
                             </button>
                           </td>

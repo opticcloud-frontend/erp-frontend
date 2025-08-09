@@ -22,6 +22,7 @@ import { DespesasPage } from './features/despesas/pages/DespesasPage'
 import { FornecedoresPage } from './features/fornecedores/pages/FornecedoresPage'
 import { ClienteVisualizarDados } from './features/clientes/pages/ClienteVisualizarDados';
 import { ClienteEditarDados } from './features/clientes/pages/ClienteEditarDados';
+import { ProdutoEditarDados } from './features/produtos/pages/ProdutoEditarDados';
 
 function App() {
   return (
@@ -42,6 +43,7 @@ function App() {
           <Route path="/clientes" element={<ClientesPage />} />
           <Route path="/produtos/cadastrar" element={<ProdutosCadastro />} />
           <Route path="/produtos" element={<Produtos />} />
+          <Route path="/produto/editar" element={<ProdutoEditarDados />} />
           <Route path="/vendas/cadastrar" element={<VendasCadastro />} />
           <Route path="/vendas" element={<VendasPage />} />
           <Route path="/despesas/cadastrar" element={<DespesasPage />} />

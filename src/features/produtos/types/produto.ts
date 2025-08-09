@@ -40,6 +40,7 @@ export interface ProdutoFormData {
 }
 
 export interface Produto {
+  id: string
   nome: string;
   descricao: string;
   sku: string;
@@ -83,9 +84,9 @@ type TributacaoOpcoes  = {
 
  
 export interface produtoFormProps {
-  formData: ProdutoFormData;
+  formData: ProdutoFormData | Produto;
   buttonText: string;
-  tributacao: TributacaoOpcoes | null;
+  tributacao?: TributacaoOpcoes | null;
   disabled?: boolean;
   abaAtiva?: string;
   onSubmit: (e: React.FormEvent) => void;

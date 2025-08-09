@@ -1,5 +1,6 @@
 import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { User, AuthContextType, Cliente } from '../types/auth';
+import { Produto } from '../features/produtos/types/produto';
  
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -10,6 +11,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   const [clienteData, setClienteData] = useState<Cliente | undefined>(undefined)
+  const [produtoData, setProdutoData] = useState<Produto | undefined>(undefined)
 
   const removeCliente = () => {
     setClienteData(undefined);
@@ -42,7 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, userData, setClienteData, clienteData  }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout, userData, setClienteData, clienteData, produtoData, setProdutoData  }}>
       {children}
     </AuthContext.Provider>
   );
