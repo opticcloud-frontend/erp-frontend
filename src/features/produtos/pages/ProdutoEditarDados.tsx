@@ -6,6 +6,8 @@ import { Sidebar } from '../../../components/layout/Sidebar';
 import { Header } from '../../../components/layout/Header';
 import { Produto } from '../types/produto';
 import { ProdutoForm } from '../components/ProdutoForm';
+import { ArrowLeft, Users } from 'lucide-react'
+
 
 type PopupType = 'success' | 'error' | 'alert' | null;
 interface PopupState {
@@ -21,6 +23,10 @@ type Option = {
 };
 
 type TributacaoOpcoes  = {
+  icmsAliquota: number;
+  pisAliquota : number;
+  cofinsAliquota  : number;
+  ipiAliquota   : number;
   cofinsSituacaoTributaria: Option[];
   icmsSituacaoTributaria: Option[];
   ipiSituacaoTributaria: Option[];
@@ -35,6 +41,9 @@ export function ProdutoEditarDados() {
    const [tributacao, setTributacao] = useState<TributacaoOpcoes | null>(null);
 
    useEffect(()=>{ 
+      if (produtoData) {
+         setFormData(produtoData);
+      }
       getOpcoesTributacoes()
    }, []) 
 
@@ -47,15 +56,48 @@ export function ProdutoEditarDados() {
    });
    const [abaAtiva, setAbaAtiva] = useState<"basicos" | "financeiro" | "tributarias">("basicos");
 
+   const converters: Record<string, (v: string | boolean) => any> = {
+      icmsAliquota: v => parseFloat(v as string) || 0,
+      pisAliquota: v => parseFloat(v as string) || 0,
+      cofinsAliquota: v => parseFloat(v as string) || 0,
+      ipiAliquota: v => parseFloat(v as string) || 0,
+      custoReposicao: v => parseFloat(v as string) || 0,
+      lucroPercentual: v => parseFloat(v as string) || 0,
+      valorVenda: v => parseFloat(v as string) || 0,
+      ativo: v => String(v).toLowerCase() === "true",
+   };
+
    const handleInputChange = async (
       e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
    ) => {
       const { name, value } = e.target;
 
-      if (produtoData) {
-         setProdutoData({
-            ...produtoData,
-            [name]: value,
+      const converter = converters[name];
+      const convertedValue = converter ? converter(value) : value;
+
+
+      console.log(convertedValue)
+
+      if (name.includes('.')) {
+         setFormData(prev => {
+         const keys = name.split('.'); 
+
+         const updated = { ...prev };
+
+         let nested: any = updated;
+         for (let i = 0; i < keys.length - 1; i++) {
+            nested[keys[i]] = { ...nested[keys[i]] };
+            nested = nested[keys[i]];
+         }
+
+         nested[keys[keys.length - 1]] = convertedValue;
+
+         return updated;
+         });
+      } else if (formData){
+         setFormData({
+            ...formData,
+            [name]: convertedValue,
          });
       }
    };
@@ -74,10 +116,11 @@ export function ProdutoEditarDados() {
          return false
          }
 
-      let data = await response.json() as TributacaoOpcoes ;
+         let data = await response.json() as TributacaoOpcoes ;
 
-      data = adicionarCodigoNaDescricao(data)
-      
+
+         data = adicionarCodigoNaDescricao(data)
+         console.log(data)
 
    
          setTributacao(data)
@@ -114,13 +157,11 @@ export function ProdutoEditarDados() {
       
       try {
          await updateProduto(updatedFields);
-         // Atualiza originalData somente após sucesso
-         setOriginalData(current => ({
-            ...current,
-            ...updatedFields
-         }));
-         console.log('teste')
-         handleApiResponse("sucess", "Produto atualizado com sucesso");
+         setProdutoData({
+         ...produtoData,
+         ...updatedFields,
+         } as Produto);
+         handleApiResponse("success", "Produto atualizado com sucesso");
       } catch (error) {
          console.error(error);
          handleApiResponse("error", "Erro ao atualizar informações do produto");
@@ -146,13 +187,13 @@ export function ProdutoEditarDados() {
 
    const getUpdatedFields = (): Partial<Produto> => {
       const updatedFields: Partial<Produto> = {};
+      console.log(formData)
       
       for (const key in produtoData) {
-         const newValue = produtoData[key as keyof Produto];
-         const originalValue = originalData[key as keyof Produto];
+         const originalValue = produtoData[key as keyof Produto];
+         const newValue = formData[key as keyof Produto];
 
-   
-         if (newValue !== originalValue) {
+         if (newValue !== undefined && newValue !== originalValue) {
             updatedFields[key as keyof Produto] = newValue as any;
          }
       }
@@ -170,7 +211,7 @@ export function ProdutoEditarDados() {
       }
 
 
-      if (typePopPup == "sucess") {
+      if (typePopPup == "success") {
          setPopup({
             type: 'success',
             title: 'Sucesso',
@@ -193,15 +234,23 @@ export function ProdutoEditarDados() {
       setPopup(prev => ({ ...prev, isOpen: false }));
    };
 
+   const handleClickBack = () =>{
+      navigate('/produtos');
+   }
+
    return(
-      <div className='flex w-full '>
+      <div className='flex w-full'>
          <Sidebar/>
-            <div className="bg-white-100 p-4 flex-1">
+            <div className="min-h-screen bg-white-100   flex-1">
                <Header/>
                <div className="h-auto rounded-lg shadow-md p-6">
 
+
                   <div className="mb-8">
-                     <h1 className="text-3xl font-bold text-foreground mb-2">Cadastro de Produtos</h1>
+                     <div className='flex items-center gap-2'>
+                        <ArrowLeft className='cursor-pointer' onClick={handleClickBack}/>
+                        <h1 className="text-3xl font-bold text-foreground mb-2">Editar Produto</h1>
+                     </div>
                      <p className="text-muted-foreground">Preencha as informações do produto abaixo</p>
                   </div>
 
@@ -229,7 +278,7 @@ export function ProdutoEditarDados() {
 
 
                   <ProdutoForm
-                     formData={produtoData as Produto}
+                     formData={formData as Produto}
                      onSubmit={handleSubmit}
                      onInputChange={handleInputChange}
                      buttonText="Atualizar"

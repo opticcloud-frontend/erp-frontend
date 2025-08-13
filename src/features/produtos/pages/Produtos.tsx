@@ -223,7 +223,6 @@ export function Produtos() {
       <div className="flex-1 space-y-6">
         <Header/>
         <div className='p-6'>
-
         
           <div className="space-y-2">
             <div className='flex items-center gap-3'>

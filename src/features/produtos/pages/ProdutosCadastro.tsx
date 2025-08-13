@@ -29,6 +29,10 @@ type Option = {
 };
  
 type TributacaoOpcoes  = {
+  icmsAliquota: number;
+  pisAliquota : number;
+  cofinsAliquota  : number;
+  ipiAliquota   : number;
   cofinsSituacaoTributaria: Option[];
   icmsSituacaoTributaria: Option[];
   ipiSituacaoTributaria: Option[];
@@ -37,7 +41,7 @@ type TributacaoOpcoes  = {
 
 export function ProdutosCadastro() {
   
-  const [formData, setFormData] = useState(initialFormData);
+  const [formData, setFormData] = useState<ProdutoFormData>(initialFormData);
   const isInitialized = useRef(false);
   const { userData, isAuthenticated, logout } = useAuth();  
   const [tributacao, setTributacao] = useState<TributacaoOpcoes | null>(null);
@@ -93,15 +97,29 @@ export function ProdutosCadastro() {
   if (!isAuthenticated) {
     return <Navigate to="/" replace />; 
   }
+
+  const converters: Record<string, (v: string | boolean) => any> = {
+    icmsAliquota: v => parseFloat(v as string) || 0,
+    pisAliquota: v => parseFloat(v as string) || 0,
+    cofinsAliquota: v => parseFloat(v as string) || 0,
+    ipiAliquota: v => parseFloat(v as string) || 0,
+    custoReposicao: v => parseFloat(v as string) || 0,
+    lucroPercentual: v => parseFloat(v as string) || 0,
+    valorVenda: v => parseFloat(v as string) || 0
+  };
  
-  const handleInputChange = async (event: FormInputEvent) => {
+  const handleInputChange = (event: FormInputEvent) => {
     const { name, value } = event.target;
+    const key = name.includes('.') ? name.split('.').pop()! : name;
+    const converter = converters[key];
+    const convertedValue = converter ? converter(value) : value;
+
+    console.log(formData)
+    console.log(convertedValue)
 
     if (name.includes('.')) {
-
       setFormData(prev => {
-        const keys = name.split('.'); 
-
+        const keys = name.split('.');
         const updated = { ...prev };
 
         let nested: any = updated;
@@ -110,21 +128,19 @@ export function ProdutosCadastro() {
           nested = nested[keys[i]];
         }
 
-        nested[keys[keys.length - 1]] = value;
-
+        nested[keys[keys.length - 1]] = convertedValue;
         return updated;
       });
     } else {
       setFormData(prev => ({
         ...prev,
-        [name]: value,
+        [name]: convertedValue,
       }));
     }
   };
 
   const validateInfos = () =>{
 
-    console.log()
 
     let camposInvalidos = infosValores.forEach((campo) =>{
       const valor = formData[campo] as number | undefined;
@@ -185,6 +201,8 @@ export function ProdutosCadastro() {
     if(!validateInfos()){
       return 
     }
+
+    console.log(formData)
 
     try {
       const response = await fetch(apiUrl + 'produtos', {

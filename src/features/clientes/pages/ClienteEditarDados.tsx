@@ -360,11 +360,9 @@ export function ClienteEditarDados() {
                      <div className="flex items-center space-x-2">
                         <ArrowLeft className='cursor-pointer' onClick={handleClickBack}/>
                         <div className="bg-blue-600 p-2 rounded-lg">
-                        <Users className="h-6 w-6 text-white" />
+                           <Users className="h-6 w-6 text-white" />
                         </div>
-                        <h1 className="text-2xl font-semibold text-gray-800">
-                        Editar Cliente
-                        </h1>
+                        <h1 className="text-2xl font-semibold text-gray-800"> Editar Cliente </h1>
                      </div>
                   </div>
                   <div className='flex items-center gap-5 mb-5 text-center bg-gray-200 p-1 rounded-lg'>

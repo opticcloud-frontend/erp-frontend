@@ -4,6 +4,10 @@ export interface SituacaoTributaria {
 }
 
 export interface Tributacao {
+  icmsAliquota:  number | undefined;
+  pisAliquota:  number | undefined;
+  cofinsAliquota:  number | undefined;
+  ipiAliquota:  number | undefined;
   icmsSituacaoTributaria: { codigo: string };
   pisSituacaoTributaria: { codigo: string };
   cofinsSituacaoTributaria: { codigo: string };
@@ -32,10 +36,7 @@ export interface ProdutoFormData {
   ativo: boolean;
   observacoes: string;
   idOtica: string;
-  icmsAliquota: string;
-  pisAliquota: string;
-  cofinsAliquota: string;
-  ipiAliquota: string;
+  
   tributacao: Tributacao;
 }
 
@@ -62,10 +63,6 @@ export interface Produto {
   ativo: boolean;
   observacoes: string;
   idOtica: string;
-  icmsAliquota: string;
-  pisAliquota: string;
-  cofinsAliquota: string;
-  ipiAliquota: string;
   dataCadastro: string;
   tributacao: TributacaoOpcoes;
 }
@@ -76,6 +73,10 @@ type Option = {
 };
  
 type TributacaoOpcoes  = {
+  icmsAliquota:  number | undefined;
+  pisAliquota:  number | undefined;
+  cofinsAliquota:  number | undefined;
+  ipiAliquota:  number | undefined;
   cofinsSituacaoTributaria: Option[];
   icmsSituacaoTributaria: Option[];
   ipiSituacaoTributaria: Option[];

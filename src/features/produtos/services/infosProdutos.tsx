@@ -11,6 +11,10 @@ export const infosTributacao = {
    ipiSituacaoTributaria: { 
       codigo: '' 
    },
+   icmsAliquota: undefined,
+   pisAliquota: undefined,
+   cofinsAliquota: undefined,
+   ipiAliquota: undefined,
 };
 
 export const infosProdutos = {
@@ -35,10 +39,6 @@ export const infosProdutos = {
   ativo: true,
   observacoes: '',
   idOtica: '',
-  icmsAliquota: '',
-  pisAliquota: '',
-  cofinsAliquota: '',
-  ipiAliquota: '',
   tributacao: infosTributacao
 };
 

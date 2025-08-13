@@ -24,7 +24,8 @@ export const ProdutoForm: React.FC<produtoFormProps> = ({
   abaAtiva,
   tributacao
 }) => {
-  
+
+
   return (
     <form onSubmit={onSubmit} className=" p-5 rounded-lg">
       {abaAtiva == "basicos" && (
@@ -158,7 +159,7 @@ export const ProdutoForm: React.FC<produtoFormProps> = ({
 
 
       {abaAtiva == "financeiro" && (
-        <div className='border-t'>
+        <div className=''>
           <h2 className="text-xl my-5 text-primary bg-blue-100 p-4 text-cyan-500 font-bold rounded">Informações Financeiras</h2>
           
           <div className="flex w-full space-x-2 mb-6">
@@ -222,6 +223,7 @@ export const ProdutoForm: React.FC<produtoFormProps> = ({
             value={formData.material}
             onChange={onInputChange}
           />
+          
         </div>
       )}
 
@@ -267,8 +269,8 @@ export const ProdutoForm: React.FC<produtoFormProps> = ({
             <div className="flex w-full space-x-2 mb-6 ">
               <Input
                 label="ICMS *"
-                name="icmsAliquota"
-                value={formData.icmsAliquota}
+                name="tributacao.icmsAliquota"
+                value={formData.tributacao.icmsAliquota}
                 onChange={onInputChange}
                 required
                 disabled={disabled}
@@ -278,8 +280,8 @@ export const ProdutoForm: React.FC<produtoFormProps> = ({
 
               <Input
                 label="pis *"
-                name="pisAliquota"
-                value={formData.pisAliquota}
+                name="tributacao.pisAliquota"
+                value={formData.tributacao.pisAliquota}
                 onChange={onInputChange}
                 required
                 disabled={disabled}
@@ -289,8 +291,8 @@ export const ProdutoForm: React.FC<produtoFormProps> = ({
 
               <Input
                 label="COFINS *"
-                name="cofinsAliquota"
-                value={formData.cofinsAliquota}
+                name="tributacao.cofinsAliquota"
+                value={formData.tributacao.cofinsAliquota}
                 onChange={onInputChange}
                 required
                 disabled={disabled}
@@ -300,8 +302,8 @@ export const ProdutoForm: React.FC<produtoFormProps> = ({
 
               <Input
                 label="IPI *"
-                name="ipiAliquota"
-                value={formData.ipiAliquota}
+                name="tributacao.ipiAliquota"
+                value={formData.tributacao.ipiAliquota}
                 onChange={onInputChange}
                 required
                 disabled={disabled}
@@ -322,7 +324,9 @@ export const ProdutoForm: React.FC<produtoFormProps> = ({
                     className="my-3 block p-2 w-full border rounded-md border-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     onChange={onInputChange}
                     name="tributacao.icmsSituacaoTributaria.codigo"
+                    value={formData.tributacao.icmsSituacaoTributaria?.codigo ?? ""}
                   >
+                    <option value="" >Selecione uma opção</option>
                     {tributacao.icmsSituacaoTributaria.map((option: Option) => (
                       <option key={option.codigo} value={option.codigo}>
                         {option.descricao}
@@ -337,7 +341,9 @@ export const ProdutoForm: React.FC<produtoFormProps> = ({
                     className="my-3 block p-2 w-full border rounded-md border-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     onChange={onInputChange}
                     name="tributacao.pisSituacaoTributaria.codigo"
+                    value={formData.tributacao.pisSituacaoTributaria?.codigo ?? ""}
                   >
+                    <option value="" >Selecione uma opção</option>
                     {tributacao.pisSituacaoTributaria.map((option: Option) => (
                       <option key={option.codigo} value={option.codigo}>
                         {option.descricao}
@@ -354,7 +360,9 @@ export const ProdutoForm: React.FC<produtoFormProps> = ({
                     className="my-3 block p-2 w-full border rounded-md border-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     onChange={onInputChange}
                     name="tributacao.cofinsSituacaoTributaria.codigo"
+                    value={formData.tributacao.cofinsSituacaoTributaria?.codigo ?? ""}
                   >
+                    <option value="" >Selecione uma opção</option>
                     {tributacao.cofinsSituacaoTributaria.map((option: Option) => (
                       <option key={option.codigo} value={option.codigo}>
                         {option.descricao}
@@ -369,7 +377,9 @@ export const ProdutoForm: React.FC<produtoFormProps> = ({
                     className="my-3 block p-2 w-full border rounded-md border-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     onChange={onInputChange}
                     name="tributacao.ipiSituacaoTributaria.codigo"
+                    value={formData?.tributacao?.ipiSituacaoTributaria?.codigo ?? ""}
                   >
+                    <option value="" >Selecione uma opção</option>
                     {tributacao.ipiSituacaoTributaria.map((option: Option) => (
                       <option key={option.codigo} value={option.codigo}>
                         {option.descricao}
@@ -386,12 +396,7 @@ export const ProdutoForm: React.FC<produtoFormProps> = ({
 
 
       <div className="flex justify-end space-x-3 pt-4">
-        <button
-          type="button"
-          className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-        >
-          Cancelar
-        </button>
+
         <button
           type="submit"
           className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
