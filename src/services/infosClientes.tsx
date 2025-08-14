@@ -1,0 +1,36 @@
+export const infosClientes = {
+   nomeCompleto: '',
+   emailUsuarioCadastro: '',
+   descricaoTipoCliente: 'PESSOA_FISICA',
+   IdOtica: '',
+   telefone: '', 
+   dataNascimento: "",
+   razaoSocial: '',
+   nomeFantasia: '',
+   responsavelLegal: '',
+   limiteCredito: '',
+   metodoPagamentoPreferido: 'Cartão de Crédito',
+   indicadorCliente: '',
+   preferencias: '',
+   observacoes: '',
+   ativo: true,
+   email: '',
+   documento: '', // cpf/cnpj
+   enderecoCep: '',
+   enderecoLogradouro: '',
+   enderecoNumero: '',
+   enderecoComplemento: '',
+   enderecoBairro: '',
+   enderecoCidade: '',
+   enderecoEstado: '',
+   inscricaoEstadual: '',
+};
+
+
+export const infos_metodos_pagamentos = [
+   { value: 'Cartão de Crédito', label: 'Cartão de Crédito' },
+   { value: 'PIX', label: 'PIX' },
+   { value: 'Boleto Bancário', label: 'Boleto Bancário' },
+   { value: 'Transferência Bancária', label: 'Transferência Bancária' },
+   { value: 'Carnê', label: 'Carnê' },
+ ];

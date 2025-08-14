@@ -1,47 +1,56 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { PrivateRoute } from './components/PrivateRoute';
-import { Header } from './layout/Header'
 import { AuthProvider } from './contexts/AuthContext'
 // Paginas
-import { LoginPage } from './pages/auth/LoginPage';
-import { RegisterPage } from './pages/auth/RegisterPage';
-import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage';
+import { DashboardPage } from './features/dashboardHome/pages/DashboardPage';
 
-import { DashboardPage } from './pages/dashboard/DashboardPage';
-import { ClientesCadastro } from './pages/clientes/ClientesCadastro'
-import { Clientes } from './pages/clientes/Clientes'
-import { ClientesPage } from './pages/clientes/ClientesPage'
+import { LoginPage } from './features/login/pages/LoginPage';
+import { RegisterPage } from './features/login/pages/RegisterPage';
+import { ForgotPasswordPage } from './features/login/pages/ForgotPasswordPage';
 
-import { Produtos } from './pages/produtos/Produtos'
-import { ProdutosCadastro } from './pages/produtos/ProdutosCadastro'
-import { VendasPage } from './pages/vendas/VendasPage'
-import { VendasCadastro } from './pages/vendas/VendasCadastro'
-import { DespesasPage } from './pages/despesas/DespesasPage'
-import { FornecedoresPage } from './pages/fornecedores/FornecedoresPage'
+import { ClientesCadastro } from './features/clientes/pages/ClientesCadastro'
+import { ClientesPage } from './features/clientes/pages/ClientesPage'
+
+import { Produtos } from './features/produtos/pages/Produtos'
+import { ProdutosCadastro } from './features/produtos/pages/ProdutosCadastro'
+
+import { VendasPage } from './features/vendas/pages/VendasPage'
+import { VendasCadastro } from './features/vendas/pages/VendasCadastro'
+
+import { DespesasPage } from './features/despesas/pages/DespesasPage'
+
+import { FornecedoresPage } from './features/fornecedores/pages/FornecedoresPage'
+import { ClienteVisualizarDados } from './features/clientes/pages/ClienteVisualizarDados';
+import { ClienteEditarDados } from './features/clientes/pages/ClienteEditarDados';
+import { ProdutoEditarDados } from './features/produtos/pages/ProdutoEditarDados';
 
 function App() {
   return (
     <AuthProvider>
-      <Header/>
       <div className='flex flex-row'>
         <Routes>
           <Route path="/" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/clientes/cadastrar" element={<ClientesCadastro />} />
-          <Route path="/clientes" element={<ClientesPage />} />
-          <Route path="/produtos" element={<Produtos />} />
-          <Route path="/produtos/cadastrar" element={<ProdutosCadastro />} />
-          <Route path="/vendas" element={<VendasPage />} />
-          <Route path="/vendas/nova" element={<VendasCadastro />} />
-          <Route path="/despesas" element={<DespesasPage />} />
-          <Route path="/fornecedores" element={<FornecedoresPage />} />
-
           <Route path="/dashboard" element={
             <PrivateRoute>
               <DashboardPage />
             </PrivateRoute>
           } />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/clientes/cadastrar" element={<ClientesCadastro />} />
+          <Route path="/cliente/historico" element={<ClienteVisualizarDados />} />
+          <Route path="/cliente/editar" element={<ClienteEditarDados />} />
+          <Route path="/clientes" element={<ClientesPage />} />
+          <Route path="/produtos/cadastrar" element={<ProdutosCadastro />} />
+          <Route path="/produtos" element={<Produtos />} />
+          <Route path="/produto/editar" element={<ProdutoEditarDados />} />
+          <Route path="/vendas/cadastrar" element={<VendasCadastro />} />
+          <Route path="/vendas" element={<VendasPage />} />
+          <Route path="/despesas/cadastrar" element={<DespesasPage />} />
+          <Route path="/despesas" element={<DespesasPage />} />
+          <Route path="/fornecedores/cadastrar" element={<FornecedoresPage />} />
+          <Route path="/fornecedores" element={<FornecedoresPage />} />
+
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
