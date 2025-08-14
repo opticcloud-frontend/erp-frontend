@@ -1,5 +1,3 @@
-import { Produto } from "../features/produtos/types/produto";
-
 export interface Cliente {
   nomeCompleto: string,
   emailUsuarioCadastro: string,
@@ -27,28 +25,3 @@ export interface Cliente {
   enderecoEstado: string,
   inscricaoEstadual: string,
 }  
-
-export interface User {
-   id: string;
-   email: string;
-   name: string;
-   role: string;
-   created_at: string;
-   updated_at: string;
-   id_oticas: number[];
-   token: string;
-}
-
- 
- type StatusType = Record<string, unknown>
-
- export interface AuthContextType {
-   isAuthenticated: boolean;
-   login: (user: User) => void;
-   logout: (status?: StatusType) => void;
-   userData: User | null;
-   setClienteData: (cliente: Cliente | undefined) => void;
-   clienteData: Cliente | undefined;
-   produtoData: Produto | undefined;
-   setProdutoData: (cliente: Produto | undefined) => void;
- }
