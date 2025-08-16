@@ -47,7 +47,7 @@ export function ProdutosCadastro() {
   const [tributacao, setTributacao] = useState<TributacaoOpcoes | null>(null);
   const [abaAtiva, setAbaAtiva] = useState<"basicos" | "financeiro" | "tributarias">("basicos");
 
-  const infosValores: (keyof ProdutoFormData)[] = ['lucroPercentual', 'custoReposicao', 'valorVenda']
+  const infosValores: (keyof ProdutoFormData)[] = ['custoReposicao', 'valorVenda']
 
   useEffect(()=>{ 
     getOpcoesTributacoes()
@@ -114,9 +114,6 @@ export function ProdutosCadastro() {
     const converter = converters[key];
     const convertedValue = converter ? converter(value) : value;
 
-    console.log(formData)
-    console.log(convertedValue)
-
     if (name.includes('.')) {
       setFormData(prev => {
         const keys = name.split('.');
@@ -132,12 +129,27 @@ export function ProdutosCadastro() {
         return updated;
       });
     } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: convertedValue,
-      }));
+      setFormData(prev => {
+        const updated = {
+          ...prev,
+          [name]: convertedValue,
+        };
+
+        if (
+          updated.custoReposicao !== undefined &&
+          updated.valorVenda !== undefined &&
+          updated.valorVenda != 0 &&
+          (name === 'custoReposicao' || name === 'valorVenda')
+        ) {
+          const lucro = ((updated.valorVenda - updated.custoReposicao) / updated.valorVenda) * 100;
+          updated.lucroPercentual = parseFloat(lucro.toFixed(2));
+        }
+
+        return updated;
+      });
     }
   };
+
 
   const validateInfos = () =>{
 
@@ -150,7 +162,6 @@ export function ProdutosCadastro() {
       }
     })
 
-    console.log(formData)
     return true
   }
 
@@ -201,8 +212,6 @@ export function ProdutosCadastro() {
     if(!validateInfos()){
       return 
     }
-
-    console.log(formData)
 
     try {
       const response = await fetch(apiUrl + 'produtos', {

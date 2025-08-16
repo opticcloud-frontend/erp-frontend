@@ -146,7 +146,7 @@ export const ProdutoForm: React.FC<produtoFormProps> = ({
               <label className="block text-sm font-medium text-gray-700 mb-1">Observações</label>
               <textarea
                 name="observacoes"
-                value={formData.observacoes}
+                value={formData.observacoes ?? ""}
                 onChange={onInputChange}
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -200,7 +200,12 @@ export const ProdutoForm: React.FC<produtoFormProps> = ({
             <Input
               label="LUCRO PERCENTUAL *"
               name="lucroPercentual"
-              value={formData.lucroPercentual}
+              value={
+                formData.lucroPercentual !== undefined
+                  ? formData.lucroPercentual.toFixed(2).replace('.', ',') + ' %'
+                  : ''
+              }
+              disabled={true}
               onChange={onInputChange}
               required
               className='flex-1 w-full'
@@ -314,7 +319,6 @@ export const ProdutoForm: React.FC<produtoFormProps> = ({
           </div>
 
 
-
           {tributacao && (
             <>
               <div className="flex w-full space-x-2 mb-6 gap-5">
@@ -324,7 +328,6 @@ export const ProdutoForm: React.FC<produtoFormProps> = ({
                     className="my-3 block p-2 w-full border rounded-md border-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     onChange={onInputChange}
                     name="tributacao.icmsSituacaoTributaria.codigo"
-                    value={formData.tributacao.icmsSituacaoTributaria?.codigo ?? ""}
                   >
                     <option value="" >Selecione uma opção</option>
                     {tributacao.icmsSituacaoTributaria.map((option: Option) => (
@@ -341,7 +344,6 @@ export const ProdutoForm: React.FC<produtoFormProps> = ({
                     className="my-3 block p-2 w-full border rounded-md border-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     onChange={onInputChange}
                     name="tributacao.pisSituacaoTributaria.codigo"
-                    value={formData.tributacao.pisSituacaoTributaria?.codigo ?? ""}
                   >
                     <option value="" >Selecione uma opção</option>
                     {tributacao.pisSituacaoTributaria.map((option: Option) => (
@@ -360,7 +362,6 @@ export const ProdutoForm: React.FC<produtoFormProps> = ({
                     className="my-3 block p-2 w-full border rounded-md border-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     onChange={onInputChange}
                     name="tributacao.cofinsSituacaoTributaria.codigo"
-                    value={formData.tributacao.cofinsSituacaoTributaria?.codigo ?? ""}
                   >
                     <option value="" >Selecione uma opção</option>
                     {tributacao.cofinsSituacaoTributaria.map((option: Option) => (
@@ -377,7 +378,6 @@ export const ProdutoForm: React.FC<produtoFormProps> = ({
                     className="my-3 block p-2 w-full border rounded-md border-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     onChange={onInputChange}
                     name="tributacao.ipiSituacaoTributaria.codigo"
-                    value={formData?.tributacao?.ipiSituacaoTributaria?.codigo ?? ""}
                   >
                     <option value="" >Selecione uma opção</option>
                     {tributacao.ipiSituacaoTributaria.map((option: Option) => (
