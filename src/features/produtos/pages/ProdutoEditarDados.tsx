@@ -4,7 +4,7 @@ import { ChangeEvent, useEffect, useState } from 'react';
 import Popup from '../../../components/layout/CustomPopUp';
 import { Sidebar } from '../../../components/layout/Sidebar';
 import { Header } from '../../../components/layout/Header';
-import { Produto } from '../types/produto';
+import { Produto, ProdutoFormEditData } from '../types/produto';
 import { ProdutoForm } from '../components/ProdutoForm';
 import { ArrowLeft, Users } from 'lucide-react'
 
@@ -33,6 +33,17 @@ type TributacaoOpcoes  = {
   pisSituacaoTributaria: Option[];
 };
 
+type TributacaoProduto  = {
+  icmsAliquota: number;
+  pisAliquota : number;
+  cofinsAliquota  : number;
+  ipiAliquota   : number;
+  cofinsSituacaoTributaria: Option[];
+  icmsSituacaoTributaria: Option[];
+  ipiSituacaoTributaria: Option[];
+  pisSituacaoTributaria: Option[];
+};
+
 export function ProdutoEditarDados() {
    const navigate = useNavigate();
    const { userData, setProdutoData, produtoData} = useAuth(); 
@@ -45,7 +56,8 @@ export function ProdutoEditarDados() {
          setFormData(produtoData);
       }
       getOpcoesTributacoes()
-   }, []) 
+      console.log(produtoData)
+   }, [])  
 
    const apiUrl = import.meta.env.VITE_API_URL;
    const [popup, setPopup] = useState<PopupState>({
@@ -120,7 +132,6 @@ export function ProdutoEditarDados() {
 
 
          data = adicionarCodigoNaDescricao(data)
-         console.log(data)
 
    
          setTributacao(data)
@@ -149,7 +160,6 @@ export function ProdutoEditarDados() {
 
       const updatedFields = getUpdatedFields()
 
-      console.log(updatedFields)
       if (Object.keys(updatedFields).length === 0) {
          handleApiResponse( "alert", "Não há dados para atualizar")
          return;
@@ -187,7 +197,6 @@ export function ProdutoEditarDados() {
 
    const getUpdatedFields = (): Partial<Produto> => {
       const updatedFields: Partial<Produto> = {};
-      console.log(formData)
       
       for (const key in produtoData) {
          const originalValue = produtoData[key as keyof Produto];
@@ -199,6 +208,8 @@ export function ProdutoEditarDados() {
       }
       return updatedFields;
    };
+
+   console.log(formData)
 
    const handleApiResponse = (typePopPup: string = "", message: string) => {
       if(typePopPup == "alert"){
