@@ -1,0 +1,192 @@
+import React from 'react';
+import { FornecedoresFormProps } from '../types/fornecedores';
+import { Input } from '../../../components/ui/Input'
+import { Select } from '../../../components/ui/Select'
+import { infos_metodos_pagamentos } from '../../../services/infosClientes';
+import { Users, Landmark, MapIcon } from 'lucide-react';
+
+const METODOS_PAGAMENTO = infos_metodos_pagamentos;
+
+export const FornecedoresForm: React.FC<FornecedoresFormProps> = ({
+  formData,
+  cnpjError,
+  emailError,
+  telefoneError,
+  onSubmit,
+  onInputChange,
+  onInputChangeDocumento,
+  onInputChangeEmailFornecedor,
+  onInputChangeTelefone,
+  onInputChangeEnderecoCep,
+  onBlurCEP,
+  onBlurCNPJ, 
+  buttonText,
+  disabled = false,
+  infosAdicionais
+}) => {
+  return (
+    <form onSubmit={onSubmit} className="h-screen">
+      {infosAdicionais ? (
+        <div className="border-t shadow-md p-5 rounded-lg">
+          <div className='my-8 flex gap-2 '>
+            <MapIcon className="text-blue" />
+            <h2 className='text-lg font-medium text-gray-900 mb-2'>Endereço</h2>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+             <Select
+                label="Situação *"
+                name="ativo"
+                value={formData.ativo ? 'active' : 'inactive'}
+                onChange={(e) => {
+                  const isActive = e.target.value === 'active';
+                  onInputChange({ target: { name: 'ativo', value: isActive } });
+                }}
+                options={[
+                  { value: 'active', label: 'Ativo' },
+                  { value: 'inactive', label: 'Inativo'},
+                ]}
+              />
+            <Input
+              label="Logradouro *"
+              name="enderecoLogradouro"
+              value={formData.enderecoLogradouro}
+              onChange={onInputChange}
+            />
+            <Input
+              label="CEP *"
+              name="enderecoCep"
+              value={formData.enderecoCep}
+              onChange={onInputChangeEnderecoCep}
+              onBlur={onBlurCEP}
+              maxLength={9}
+            />
+            <Input
+              label="Número *"
+              name="enderecoNumero"
+              value={formData.enderecoNumero}
+              onChange={onInputChange}
+            />
+            <Input
+              label="Complemento"
+              name="enderecoComplemento"
+              value={formData.enderecoComplemento}
+              onChange={onInputChange}
+            />
+            <Input
+              label="Bairro *"
+              name="enderecoBairro"
+              value={formData.enderecoBairro}
+              onChange={onInputChange}
+            />
+            <Input
+              label="Cidade *"
+              name="enderecoCidade"
+              value={formData.enderecoCidade}
+              onChange={onInputChange}
+            />
+            <Input
+              label="Estado *"
+              name="enderecoEstado"
+              value={formData.enderecoEstado}
+              onChange={onInputChange}
+            />
+          </div>
+        </div>
+      ): (
+        <div className=''>
+          <div className='shadow-md p-5 rounded-lg'>
+            <div className='my-8 flex gap-2 '>
+              <Users className="text-blue" />
+              <h2 className='text-lg font-medium text-gray-900 mb-2'>Dados pessoais</h2>
+            </div>
+
+            <div className='grid grid-cols-2 gap-2'>
+              <Input
+                label="Razão Social *"
+                name="razaoSocial"
+                value={formData.razaoSocial}
+                onChange={onInputChange}
+                required
+              />
+              <Input
+                label="Nome Fantasia"
+                name="nomeFantasia"
+                value={formData.nomeFantasia}
+                onChange={onInputChange}
+              />
+              <Input
+                label="Inscrição Estadual"
+                name="inscricaoEstadual"
+                value={formData.inscricaoEstadual}
+                onChange={onInputChange}
+              />
+              <Input
+                label="CNPJ *"
+                name="documento"
+                value={formData.cnpj}
+                onBlur={onBlurCNPJ}
+                onChange={onInputChangeDocumento}
+                error={cnpjError}
+                maxLength={18}
+                required
+                disabled={disabled}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <Input
+                label="Email *"
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={onInputChange}
+              />
+              <Input
+                label="Telefone *"
+                type="tel"
+                name="telefone"
+                value={formData.telefone}
+                onChange={onInputChangeTelefone}
+                maxLength={16}
+                error={telefoneError}
+              />
+              <Input
+                label="Prazo Pagamento *"
+                name="prazoPagamento"
+                value={formData.prazoPagamento}
+                onChange={onInputChange}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Observações</label>
+              <textarea
+                name="observacoes"
+                value={formData.observacoes}
+                onChange={onInputChange}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+        
+
+      <div className="flex justify-end space-x-3 pt-4">
+        <button
+          type="button"
+          className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+        >
+          {buttonText}
+        </button>
+      </div>
+    </form>
+  );
+};

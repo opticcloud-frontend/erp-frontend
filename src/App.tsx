@@ -23,6 +23,8 @@ import { FornecedoresPage } from './features/fornecedores/pages/FornecedoresPage
 import { ClienteVisualizarDados } from './features/clientes/pages/ClienteVisualizarDados';
 import { ClienteEditarDados } from './features/clientes/pages/ClienteEditarDados';
 import { ProdutoEditarDados } from './features/produtos/pages/ProdutoEditarDados';
+import FornecedoresCadastro from './features/fornecedores/pages/FornecedoresCadastro';
+import { FornecedorEditarDados } from './features/fornecedores/pages/FornecedoresEditarDados';
 
 function App() {
   return (
@@ -48,7 +50,8 @@ function App() {
           <Route path="/vendas" element={<VendasPage />} />
           <Route path="/despesas/cadastrar" element={<DespesasPage />} />
           <Route path="/despesas" element={<DespesasPage />} />
-          <Route path="/fornecedores/cadastrar" element={<FornecedoresPage />} />
+          <Route path="/fornecedores/cadastrar" element={<FornecedoresCadastro />} />
+          <Route path="/fornecedores/editar" element={<FornecedorEditarDados />} />
           <Route path="/fornecedores" element={<FornecedoresPage />} />
 
 
