@@ -2,10 +2,8 @@ import React from 'react';
 import { FornecedoresFormProps } from '../types/fornecedores';
 import { Input } from '../../../components/ui/Input'
 import { Select } from '../../../components/ui/Select'
-import { infos_metodos_pagamentos } from '../../../services/infosClientes';
-import { Users, Landmark, MapIcon } from 'lucide-react';
+import { Users, MapIcon } from 'lucide-react';
 
-const METODOS_PAGAMENTO = infos_metodos_pagamentos;
 
 export const FornecedoresForm: React.FC<FornecedoresFormProps> = ({
   formData,
@@ -22,11 +20,12 @@ export const FornecedoresForm: React.FC<FornecedoresFormProps> = ({
   onBlurCNPJ, 
   buttonText,
   disabled = false,
-  infosAdicionais
+  abaAtiva
 }) => {
   return (
     <form onSubmit={onSubmit} className="h-screen">
-      {infosAdicionais ? (
+
+      {abaAtiva == "endereços" && (
         <div className="border-t shadow-md p-5 rounded-lg">
           <div className='my-8 flex gap-2 '>
             <MapIcon className="text-blue" />
@@ -92,7 +91,9 @@ export const FornecedoresForm: React.FC<FornecedoresFormProps> = ({
             />
           </div>
         </div>
-      ): (
+      )}
+
+      {abaAtiva == "pessoais" && (
         <div className=''>
           <div className='shadow-md p-5 rounded-lg'>
             <div className='my-8 flex gap-2 '>
@@ -122,7 +123,7 @@ export const FornecedoresForm: React.FC<FornecedoresFormProps> = ({
               />
               <Input
                 label="CNPJ *"
-                name="documento"
+                name="cnpj"
                 value={formData.cnpj}
                 onBlur={onBlurCNPJ}
                 onChange={onInputChangeDocumento}

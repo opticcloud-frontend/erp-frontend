@@ -34,6 +34,7 @@ export function FornecedoresCadastro() {
   const [telefoneError, setTelefoneError] = useState('');
   const { userData, isAuthenticated, logout } = useAuth();  
   const [infosAdicionais, setInfosAdicionais] = useState(false);
+  const [abaAtiva, setAbaAtiva] = useState<"pessoais" | "endereços">("pessoais");
   
   const apiUrl = import.meta.env.VITE_API_URL;
   const navigate = useNavigate()
@@ -380,18 +381,19 @@ export function FornecedoresCadastro() {
             </div>
           </div>
 
-          <div className='flex items-center gap-5 mb-5 text-center bg-gray-200  rounded-lg'>
-            <p 
-              className={`${infosAdicionais ? "bg-gray-200": "bg-gray-100 "} text-sm font-medium text-gray-700 p-2 w-3/6 cursor-pointer rounded-lg transition duration-300`}
-              onClick={handleClickInfosGerais}
+          <div className="flex space-x-2 mb-6 ">
+            <button
+              className={`flex-1 w-full px-4 py-2 rounded ${abaAtiva === "pessoais" ? "bg-blue-600 text-white" : "bg-white"}`}
+              onClick={() => setAbaAtiva("pessoais")}
             >
               Dados Pessoais
-            </p>
-            <p 
-              className={`${infosAdicionais ? "bg-gray-100": "bg-gray-200"} rounded-lg text-sm font-medium text-gray-700 p-2 w-3/6 cursor-pointer duration-300`} 
-              onClick={handleClickEndereco}>
+            </button>
+            <button
+              className={`flex-1 w-full px-4 py-2 rounded ${abaAtiva === "endereços" ? "bg-blue-600 text-white" : "bg-white"}`}
+              onClick={() => setAbaAtiva("endereços")}
+            >
               Endereço
-            </p>
+            </button>
           </div>
 
           <FornecedoresForm
@@ -408,7 +410,7 @@ export function FornecedoresCadastro() {
             onBlurCEP={handleBlurCEP}
             onBlurCNPJ={handleBlurCNPJ}
             buttonText="Cadastrar"
-            infosAdicionais={infosAdicionais}
+            abaAtiva={abaAtiva}
           />
           {popup.isOpen && (
             <Popup
