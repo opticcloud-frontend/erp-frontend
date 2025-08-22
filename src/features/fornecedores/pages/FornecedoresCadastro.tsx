@@ -38,7 +38,6 @@ export function FornecedoresCadastro() {
   
   const apiUrl = import.meta.env.VITE_API_URL;
   const navigate = useNavigate()
-  
 
   const [popup, setPopup] = useState<PopupState>({
     type: null,
@@ -170,100 +169,67 @@ export function FornecedoresCadastro() {
     return <Navigate to="/" replace />; 
   }
  
-  const handleInputChangeDocumento = async (
-    e: ChangeEvent<HTMLInputElement>
-  ) =>{
-    const {value} = e.target;
-
-    console.log(value)
-
-
-    const cnpjDigitos = FormatInfos.formatCNPJ(value);
- 
-    setFormData(current => ({
-      ...current,
-      cnpj: cnpjDigitos,
-    }));
-  }
-
-  const handleInputChangeEmailFornecedor = (
-    e: ChangeEvent<HTMLInputElement> 
-  ) => {
-    const {name, value } = e.target;
-
-    setFormData(current => ({
-      ...current,
-      [name]: value,
-    }));
-
-    if (!value) {
-      setEmailError('');
-      return;
-    }
-
-    if (!ValidateInfos.validateEmail(value)) {
+  const validateEmail = (dado: string) =>{
+    if (!ValidateInfos.validateEmail(dado)) {
       setEmailError('Email inválido');
     } else {
       setEmailError('');
     }
   }
 
-  const handleInputChangeTelefeone = (
-    e: ChangeEvent<HTMLInputElement> 
-  ) => {
-    const { name, value } = e.target;
-
-    const formattedTelefone = FormatInfos.formatTelefone(value);
-
-    if (!ValidateInfos.validateTelefone(formattedTelefone)) {
+  const validateTelefone = (dado: string) =>{
+    if (!ValidateInfos.validateTelefone(dado)) {
       setTelefoneError('Telefone inválido');
     } else {
       setTelefoneError('');
     }
-
-    setFormData(current => ({
-      ...current,
-      [name]: formattedTelefone,
-    }));
-  }
-
-  const handleInputChangeEnderecoCep = (
-    e: ChangeEvent<HTMLInputElement> 
-  ) => {
-    const { name, value } = e.target;
-
-    const formattedCEP = FormatInfos.formatCep(value);
-
-    setFormData(current => ({
-      ...current,
-      [name]: formattedCEP,
-    }));
   }
 
   const handleInputChange = async (event: FormInputEvent) => {
     const { name, value } = event.target;
 
+    if (name === 'ativo') {
+      const isActive = value === 'active';
+      setFormData(current => ({
+        ...current,
+        ativo: isActive, 
+      }));
+      return; 
+    }
+
+    let dado: string  = value as string
+
+    if (name == 'enderecoCep'){
+      dado = FormatInfos.formatCep(value);
+    }
+
+    if (name == 'telefone'){
+      dado = FormatInfos.formatTelefone(value);
+      validateTelefone(dado)
+    }
+
+    if (name == 'email'){
+      validateEmail(dado)
+    }
+
+    if (name == 'cnpj'){
+      dado = FormatInfos.formatCNPJ(value);
+    }
+
     setFormData(current => ({
       ...current,
-      [name]: value,
+      [name]: dado,
     }));
   };
 
   const validateInfos = () =>{
-    // if (formData.descricaoTipoFornecedor === 'PESSOA_FISICA' && !ValidateInfos.validateCPF(formData.documento)) {
-    //   setCnpjError('CPF inválido');
-    //   return false;
-    // }
+    if (!ValidateInfos.validateEmail(formData.email) && formData.email != "") { 
+      return false;
+    }
     
-    // if (!ValidateInfos.validateEmail(formData.email)) { 
-    //   setEmailError('E-mail inválido');
-    //   return false;
-    // }
-    
-    // if (!ValidateInfos.validateTelefone(formData.telefone)) {
-    //   setTelefoneError('Telefone inválido');
-    //   return false;
-    // }
+    if (!ValidateInfos.validateTelefone(formData.telefone)) {
+      return false;
+    }
     
     return true
   }
@@ -310,16 +276,7 @@ export function FornecedoresCadastro() {
       return 
     }
 
-    let payload = { ...formData };
-
-    // payload.cnpj = getDIgitosDados(formData.cnpj)
-    // payload.enderecoCep = getDIgitosDados(formData.enderecoCep)
-    // payload.telefone = getDIgitosDados(formData.telefone)
-    
-    const fornecedorFinal: Fornecedor  = convertFornecedorFormToFornecedor(payload);
-    
-    console.log(fornecedorFinal)
-
+    const fornecedorFinal: Fornecedor  = convertFornecedorFormToFornecedor(formData);
 
     try {
       const response = await fetch(apiUrl + 'fornecedores', {
@@ -334,10 +291,7 @@ export function FornecedoresCadastro() {
       const responseData = await response.json()
       const responseMessage = responseData.message || response.statusText || 'Erro ao cadastrar Fornecedor';
 
-      console.log(responseData)
-
       handleApiResponse(response.ok, responseMessage)
-
       setErrorTokenExpirado(response.status)
 
       if (!response.ok) {
@@ -356,15 +310,6 @@ export function FornecedoresCadastro() {
       navigate('/', {state: {status: 401, message: "sessão expirada"}})
     }
   }
-
-  const handleClickEndereco = () =>{
-    setInfosAdicionais(true)
-  }
-
-  const handleClickInfosGerais = () =>{
-    setInfosAdicionais(false)
-  }
-  
 
   return (
     <div className='flex w-full'>
@@ -403,10 +348,6 @@ export function FornecedoresCadastro() {
             telefoneError={telefoneError}
             onSubmit={handleSubmit}
             onInputChange={handleInputChange}
-            onInputChangeDocumento={handleInputChangeDocumento}
-            onInputChangeEmailFornecedor={handleInputChangeEmailFornecedor}
-            onInputChangeTelefone={handleInputChangeTelefeone}
-            onInputChangeEnderecoCep={handleInputChangeEnderecoCep}
             onBlurCEP={handleBlurCEP}
             onBlurCNPJ={handleBlurCNPJ}
             buttonText="Cadastrar"

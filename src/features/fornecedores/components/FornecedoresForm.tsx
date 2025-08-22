@@ -12,10 +12,6 @@ export const FornecedoresForm: React.FC<FornecedoresFormProps> = ({
   telefoneError,
   onSubmit,
   onInputChange,
-  onInputChangeDocumento,
-  onInputChangeEmailFornecedor,
-  onInputChangeTelefone,
-  onInputChangeEnderecoCep,
   onBlurCEP,
   onBlurCNPJ, 
   buttonText,
@@ -32,19 +28,27 @@ export const FornecedoresForm: React.FC<FornecedoresFormProps> = ({
             <h2 className='text-lg font-medium text-gray-900 mb-2'>Endereço</h2>
           </div>
           <div className="grid grid-cols-2 gap-2">
-             <Select
-                label="Situação *"
-                name="ativo"
-                value={formData.ativo ? 'active' : 'inactive'}
-                onChange={(e) => {
-                  const isActive = e.target.value === 'active';
-                  onInputChange({ target: { name: 'ativo', value: isActive } });
-                }}
-                options={[
-                  { value: 'active', label: 'Ativo' },
-                  { value: 'inactive', label: 'Inativo'},
-                ]}
-              />
+            <Select
+              label="Situação *"
+              name="ativo"
+              value={formData.ativo ? 'active' : 'inactive'}
+              onChange={(e) => {
+                const value = e.target.value === 'active';
+                const event = {
+                  ...e,
+                  target: {
+                    ...e.target,
+                    value,
+                  },
+                } as unknown as React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
+
+                onInputChange(event);
+              }}
+              options={[
+                { value: 'active', label: 'Ativo' },
+                { value: 'inactive', label: 'Inativo' },
+              ]}
+            />
             <Input
               label="Logradouro *"
               name="enderecoLogradouro"
@@ -55,7 +59,7 @@ export const FornecedoresForm: React.FC<FornecedoresFormProps> = ({
               label="CEP *"
               name="enderecoCep"
               value={formData.enderecoCep}
-              onChange={onInputChangeEnderecoCep}
+              onChange={onInputChange}
               onBlur={onBlurCEP}
               maxLength={9}
             />
@@ -126,7 +130,7 @@ export const FornecedoresForm: React.FC<FornecedoresFormProps> = ({
                 name="cnpj"
                 value={formData.cnpj}
                 onBlur={onBlurCNPJ}
-                onChange={onInputChangeDocumento}
+                onChange={onInputChange}
                 error={cnpjError}
                 maxLength={18}
                 required
@@ -140,6 +144,7 @@ export const FornecedoresForm: React.FC<FornecedoresFormProps> = ({
                 type="email"
                 name="email"
                 value={formData.email}
+                error={emailError}
                 onChange={onInputChange}
               />
               <Input
@@ -147,7 +152,7 @@ export const FornecedoresForm: React.FC<FornecedoresFormProps> = ({
                 type="tel"
                 name="telefone"
                 value={formData.telefone}
-                onChange={onInputChangeTelefone}
+                onChange={onInputChange}
                 maxLength={16}
                 error={telefoneError}
               />
