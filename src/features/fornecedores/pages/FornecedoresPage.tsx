@@ -1,7 +1,7 @@
 import React, { useState, ChangeEvent  } from 'react';
 import { Users } from 'lucide-react';
 import type { Fornecedor } from '../types/types';
-import { ClientesBox } from '../components/ClientesBox';
+import { FornecedoresBox } from '../components/FornecedoresBox';
 import { SearchBar } from '../components/SearchBarProps';
 import {Sidebar} from '../../../components/layout/Sidebar'
 import { useAuth } from '../../../contexts/AuthContext'
@@ -23,24 +23,24 @@ const dadosClientes: Fornecedor[] = [];
 
 
 export function FornecedoresPage() {
-   const [infoBuscaCliente, setInfoBuscaCliente] = useState('');
+   const [infoBuscaFornecedores, setInfoBuscaFornecedores] = useState('');
    const [error, setError] = useState('');
    const [tipoFiltro, setTipoFiltro] = useState('nome');
    const apiUrl = import.meta.env.VITE_API_URL;
-   const [clientes, setClientes] = useState<Fornecedor[]>(dadosClientes);
+   const [clientes, setFornecedores] = useState<Fornecedor[]>(dadosClientes);
    const { userData, setFornecedorData} = useAuth(); 
    const [currentPage, setCurrentPage] = useState(0)
-   const clientePerPage = 5
+   const FornecedorPerPage = 5
    const [hasNext, setHasNext] = useState(Boolean)
    const [hasPrevious, setHasPrevious] = useState(Boolean)
    const [totalPage, setTotalPage] = useState(0)
-   const [containsClient, setContainsClient] = useState(true)
-   const [totalCliente, setTotalCliente] = useState(0)
+   const [containsFornecedor, setcontainsFornecedor] = useState(true)
+   const [totalFornecedor, settotalFornecedor] = useState(0)
 
 
    useEffectSkipFirst(() => {
       if(currentPage >= 0 && currentPage < totalPage){
-         setContainsClient(true)
+         setcontainsFornecedor(true)
          getFornecedor();
       }
    }, [currentPage])
@@ -93,21 +93,21 @@ export function FornecedoresPage() {
       const { value } = event.target;
 
       setTipoFiltro(value);
-      setClientes([])
-      setInfoBuscaCliente('')
+      setFornecedores([])
+      setInfoBuscaFornecedores('')
    }
 
    const handleInputChangeSearch = (event: ChangeEvent<HTMLInputElement>) =>{
       const  value  = event.target.value;
 
-      setInfoBuscaCliente(value)
+      setInfoBuscaFornecedores(value)
       setError('')
    }
 
    const getFornecedorelecionado = (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
       const clienteDocumento = e.currentTarget.getAttribute("data-id")
-      setClientes([])
-      setInfoBuscaCliente('')
+      setFornecedores([])
+      setInfoBuscaFornecedores('')
       
       if(clienteDocumento){
          setError('')
@@ -117,14 +117,17 @@ export function FornecedoresPage() {
             }
          });
 
-         console.log(clienteEncontrado)
-
          const documentoDigitos = clienteEncontrado?.cnpj.replace(/\D/g, '');
 
-         // if ( documentoDigitos != undefined) {
-         //    const formattedDoc: string = FormatInfos.formatCNPJ(documentoDigitos);
-         //    clienteEncontrado?.cnpj = formattedDoc
-         // }
+         if (documentoDigitos !== undefined) {
+            const formattedDoc: string = FormatInfos.formatCNPJ(documentoDigitos);
+
+            if (clienteEncontrado) {
+               clienteEncontrado.cnpj = formattedDoc;
+            }
+         }
+
+         console.log(clienteEncontrado)
    
          if(clienteEncontrado){
             setFornecedorData(clienteEncontrado)
@@ -133,44 +136,15 @@ export function FornecedoresPage() {
          navigate('/fornecedores/editar')
       }
    }
-
-   const handleClickClienteHistorico = (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
-      const clienteDocumento = e.currentTarget.getAttribute("data-id")
-      setClientes([])
-      setInfoBuscaCliente('')
-      
-      if(clienteDocumento){
-         setError('')
-         const clienteEncontrado = clientes.find((cliente) => {
-            if( cliente.cnpj === clienteDocumento) {
-               return cliente
-            }
-         });
-         
-         const documentoDigitos = clienteEncontrado?.cnpj.replace(/\D/g, ''); 
-
-         // if ( documentoDigitos != undefined) {
-         //    const formattedDoc: string = FormatInfos.formatCNPJ(documentoDigitos);
-         //    clienteEncontrado?.cnpj = formattedDoc
-         // }
-         
    
-         if(clienteEncontrado){
-            setFornecedorData(clienteEncontrado as Fornecedor)
-            navigate('/fornecedor/historico');
-         }
-         
-      }
-   }
-
    const getFornecedor = async () => {
       const idOtica = userData?.id_oticas[0]
 
-      const infoPesquisa = infoBuscaCliente.replace(/[\\/.-]/g, '');
+      const infoPesquisa = infoBuscaFornecedores.replace(/[\\/.-]/g, '');
       const filtroPesquisa = tipoFiltro == "CPF/CNPJ" ? "documento": tipoFiltro
 
 
-      const response = await fetch(`${apiUrl}fornecedores?idOtica=${idOtica}&cnpj=${infoPesquisa}&page=${currentPage}&size=${clientePerPage}` , {
+      const response = await fetch(`${apiUrl}fornecedores?idOtica=${idOtica}&cnpj=${infoPesquisa}&page=${currentPage}&size=${FornecedorPerPage}` , {
          method: 'GET',
          headers: {
            'Content-Type': 'application/json',
@@ -184,7 +158,7 @@ export function FornecedoresPage() {
       
       const data = await response.json();
 
-      setTotalCliente(data.totalElements)
+      settotalFornecedor(data.totalElements)
       setTotalPage(data.totalPages)
       setHasNext(data.hasNext)
       setHasPrevious(data.hasPrevious)
@@ -192,11 +166,11 @@ export function FornecedoresPage() {
       const listClientes = data.content;
       if (!listClientes.length){
          handleApiResponse( "alert", "Nenhum cliente encontrado!")
-         setClientes([])
-         setInfoBuscaCliente('')
+         setFornecedores([])
+         setInfoBuscaFornecedores('')
          return
       }
-      setClientes(listClientes)
+      setFornecedores(listClientes)
    }
 
    const handleClick = async () => {
@@ -210,7 +184,7 @@ export function FornecedoresPage() {
          setCurrentPage(prev => prev -1)
       }
 
-      setContainsClient(!!hasPrevious)
+      setcontainsFornecedor(!!hasPrevious)
    }
 
    const nextPage = async () => {
@@ -218,7 +192,7 @@ export function FornecedoresPage() {
          setCurrentPage(prev => prev +1)
       }
 
-      setContainsClient(!!hasNext)
+      setcontainsFornecedor(!!hasNext)
    }
 
    return (
@@ -255,7 +229,7 @@ export function FornecedoresPage() {
                      </select>
                      <div className="w-2/5">
                            <SearchBar
-                              value={infoBuscaCliente}
+                              value={infoBuscaFornecedores}
                               onChange={(e) => handleInputChangeSearch(e)}
                               type= {tipoFiltro}
                               error={error}
@@ -270,17 +244,17 @@ export function FornecedoresPage() {
                      </button>
                   </div>
                   <div className='w-full'>
-                     {!containsClient ?  (
+                     {!containsFornecedor ?  (
                         <div className='w-full text-center min-h-72 h-full flex justify-center items-center border-gray-300 shadow-sm border rounded-lg'>
                            <h2 className=''>Nenhum registro encontrado</h2>
                         </div>
                      ):(
-                        <ClientesBox clientes={clientes} handleClick={getFornecedorelecionado} onClickHistorico={handleClickClienteHistorico}/>
+                        <FornecedoresBox clientes={clientes} handleClick={getFornecedorelecionado}/>
                      )}
                      {clientes.length > 0 && (
                         <div className='w-full bg-white-300 gap-2 flex justify-between p-1'>
                            <div className=''>
-                              <p>Exibindo {clientePerPage} de {totalCliente}</p>
+                              <p>Exibindo {FornecedorPerPage} de {totalFornecedor}</p>
                            </div>
                            <div className='flex gap-2'>
                               <div className='cursor-pointer' onClick={previousPage}>

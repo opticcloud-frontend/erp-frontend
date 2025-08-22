@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { infosClientes } from '../../../services/infosClientes';
 import { Fornecedor } from '../types/types';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { FormatInfos } from '../../../services/FormatInfos';
 import { ValidateInfos } from '../../../services/ValidateInfos';
 import Popup from '../../../components/layout/CustomPopUp';
@@ -18,17 +18,18 @@ interface PopupState {
   message: string;
   isOpen: boolean;
 }
+type FormInputEvent =
+  | React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  | { target: { name: 'ativo'; value: boolean } }
+  | { target: { name: string; value: string } };
 
 export function FornecedorEditarDados() {
    const navigate = useNavigate();
    const { userData, setFornecedorData, fornecedorData} = useAuth(); 
    const [formData, setFormData] = useState<Fornecedor>({} as Fornecedor);
-   const [originalData, setOriginalData] = useState<Fornecedor>({} as Fornecedor);
-   const [infosAdicionais, setInfosAdicionais] = useState(false);
-   const [displayDocumento, setDisplayDocumento] = useState(''); 
-   const [documentoError, setDocumentoError] = useState('');
    const [emailError, setEmailError] = useState('');
    const [telefoneError, setTelefoneError] = useState('');
+   const [cnpjError, setCnpjError] = useState('');
    const apiUrl = import.meta.env.VITE_API_URL;
    const [popup, setPopup] = useState<PopupState>({
       type: null,
@@ -36,17 +37,17 @@ export function FornecedorEditarDados() {
       message: '',
       isOpen: false
    });
+   const [abaAtiva, setAbaAtiva] = useState<"pessoais" | "endereços">("pessoais");
+
+   useEffect(()=>{ 
+      if (fornecedorData) {
+         setFormData(fornecedorData);
+      }
+   }, [])
    
    const handleClickBack = () =>{
       navigate('/fornecedores');
       setFornecedorData(undefined)
-   }
-   const handleClickInfosGerais = () =>{
-      setInfosAdicionais(false)
-   }
-
-   const handleClickInfosAdicionais = () =>{
-      setInfosAdicionais(true)
    }
 
    const handleBlurCEP = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,9 +61,9 @@ export function FornecedorEditarDados() {
          if (data) {
             data.enderecoCep = FormatInfos.formatCep(data.enderecoCep);
 
-            if (fornecedorData) {
-               setFornecedorData({
-                 ...fornecedorData,
+            if (formData) {
+               setFormData({
+                 ...formData,
                  ...data
                });
             }
@@ -70,9 +71,61 @@ export function FornecedorEditarDados() {
       } catch (error) {
          console.error('Erro ao buscar dados do CEP', error);
       }
-
    };
 
+   const handleInputChange = async (event: FormInputEvent) => {
+      const { name, value } = event.target;
+
+      if (name === 'ativo') {
+         const isActive = value === 'active';
+         setFormData(current => ({
+            ...current,
+            ativo: isActive, 
+         }));
+         return; 
+      }
+
+      let dado: string  = value as string
+
+      if (name == 'enderecoCep'){
+      dado = FormatInfos.formatCep(value);
+      }
+
+      if (name == 'telefone'){
+         dado = FormatInfos.formatTelefone(value);
+         validateTelefone(dado)
+      }
+
+      if (name == 'email'){
+         validateEmail(dado)
+      }
+
+      if (name == 'cnpj'){
+         dado = FormatInfos.formatCNPJ(value);
+      }
+
+      setFormData(current => ({
+         ...current,
+         [name]: dado,
+      }));
+   };
+
+   const validateEmail = (dado: string) =>{
+      if (!ValidateInfos.validateEmail(dado)) {
+      setEmailError('Email inválido');
+      } else {
+      setEmailError('');
+      }
+   }
+
+   const validateTelefone = (dado: string) =>{
+      if (!ValidateInfos.validateTelefone(dado)) {
+      setTelefoneError('Telefone inválido');
+      } else {
+      setTelefoneError('');
+      }
+   }
+   
    const fetchCEPData = async (cep: string) => {
       const response = await fetch(`https://brasilapi.com.br/api/cep/v1/${cep}`);
       if (!response.ok) { 
@@ -100,9 +153,9 @@ export function FornecedorEditarDados() {
             data.enderecoCep = FormatInfos.formatCep(data.enderecoCep);
             data.telefone = FormatInfos.formatTelefone(data.telefone);
    
-            if (fornecedorData) {
-               setFornecedorData({
-                 ...fornecedorData,
+            if (formData) {
+               setFormData({
+                 ...formData,
                  ...data
                });
             }
@@ -138,117 +191,20 @@ export function FornecedorEditarDados() {
       }
    };
 
-   const handleInputChange = async (
-      e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-   ) => {
-      const { name, value } = e.target;
-
-      if (name === 'enderecoCep') {
-         const formattedCEP = FormatInfos.formatCep(value); // TODO
-         if (fornecedorData) {
-            setFornecedorData({
-               ...fornecedorData,
-               ['enderecoCep']: formattedCEP,
-             });
-         }
-      } else {
-         if (fornecedorData) {
-            setFornecedorData({
-              ...fornecedorData,
-              [name]: value,
-            });
-         }
-         
-      }
-   };
-
-   const handleInputChangeDocumento = async (
-      e: ChangeEvent<HTMLInputElement>
-   ) => {
-      const {value} = e.target;
-      const resp = await setInputDocumento(value)
-      if(resp){
-         return
-      }
+   const getDIgitosDados =(dados: string) =>{
+      return dados.replace(/[^\d]/g, '');
    }
 
-   const setInputDocumento = async (value: string) =>{
-      const documentoDigitos = value.replace(/\D/g, '');
-      let formattedDoc = '';
-
-      formattedDoc = FormatInfos.formatCNPJ(value);
-      setDisplayDocumento(formattedDoc);
-
-
-      setFormData(current => {
-         if (current) {
-            return {
-               ...current,
-               documento: documentoDigitos,
-            };
-         }
-         return current; 
-      });
+   const validateInfos = () =>{
+      if (!ValidateInfos.validateEmail(formData.email) && formData.email != "") { 
+      return false;
+      }
+      
+      if (!ValidateInfos.validateTelefone(formData.telefone)) {
+      return false;
+      }
+      
       return true
-   }
-
-   const handleInputChangeEmailCliente = (
-         e: ChangeEvent<HTMLInputElement> 
-      ) => {
-      const {name, value } = e.target;
-
-      if (fornecedorData) {
-         setFornecedorData({
-           ...fornecedorData,
-           [name]: value,
-         });
-      }
-
-      if (!value) {
-         setEmailError('');
-         return;
-      }
-
-      if (!ValidateInfos.validateEmail(value)) {
-         setEmailError('Email inválido');
-      } else {
-         setEmailError('');
-      }
-   }
-
-   const handleInputChangeTelefone = (
-         e: ChangeEvent<HTMLInputElement> 
-      ) => {
-      const { name, value } = e.target;
-      const formattedTelefone = FormatInfos.formatTelefone(value);
-
-      if (!ValidateInfos.validateTelefone(formattedTelefone)) {
-         setTelefoneError('Telefone inválido');
-      } else {
-         setTelefoneError('');
-      }
-
-      if (fornecedorData) {
-         setFornecedorData({
-           ...fornecedorData,
-           [name]: formattedTelefone,
-         });
-      }
-   }
-
-   const handleInputChangeEnderecoCep = (
-      e: ChangeEvent<HTMLInputElement> 
-   ) => {
-      const { name, value } = e.target;
-
-      const formattedCEP = FormatInfos.formatCep(value);
-      if (fornecedorData) {
-         setFornecedorData({
-           ...fornecedorData,
-           [name]: formattedCEP,
-         });
-      }
-
    }
 
    const handleSubmit = async (e: React.FormEvent) => {
@@ -259,13 +215,28 @@ export function FornecedorEditarDados() {
          return;
       }
 
-      updateCliente(updatedFields)
+      if(!validateInfos()){
+         return 
+      }
+      
+      try {
+         await updateCliente(updatedFields)
+         setFornecedorData({
+         ...fornecedorData,
+         ...updatedFields,
+         } as Fornecedor);
+         handleApiResponse("sucess", "Fornecedor atualizado com sucesso");
+      } catch (error) {
+         console.error(error);
+         handleApiResponse("error", "Erro ao atualizar informações do fornecedor");
+      }
    }
 
    const updateCliente = async (updatedFields: Partial<Fornecedor> ) => {
       const idOtica = userData?.id_oticas[0]
 
       console.log(updatedFields)
+
 
       const response = await fetch(`${apiUrl}fornecedores?idOtica=${idOtica}&cnpj=${fornecedorData?.cnpj.replace(/\D/g, '')}` , {
          method: 'PATCH',
@@ -276,25 +247,21 @@ export function FornecedorEditarDados() {
          body: JSON.stringify(updatedFields),
       });
 
-      handleApiResponse('sucess', "Usuario editado com sucesso")
+      handleApiResponse('sucess', "Fornecedor editado com sucesso")
       if (!response.ok) {
-         throw new Error('Erro ao atualizar informações do cliente');
+         throw new Error('Erro ao atualizar informações do Fornecedor');
       }
    }
 
    const getUpdatedFields = (): Partial<Fornecedor> => {
       const updatedFields: Partial<Fornecedor> = {};
+      
       for (const key in fornecedorData) {
-         const newValue = fornecedorData[key as keyof Fornecedor];
-         const originalValue = originalData[key as keyof Fornecedor];
+         const originalValue = fornecedorData[key as keyof Fornecedor];
+         const newValue = formData[key as keyof Fornecedor];
 
-   
-         if (newValue !== originalValue) {
+         if (newValue !== undefined && newValue !== originalValue) {
             updatedFields[key as keyof Fornecedor] = newValue as any;
-            setOriginalData(current => ({
-               ...current,
-               [key]: newValue,
-            }));
          }
       }
       return updatedFields;
@@ -347,40 +314,36 @@ export function FornecedorEditarDados() {
                         <div className="bg-blue-600 p-2 rounded-lg">
                            <Users className="h-6 w-6 text-white" />
                         </div>
-                        <h1 className="text-2xl font-semibold text-gray-800"> Editar Cliente </h1>
+                        <h1 className="text-2xl font-semibold text-gray-800"> Editar Fornecedor </h1>
                      </div>
                   </div>
-                  <div className='flex items-center gap-5 mb-5 text-center bg-gray-200 p-1 rounded-lg'>
-                     <p 
-                        className={`${infosAdicionais ? "bg-gray-200": "bg-gray-100 "} text-sm font-medium text-gray-700 p-2 w-3/6 cursor-pointer rounded-lg transition duration-300`}
-                        onClick={handleClickInfosGerais}
+                  <div className="flex space-x-2 mb-6 ">
+                     <button
+                        className={`flex-1 w-full px-4 py-2 rounded ${abaAtiva === "pessoais" ? "bg-blue-600 text-white" : "bg-white"}`}
+                        onClick={() => setAbaAtiva("pessoais")}
                      >
-                        Dados Pessoais
-                     </p>
-                     <p 
-                        className={`${infosAdicionais ? "bg-gray-100": "bg-gray-200"} rounded-lg text-sm font-medium text-gray-700 p-2 w-3/6 cursor-pointer duration-300`} 
-                        onClick={handleClickInfosAdicionais}>
-                        Informações Adicionais
-                     </p>
+                     Dados Pessoais
+                     </button>
+                     <button
+                        className={`flex-1 w-full px-4 py-2 rounded ${abaAtiva === "endereços" ? "bg-blue-600 text-white" : "bg-white"}`}
+                        onClick={() => setAbaAtiva("endereços")}
+                     >
+                     Endereço
+                     </button>
                   </div>
 
                   <FornecedoresForm
-                     formData={fornecedorData as Fornecedor}
-                     buttonText="Salvar"
-                     onBlurCEP={handleBlurCEP}
-                     onBlurCNPJ={handleBlurCNPJ}
-                     onInputChange={handleInputChange}
-                     onInputChangeDocumento={handleInputChangeDocumento}
-                     onInputChangeEmailCliente={handleInputChangeEmailCliente}
-                     onInputChangeTelefone={handleInputChangeTelefone}
-                     onInputChangeEnderecoCep={handleInputChangeEnderecoCep}
+                     formData={formData}
+                     cnpjError={cnpjError}
                      emailError={emailError}
                      telefoneError={telefoneError}
                      onSubmit={handleSubmit}
-                     disabled={true}
-                     infosAdicionais={infosAdicionais}
+                     onInputChange={handleInputChange}
+                     onBlurCEP={handleBlurCEP}
+                     onBlurCNPJ={handleBlurCNPJ}
+                     buttonText="Salvar"
+                     abaAtiva={abaAtiva}
                   />
-
                </div>
             </div>
             {popup.isOpen && (

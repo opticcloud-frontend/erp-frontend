@@ -5,10 +5,9 @@ import { FormatInfos } from '../../../services/FormatInfos';
 interface CustomerListProps {
   clientes: Fornecedor[];
   handleClick: (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => void;
-  onClickHistorico: (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => void;
 }
 
-export function ClientesBox({ clientes, handleClick, onClickHistorico }: CustomerListProps) {
+export function FornecedoresBox({ clientes, handleClick }: CustomerListProps) {
   const getDocumento = (cliente: Fornecedor) =>{
     const documento = cliente.cnpj 
 
@@ -88,19 +87,6 @@ export function ClientesBox({ clientes, handleClick, onClickHistorico }: Custome
                     Editar Dados
                   </div>
                 </div>
-
-                <div className="relative group py-3">
-                  <ClipboardList 
-                    size={20} 
-                    className="text-gray-700 cursor-pointer" 
-                    onClick={onClickHistorico}
-                    data-id={cliente.cnpj}
-                  />
-                  <div className="absolute right-full mb-2 top-1/2 -translate-y-1/2 whitespace-nowrap bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-100">
-                    Visualizar Dados
-                  </div>
-                </div>
-                
               </div>
             </div>
           </div>
@@ -110,4 +96,4 @@ export function ClientesBox({ clientes, handleClick, onClickHistorico }: Custome
   );
 }
 
-export default ClientesBox
+export default FornecedoresBox

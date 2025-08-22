@@ -33,7 +33,6 @@ export function FornecedoresCadastro() {
   const [emailError, setEmailError] = useState('');
   const [telefoneError, setTelefoneError] = useState('');
   const { userData, isAuthenticated, logout } = useAuth();  
-  const [infosAdicionais, setInfosAdicionais] = useState(false);
   const [abaAtiva, setAbaAtiva] = useState<"pessoais" | "endereços">("pessoais");
   
   const apiUrl = import.meta.env.VITE_API_URL;
