@@ -34,13 +34,10 @@ export function ClientesPage() {
    const [hasNext, setHasNext] = useState(Boolean)
    const [hasPrevious, setHasPrevious] = useState(Boolean)
    const [totalPage, setTotalPage] = useState(0)
-   const [containsClient, setContainsClient] = useState(true)
-   const [totalCliente, setTotalCliente] = useState(0)
 
 
    useEffectSkipFirst(() => {
       if(currentPage >= 0 && currentPage < totalPage){
-         setContainsClient(true)
          getClientes();
       }
    }, [currentPage])
@@ -193,7 +190,6 @@ export function ClientesPage() {
       
       const data = await response.json();
 
-      setTotalCliente(data.totalElements)
       setTotalPage(data.totalPages)
       setHasNext(data.hasNext)
       setHasPrevious(data.hasPrevious)
@@ -212,23 +208,17 @@ export function ClientesPage() {
       getClientes()
    }
 
-   const previousPage = async () => {
-      if (currentPage <= 0) return
-
-      if (currentPage <= totalPage){
-         setCurrentPage(prev => prev -1)
+   const previousPage = () => {
+      if (hasPrevious) {
+         setCurrentPage(prev => prev - 1);
       }
+   };
 
-      setContainsClient(!!hasPrevious)
-   }
-
-   const nextPage = async () => {
-      if (currentPage < totalPage){
-         setCurrentPage(prev => prev +1)
+   const nextPage = () => {
+      if (hasNext) {
+      setCurrentPage(prev => prev + 1);
       }
-
-      setContainsClient(!!hasNext)
-   }
+   };
 
    return (
       <div className='flex w-full'>
@@ -263,13 +253,12 @@ export function ClientesPage() {
                         <option value="email">Email</option>
                      </select>
                      <div className="w-2/5">
-                           <SearchBar
-                              value={infoBuscaCliente}
-                              onChange={(e) => handleInputChangeSearch(e)}
-                              type= {tipoFiltro}
-                              error={error}
-                           />
-                        
+                        <SearchBar
+                           value={infoBuscaCliente}
+                           onChange={(e) => handleInputChangeSearch(e)}
+                           type= {tipoFiltro}
+                           error={error}
+                        />
                      </div>
                      <button 
                         className='bg-blue-600 text-white p-2 w-28 rounded-md'
@@ -279,7 +268,7 @@ export function ClientesPage() {
                      </button>
                   </div>
                   <div className='w-full'>
-                     {!containsClient ?  (
+                     {!clientes.length ?  (
                         <div className='w-full text-center min-h-72 h-full flex justify-center items-center border-gray-300 shadow-sm border rounded-lg'>
                            <h2 className=''>Nenhum registro encontrado</h2>
                         </div>
@@ -287,36 +276,39 @@ export function ClientesPage() {
                         <ClientesBox clientes={clientes} handleClick={getClienteSelecionado} onClickHistorico={handleClickClienteHistorico}/>
                      )}
                      {clientes.length > 0 && (
-                        <div className='w-full bg-white-300 gap-2 flex justify-between p-1'>
-                           <div className=''>
-                              <p>Exibindo {clientePerPage} de {totalCliente}</p>
-                           </div>
+                       <div className='flex gap-2 justify-end'>
+                           <button
+                              onClick={previousPage}
+                              disabled={!hasPrevious}
+                              className={`cursor-pointer px-3 py-1 rounded border border-gray-300 ${!hasPrevious ? 'opacity-50 cursor-not-allowed' : 'hover:border-blue-300 hover:shadow-md'}`}
+                              >
+                              Anterior
+                           </button>
+
                            <div className='flex gap-2'>
-                              <div className='cursor-pointer' onClick={previousPage}>
-                                 <p>Anterior</p>
-                              </div>
-                              <div className='flex gap-2'>
-                                 {Array.from({ length: totalPage })
-                                 .slice(Math.floor(currentPage / 3) * 3, Math.floor(currentPage / 3) * 3 + 3)
-                                 .map((_, index) => {
-                                    const pageIndex = Math.floor(currentPage / 3) * 3 + index;
-                                    return (
-                                    <div
-                                       key={pageIndex}
-                                       className={`w-10 text-center cursor-pointer border border-gray-300 hover:border-blue-300 hover:shadow-md flex justify-center items-center
-                                       ${currentPage === pageIndex ? 'bg-blue-200' : 'bg-white'}
-                                       `}
-                                       onClick={() => setCurrentPage(pageIndex)}
-                                    >
-                                       <p>{pageIndex + 1}</p>
-                                    </div>
-                                    );
-                                 })}
-                              </div>
-                              <div className='cursor-pointer' onClick={nextPage}>
-                                 <p>Próximo</p>
-                              </div>
+                           {Array.from({ length: totalPage })
+                              .slice(Math.floor(currentPage / 3) * 3, Math.floor(currentPage / 3) * 3 + 3)
+                              .map((_, index) => {
+                                 const pageIndex = Math.floor(currentPage / 3) * 3 + index;
+                                 return (
+                                 <button
+                                    key={pageIndex}
+                                    onClick={() => setCurrentPage(pageIndex)}
+                                    className={`w-10 text-center border rounded ${currentPage === pageIndex ? 'bg-blue-200 border-blue-400' : 'bg-white border-gray-300 hover:border-blue-300 hover:shadow-md'}`}
+                                 >
+                                    {pageIndex + 1}
+                                 </button>
+                                 );
+                              })}
                            </div>
+
+                           <button
+                              onClick={nextPage}
+                              disabled={!hasNext}
+                              className={`cursor-pointer px-3 py-1 rounded border border-gray-300 ${!hasNext ? 'opacity-50 cursor-not-allowed' : 'hover:border-blue-300 hover:shadow-md'}`}
+                              >
+                              Próximo
+                           </button>
                         </div>
                      )}
                   </div>

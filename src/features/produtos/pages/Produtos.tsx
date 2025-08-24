@@ -1,15 +1,12 @@
 import { useEffect, useState } from 'react';
 import {Sidebar} from '../../../components/layout/Sidebar'
-import { Input } from '../../../components/ui/Input';
-import { Select } from '../../../components/ui/Select';
 import { useAuth } from '../../../contexts/AuthContext';
 import { Produto } from '../types/produto';
 import { useEffectSkipFirst } from '../../../components/ui/useEffectSkipFirst';
-import { p } from 'framer-motion/client';
-import { Box, Filter, Search, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { Box, Filter, Search, Plus } from 'lucide-react';
 import { Header } from '../../../components/layout/Header';
 import { useNavigate } from 'react-router-dom';
-import { string } from 'zod';
+import Popup from '../../../components/layout/CustomPopUp';
 
 
 type PopupType = 'success' | 'error' | 'alert' | null;
@@ -41,8 +38,6 @@ export function Produtos() {
   const [hasNext, setHasNext] = useState(Boolean)
   const [hasPrevious, setHasPrevious] = useState(Boolean)
   const [currentPage, setCurrentPage] = useState(0)
-  const [containsProduto, setcontainsProduto] = useState(false)
-  const [infoBuscaCliente, setInfoBuscaProduto] = useState('');
   const clientePerPage = 5
   const apiUrl = import.meta.env.VITE_API_URL;
   const idOtica = userData?.id_oticas[0]
@@ -52,7 +47,6 @@ export function Produtos() {
 
   useEffectSkipFirst(() => {
     if(currentPage >= 0 && currentPage < totalPage){
-      setcontainsProduto(true)
       if (filtro != undefined){
         filterProdutos()
       } else {
@@ -159,15 +153,12 @@ export function Produtos() {
     if (!listProdutos.length){
       handleApiResponse( "alert", "Nenhum produto encontrado!")
       setProdutos([])
-      setInfoBuscaProduto('')
       return
     }
     setProdutos(listProdutos)
   }
 
-  const getProdutos = async () => {
-    const params = new URLSearchParams();
-  
+  const getProdutos = async () => {  
     const response = await fetch(`${apiUrl}produtos?idOtica=${idOtica}&page=${currentPage}&size=${clientePerPage}` , {
       method: 'GET',
       headers: {
@@ -188,11 +179,9 @@ export function Produtos() {
     setHasPrevious(data.hasPrevious)
 
     const listProdutos = data.content;
-    console.log(listProdutos)
     if (!listProdutos.length){
       handleApiResponse( "alert", "Nenhum produto encontrado!")
       setProdutos([])
-      setInfoBuscaProduto('')
       return
     }
     setProdutos(listProdutos)
@@ -293,7 +282,7 @@ export function Produtos() {
                 </div>
               </div>
               <div className="flex gap-2 pt-2">
-                <button onClick={filterProdutos} className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 flex items-center gap-2">
+                <button onClick={filterProdutos} className="justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 flex items-center gap-2">
                   <Search className="h-4 w-4"/>
                   Buscar Produtos
                 </button>
@@ -307,10 +296,10 @@ export function Produtos() {
           <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
             <div className="flex flex-col space-y-1.5 p-6 pb-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg text-2xl font-semibold leading-none tracking-tight">Lista de Produtos</h3>
+                <h3 className="text-lg font-semibold leading-none tracking-tight">Lista de Produtos</h3>
                 <button 
                   onClick={novoProduto}
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 flex items-center gap-2"
+                  className="justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 flex items-center gap-2"
                 >
                   <Plus className="h-4 w-4"/>
                   
@@ -355,10 +344,10 @@ export function Produtos() {
                           <td className="px-4 py-3">{produto.modelo}</td>
                           <td className="px-4 py-3">{produto.cor}</td>
                           <td className="px-4 py-3 text-right font-medium">
-                            R$ {produto.valorVenda.toFixed(2)}
+                            R$ {produto.valorVenda?.toFixed(2)}
                           </td>
                           <td className="px-4 py-3 text-right text-muted-foreground">
-                            R$ {produto.custoReposicao.toFixed(2)}
+                            R$ {produto.custoReposicao?.toFixed(2)}
                           </td>
                           <td className="px-4 py-3 text-right">
                             <span className="text-green-600 font-medium">{produto.lucroPercentual}%</span>
@@ -373,7 +362,7 @@ export function Produtos() {
                             <button 
                               data-id={produto.id}
                               onClick={editarProduto}
-                              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3"
+                              className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3"
                             >
                               Editar
                             </button>
@@ -429,6 +418,17 @@ export function Produtos() {
             </div>
           </div>
         </div>
+        {popup.isOpen && (
+            <Popup
+              isOpen={popup.isOpen}
+              onClose={closePopup}
+              title={popup.title}
+              message={popup.message}
+              autoCloseTime={5000} 
+              position="bottom-right"
+              type={popup.type}
+            />
+        )}
       </div>
     </div>
   );

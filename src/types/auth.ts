@@ -5,7 +5,7 @@ export interface Cliente {
   nomeCompleto: string,
   emailUsuarioCadastro: string,
   descricaoTipoCliente: string,
-  oticaId: string,
+  IdOtica: string,
   telefone: string, 
   dataNascimento: string,
   razaoSocial: string,

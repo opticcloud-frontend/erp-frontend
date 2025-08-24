@@ -65,7 +65,6 @@ export function FornecedoresPage() {
          });
       }
 
-
       if (typePopPup == "sucess") {
          setPopup({
             type: 'success',
@@ -126,8 +125,6 @@ export function FornecedoresPage() {
                clienteEncontrado.cnpj = formattedDoc;
             }
          }
-
-         console.log(clienteEncontrado)
    
          if(clienteEncontrado){
             setFornecedorData(clienteEncontrado)

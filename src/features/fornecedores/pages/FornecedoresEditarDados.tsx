@@ -88,7 +88,7 @@ export function FornecedorEditarDados() {
       let dado: string  = value as string
 
       if (name == 'enderecoCep'){
-      dado = FormatInfos.formatCep(value);
+         dado = FormatInfos.formatCep(value);
       }
 
       if (name == 'telefone'){
@@ -112,17 +112,17 @@ export function FornecedorEditarDados() {
 
    const validateEmail = (dado: string) =>{
       if (!ValidateInfos.validateEmail(dado)) {
-      setEmailError('Email inválido');
+         setEmailError('Email inválido');
       } else {
-      setEmailError('');
+         setEmailError('');
       }
    }
 
    const validateTelefone = (dado: string) =>{
       if (!ValidateInfos.validateTelefone(dado)) {
-      setTelefoneError('Telefone inválido');
+         setTelefoneError('Telefone inválido');
       } else {
-      setTelefoneError('');
+         setTelefoneError('');
       }
    }
    
@@ -222,8 +222,8 @@ export function FornecedorEditarDados() {
       try {
          await updateCliente(updatedFields)
          setFornecedorData({
-         ...fornecedorData,
-         ...updatedFields,
+            ...fornecedorData,
+            ...updatedFields,
          } as Fornecedor);
          handleApiResponse("sucess", "Fornecedor atualizado com sucesso");
       } catch (error) {
@@ -234,9 +234,6 @@ export function FornecedorEditarDados() {
 
    const updateCliente = async (updatedFields: Partial<Fornecedor> ) => {
       const idOtica = userData?.id_oticas[0]
-
-      console.log(updatedFields)
-
 
       const response = await fetch(`${apiUrl}fornecedores?idOtica=${idOtica}&cnpj=${fornecedorData?.cnpj.replace(/\D/g, '')}` , {
          method: 'PATCH',

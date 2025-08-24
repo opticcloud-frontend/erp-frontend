@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, ChangeEvent } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {Sidebar} from '../../../components/layout/Sidebar'
 import { useAuth } from '../../../contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
@@ -31,8 +31,8 @@ export function ClientesCadastro() {
   const [documentoError, setDocumentoError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [telefoneError, setTelefoneError] = useState('');
-  const { userData, isAuthenticated, logout } = useAuth();  
-  const [infosAdicionais, setInfosAdicionais] = useState(false);
+  const {userData, isAuthenticated, logout } = useAuth();  
+  const [abaAtiva, setAbaAtiva] = useState<"pessoais" | "endereço">("pessoais");
   
   const apiUrl = import.meta.env.VITE_API_URL;
   const navigate = useNavigate()
@@ -166,99 +166,73 @@ export function ClientesCadastro() {
   if (!isAuthenticated) {
     return <Navigate to="/" replace />; 
   }
- 
-  const handleInputChangeDocumento = async (
-    e: ChangeEvent<HTMLInputElement>
-  ) =>{
-    const {value} = e.target;
-    const documentoDigitos = value.replace(/\D/g, '');
-    let formattedDoc = '';
 
-    if (formData.descricaoTipoCliente === 'PESSOA_FISICA') {
-      formattedDoc = FormatInfos.formatCPF(value);
+  const handleInputChange = async (event: FormInputEvent) => {
+    const { name, value } = event.target;
 
-
-      if (!value) {
-        setDocumentoError('');
-      }
- 
-      if (!ValidateInfos.validateCPF(documentoDigitos)) { 
-        setDocumentoError('CPF inválido'); 
-      } else {
-        setDocumentoError('');
-      }
-    } else {
-      formattedDoc = FormatInfos.formatCNPJ(value);
+    if (name === 'ativo') {
+      const isActive = value === 'active';
+      setFormData(current => ({
+        ...current,
+        ativo: isActive, 
+      }));
+      return; 
     }
- 
+
+    let dado: string  = value as string
+
+    if (name == 'enderecoCep'){
+      dado = FormatInfos.formatCep(value);
+    }
+
+    if (name == 'telefone'){
+      dado = FormatInfos.formatTelefone(value);
+      validateTelefone(dado)
+    }
+
+    if (name == 'email'){
+      validateEmail(dado)
+    }
+
+
+    if (formData.descricaoTipoCliente === 'PESSOA_FISICA' && name == 'documento') {
+      dado = FormatInfos.formatCPF(dado);
+      validateCPF(dado)
+    } 
+
+    if (formData.descricaoTipoCliente === 'PESSOA_JURIDICA' && name == 'documento') {
+      dado = FormatInfos.formatCNPJ(dado);
+    } 
+
     setFormData(current => ({
       ...current,
-      documento: formattedDoc,
+      [name]: dado,
     }));
+  };
+
+  const validateCPF = (dado: string) =>{
+    if (!dado || !ValidateInfos.validateCPF(dado)) {
+      setDocumentoError(dado ? 'CPF inválido' : '');
+    } else {
+      setDocumentoError('');
+    }
   }
 
-  const handleInputChangeEmailCliente = (
-    e: ChangeEvent<HTMLInputElement> 
-  ) => {
-    const {name, value } = e.target;
-
-    setFormData(current => ({
-      ...current,
-      [name]: value,
-    }));
-
-    if (!value) {
-      setEmailError('');
-      return;
+  const validateTelefone = (dado: string) =>{
+    if (!ValidateInfos.validateTelefone(dado)) {
+      setTelefoneError('Telefone inválido');
+    } else {
+      setTelefoneError('');
     }
+  }
 
-    if (!ValidateInfos.validateEmail(value)) {
+  const validateEmail = (dado: string) =>{
+    if (!ValidateInfos.validateEmail(dado)) {
       setEmailError('Email inválido');
     } else {
       setEmailError('');
     }
   }
-
-  const handleInputChangeTelefeone = (
-    e: ChangeEvent<HTMLInputElement> 
-  ) => {
-    const { name, value } = e.target;
-
-    const formattedTelefone = FormatInfos.formatTelefone(value);
-
-    if (!ValidateInfos.validateTelefone(formattedTelefone)) {
-      setTelefoneError('Telefone inválido');
-    } else {
-      setTelefoneError('');
-    }
-
-    setFormData(current => ({
-      ...current,
-      [name]: formattedTelefone,
-    }));
-  }
-
-  const handleInputChangeEnderecoCep = (
-    e: ChangeEvent<HTMLInputElement> 
-  ) => {
-    const { name, value } = e.target;
-
-    const formattedCEP = FormatInfos.formatCep(value);
-
-    setFormData(current => ({
-      ...current,
-      [name]: formattedCEP,
-    }));
-  }
-
-  const handleInputChange = async (event: FormInputEvent) => {
-    const { name, value } = event.target;
-
-    setFormData(current => ({
-      ...current,
-      [name]: value,
-    }));
-  };
 
   const validateInfos = () =>{
     if (formData.descricaoTipoCliente === 'PESSOA_FISICA' && !ValidateInfos.validateCPF(formData.documento)) {
@@ -279,8 +253,8 @@ export function ClientesCadastro() {
     return true
   }
 
-  const getDIgitosDocumentos =() =>{
-    return formData.documento.replace(/[^\d]/g, '');
+  const getDIgitos =(dado: string) =>{
+    return dado.replace(/[^\d]/g, '');
   }
   
   const handleSubmit = async (e: React.FormEvent) => {
@@ -291,8 +265,9 @@ export function ClientesCadastro() {
 
     let payload = { ...formData };
 
-    payload.documento = getDIgitosDocumentos()
-
+    payload.documento = getDIgitos(payload.documento)
+    payload.telefone = getDIgitos(payload.telefone)
+    payload.enderecoCep = getDIgitos(payload.enderecoCep)
 
     try {
       const response = await fetch(apiUrl + 'clientes', {
@@ -328,18 +303,11 @@ export function ClientesCadastro() {
     }
   }
 
-  const handleClickEndereco = () =>{
-    setInfosAdicionais(true)
-  }
-
-  const handleClickInfosGerais = () =>{
-    setInfosAdicionais(false)
-  }
-
   return (
     <div className='flex w-full'>
       <Sidebar />
       <div className="bg-gray-100 p flex-1">
+        <Header/>
         <div className="rounded-lg p-6">
           <div className="flex py-5 justify-between items-center mb-6">
             <div className="flex flex-col gap-2">
@@ -350,18 +318,19 @@ export function ClientesCadastro() {
             </div>
           </div>
 
-          <div className='flex items-center gap-5 mb-5 text-center bg-gray-200  rounded-lg'>
-            <p 
-              className={`${infosAdicionais ? "bg-gray-200": "bg-gray-100 "} text-sm font-medium text-gray-700 p-2 w-3/6 cursor-pointer rounded-lg transition duration-300`}
-              onClick={handleClickInfosGerais}
+          <div className="flex space-x-2 mb-6 ">
+            <button
+              className={`flex-1 w-full px-4 py-2 rounded ${abaAtiva === "pessoais" ? "bg-blue-600 text-white" : "bg-white"}`}
+              onClick={() => setAbaAtiva("pessoais")}
             >
               Dados Pessoais
-            </p>
-            <p 
-              className={`${infosAdicionais ? "bg-gray-100": "bg-gray-200"} rounded-lg text-sm font-medium text-gray-700 p-2 w-3/6 cursor-pointer duration-300`} 
-              onClick={handleClickEndereco}>
+            </button>
+            <button
+              className={`flex-1 w-full px-4 py-2 rounded ${abaAtiva === "endereço" ? "bg-blue-600 text-white" : "bg-white"}`}
+              onClick={() => setAbaAtiva("endereço")}
+            >
               Endereço
-            </p>
+            </button>
           </div>
 
           <ClientForm
@@ -371,14 +340,10 @@ export function ClientesCadastro() {
             telefoneError={telefoneError}
             onSubmit={handleSubmit}
             onInputChange={handleInputChange}
-            onInputChangeDocumento={handleInputChangeDocumento}
-            onInputChangeEmailCliente={handleInputChangeEmailCliente}
-            onInputChangeTelefone={handleInputChangeTelefeone}
-            onInputChangeEnderecoCep={handleInputChangeEnderecoCep}
             onBlurCEP={handleBlurCEP}
             onBlurCNPJ={handleBlurCNPJ}
             buttonText="Cadastrar"
-            infosAdicionais={infosAdicionais}
+            abaAtiva={abaAtiva}
           />
           {popup.isOpen && (
             <Popup
