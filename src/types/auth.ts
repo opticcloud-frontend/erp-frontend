@@ -1,10 +1,11 @@
+import { Fornecedor } from "../features/fornecedores/types/types";
 import { Produto } from "../features/produtos/types/produto";
 
 export interface Cliente {
   nomeCompleto: string,
   emailUsuarioCadastro: string,
   descricaoTipoCliente: string,
-  oticaId: string,
+  IdOtica: string,
   telefone: string, 
   dataNascimento: string,
   razaoSocial: string,
@@ -30,6 +31,7 @@ export interface Cliente {
 
 export interface User {
    id: string;
+   id_usuario: number;
    email: string;
    name: string;
    role: string;
@@ -51,4 +53,6 @@ export interface User {
    clienteData: Cliente | undefined;
    produtoData: Produto | undefined;
    setProdutoData: (cliente: Produto | undefined) => void;
+   fornecedorData: Fornecedor | undefined;
+   setFornecedorData: (fornecedor: Fornecedor | undefined) => void;
  }

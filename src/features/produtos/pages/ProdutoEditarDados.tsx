@@ -56,7 +56,6 @@ export function ProdutoEditarDados() {
          setFormData(produtoData);
       }
       getOpcoesTributacoes()
-      console.log(produtoData)
    }, [])  
 
    const apiUrl = import.meta.env.VITE_API_URL;
@@ -86,9 +85,6 @@ export function ProdutoEditarDados() {
 
       const converter = converters[name];
       const convertedValue = converter ? converter(value) : value;
-
-
-      console.log(convertedValue)
 
       if (name.includes('.')) {
          setFormData(prev => {
