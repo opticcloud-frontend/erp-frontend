@@ -27,6 +27,7 @@ import FornecedoresCadastro from './features/fornecedores/pages/FornecedoresCada
 import { FornecedorEditarDados } from './features/fornecedores/pages/FornecedoresEditarDados';
 
 function App() {
+  
   return (
     <AuthProvider>
       <div className='flex flex-row'>
