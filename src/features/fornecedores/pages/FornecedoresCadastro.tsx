@@ -1,16 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, ChangeEvent } from 'react';
 import {Sidebar} from '../../../components/layout/Sidebar'
 import { useAuth } from '../../../contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
-import { infosClientes } from '../../../services/infosClientes';
-import { FormatInfos } from './../../../services/FormatInfos';
+import { infosFornecedores } from '../services/fornecedorService';
+import { FormatInfos } from '../../../services/FormatInfos';
 import { ValidateInfos } from '../../../services/ValidateInfos';
 import Popup from "../../../components/layout/CustomPopUp"
 import { useNavigate } from 'react-router-dom';
-import { ClientForm } from '../components/ClienteForm'
+import { FornecedoresForm } from '../components/FornecedoresForm'
 import { Header } from '../../../components/layout/Header';
+import { Fornecedor, FornecedorForm } from '../types/types';
 
-const initialFormData = infosClientes
+const initialFormData = infosFornecedores
 
 type FormInputEvent =
   | React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -25,18 +26,17 @@ interface PopupState {
   isOpen: boolean;
 }
 
-export function ClientesCadastro() {
+export function FornecedoresCadastro() {
   const [formData, setFormData] = useState(initialFormData);
   const isInitialized = useRef(false);
-  const [documentoError, setDocumentoError] = useState('');
+  const [cnpjError, setCnpjError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [telefoneError, setTelefoneError] = useState('');
-  const {userData, isAuthenticated, logout } = useAuth();  
-  const [abaAtiva, setAbaAtiva] = useState<"pessoais" | "endereço">("pessoais");
+  const { userData, isAuthenticated, logout } = useAuth();  
+  const [abaAtiva, setAbaAtiva] = useState<"pessoais" | "endereços">("pessoais");
   
   const apiUrl = import.meta.env.VITE_API_URL;
   const navigate = useNavigate()
-  
 
   const [popup, setPopup] = useState<PopupState>({
     type: null,
@@ -90,6 +90,7 @@ export function ClientesCadastro() {
       if(!cnpj){
         return
       }
+
       const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
       if (!response.ok) {
         throw new Error('CNPJ não encontrado');
@@ -137,14 +138,14 @@ export function ClientesCadastro() {
       setPopup({
         type: 'success',
         title: 'Sucesso',
-        message: 'CLIENTE CADASTRADO COM SUCESSO',
+        message: 'FORNECEDOR CADASTRADO COM SUCESSO',
         isOpen: true
       });
     } else {
       setPopup({
         type: 'error',
         title: 'Erro',
-        message: message || 'Ocorreu um erro ao cadastrar o cliente',
+        message: message || 'Ocorreu um erro ao cadastrar o fornecedor',
         isOpen: true
       });
     }
@@ -157,14 +158,30 @@ export function ClientesCadastro() {
   useEffect(() => {
     setFormData({
       ...formData,
-      emailUsuarioCadastro: userData?.email ?? "",
-      IdOtica: String(userData?.id_oticas[0]), //   TODO 
+      idUsuarioCadastro: String(userData?.id_usuario),
+      idOtica: String(userData?.id_oticas[0])
     });
     isInitialized.current = true;
-  }, []);  //   TODO: Não captura emailUsuarioCadastro
+  }, []); 
    
   if (!isAuthenticated) {
     return <Navigate to="/" replace />; 
+  }
+ 
+  const validateEmail = (dado: string) =>{
+    if (!ValidateInfos.validateEmail(dado)) {
+      setEmailError('Email inválido');
+    } else {
+      setEmailError('');
+    }
+  }
+
+  const validateTelefone = (dado: string) =>{
+    if (!ValidateInfos.validateTelefone(dado)) {
+      setTelefoneError('Telefone inválido');
+    } else {
+      setTelefoneError('');
+    }
   }
 
   const handleInputChange = async (event: FormInputEvent) => {
@@ -194,15 +211,9 @@ export function ClientesCadastro() {
       validateEmail(dado)
     }
 
-
-    if (formData.descricaoTipoCliente === 'PESSOA_FISICA' && name == 'documento') {
-      dado = FormatInfos.formatCPF(dado);
-      validateCPF(dado)
-    } 
-
-    if (formData.descricaoTipoCliente === 'PESSOA_JURIDICA' && name == 'documento') {
-      dado = FormatInfos.formatCNPJ(dado);
-    } 
+    if (name == 'cnpj'){
+      dado = FormatInfos.formatCNPJ(value);
+    }
 
     setFormData(current => ({
       ...current,
@@ -210,52 +221,53 @@ export function ClientesCadastro() {
     }));
   };
 
-  const validateCPF = (dado: string) =>{
-    if (!dado || !ValidateInfos.validateCPF(dado)) {
-      setDocumentoError(dado ? 'CPF inválido' : '');
-    } else {
-      setDocumentoError('');
-    }
-  }
-
-  const validateTelefone = (dado: string) =>{
-    if (!ValidateInfos.validateTelefone(dado)) {
-      setTelefoneError('Telefone inválido');
-    } else {
-      setTelefoneError('');
-    }
-  }
-
-  const validateEmail = (dado: string) =>{
-    if (!ValidateInfos.validateEmail(dado)) {
-      setEmailError('Email inválido');
-    } else {
-      setEmailError('');
-    }
-  }
-
   const validateInfos = () =>{
-    if (formData.descricaoTipoCliente === 'PESSOA_FISICA' && !ValidateInfos.validateCPF(formData.documento)) {
-      setDocumentoError('CPF inválido');
-      return false;
-    }
-    
-    if (!ValidateInfos.validateEmail(formData.email)) { 
-      setEmailError('E-mail inválido');
+    if (!ValidateInfos.validateEmail(formData.email) && formData.email != "") { 
       return false;
     }
     
     if (!ValidateInfos.validateTelefone(formData.telefone)) {
-      setTelefoneError('Telefone inválido');
       return false;
     }
     
     return true
   }
 
-  const getDIgitos =(dado: string) =>{
-    return dado.replace(/[^\d]/g, '');
+  const getDIgitosDados =(dados: string) =>{
+    return dados.replace(/[^\d]/g, '');
   }
+
+  const convertFornecedorFormToFornecedor = (form: FornecedorForm): Fornecedor => {
+    const idOtica = Number(form.idOtica);
+    const idUsuarioCadastro = Number(form.idUsuarioCadastro);
+    const prazoPagamento = Number(form.prazoPagamento);
+
+    if (isNaN(idOtica) || isNaN(idUsuarioCadastro) || isNaN(prazoPagamento)) {
+      throw new Error("Campos numéricos inválidos na conversão do formulário de fornecedor.");
+    }
+
+    return {
+      idOtica,
+      idUsuarioCadastro,
+      razaoSocial: form.razaoSocial,
+      nomeFantasia: form.nomeFantasia,
+      cnpj: getDIgitosDados(form.cnpj),
+      email: form.email,
+      telefone: getDIgitosDados(form.telefone),
+      enderecoLogradouro: form.enderecoLogradouro,
+      enderecoNumero: form.enderecoNumero,
+      enderecoComplemento: form.enderecoComplemento,
+      enderecoBairro: form.enderecoBairro,
+      enderecoCidade: form.enderecoCidade,
+      enderecoEstado: form.enderecoEstado,
+      enderecoCep: getDIgitosDados(form.enderecoCep),
+      ativo: form.ativo,
+      observacoes: form.observacoes,
+      inscricaoEstadual: form.inscricaoEstadual,
+      prazoPagamento
+    };
+  };
+
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -263,27 +275,22 @@ export function ClientesCadastro() {
       return 
     }
 
-    let payload = { ...formData };
-
-    payload.documento = getDIgitos(payload.documento)
-    payload.telefone = getDIgitos(payload.telefone)
-    payload.enderecoCep = getDIgitos(payload.enderecoCep)
+    const fornecedorFinal: Fornecedor  = convertFornecedorFormToFornecedor(formData);
 
     try {
-      const response = await fetch(apiUrl + 'clientes', {
+      const response = await fetch(apiUrl + 'fornecedores', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + userData?.token
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(fornecedorFinal),
       });
 
       const responseData = await response.json()
-      const responseMessage = responseData.message || response.statusText || 'Erro ao cadastrar cliente';
+      const responseMessage = responseData.message || response.statusText || 'Erro ao cadastrar Fornecedor';
 
       handleApiResponse(response.ok, responseMessage)
-
       setErrorTokenExpirado(response.status)
 
       if (!response.ok) {
@@ -307,12 +314,12 @@ export function ClientesCadastro() {
     <div className='flex w-full'>
       <Sidebar />
       <div className="bg-gray-100 p flex-1">
-        <Header/>
+        <Header />
         <div className="rounded-lg p-6">
           <div className="flex py-5 justify-between items-center mb-6">
             <div className="flex flex-col gap-2">
               <h2 className="text-2xl font-semibold text-gray-800">
-                Cadastro de Cliente
+                Cadastro de Fornecedores
               </h2>
               <p className='text-gray-600'>Preencha as informações do produto abaixo</p>
             </div>
@@ -326,16 +333,16 @@ export function ClientesCadastro() {
               Dados Pessoais
             </button>
             <button
-              className={`flex-1 w-full px-4 py-2 rounded ${abaAtiva === "endereço" ? "bg-blue-600 text-white" : "bg-white"}`}
-              onClick={() => setAbaAtiva("endereço")}
+              className={`flex-1 w-full px-4 py-2 rounded ${abaAtiva === "endereços" ? "bg-blue-600 text-white" : "bg-white"}`}
+              onClick={() => setAbaAtiva("endereços")}
             >
               Endereço
             </button>
           </div>
 
-          <ClientForm
+          <FornecedoresForm
             formData={formData}
-            documentoError={documentoError}
+            cnpjError={cnpjError}
             emailError={emailError}
             telefoneError={telefoneError}
             onSubmit={handleSubmit}
@@ -364,4 +371,4 @@ export function ClientesCadastro() {
   );
 }
 
-export default ClientesCadastro;
+export default FornecedoresCadastro;

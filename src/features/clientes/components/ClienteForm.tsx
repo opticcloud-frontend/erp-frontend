@@ -14,19 +14,15 @@ export const ClientForm: React.FC<ClientFormProps> = ({
   telefoneError,
   onSubmit,
   onInputChange,
-  onInputChangeDocumento,
-  onInputChangeEmailCliente,
-  onInputChangeTelefone,
-  onInputChangeEnderecoCep,
   onBlurCEP,
   onBlurCNPJ, 
   buttonText,
   disabled = false,
-  infosAdicionais
+  abaAtiva
 }) => {
   return (
     <form onSubmit={onSubmit} className="h-screen">
-      {infosAdicionais ? (
+      {abaAtiva == "endereço" && (
         <div className="border-t shadow-md p-5 rounded-lg">
           <div className='my-8 flex gap-2 '>
             <MapIcon className="text-blue" />
@@ -44,7 +40,7 @@ export const ClientForm: React.FC<ClientFormProps> = ({
               label="CEP *"
               name="enderecoCep"
               value={formData.enderecoCep}
-              onChange={onInputChangeEnderecoCep}
+              onChange={onInputChange}
               onBlur={onBlurCEP}
               maxLength={9}
               required
@@ -83,7 +79,9 @@ export const ClientForm: React.FC<ClientFormProps> = ({
             />
           </div>
         </div>
-      ): (
+      )}
+
+      {abaAtiva == "pessoais" && (
         <div className=''>
           <div className='shadow-md p-5 rounded-lg'>
             <div className='my-8 flex gap-2 '>
@@ -107,37 +105,45 @@ export const ClientForm: React.FC<ClientFormProps> = ({
                 name="ativo"
                 value={formData.ativo ? 'active' : 'inactive'}
                 onChange={(e) => {
-                  const isActive = e.target.value === 'active';
-                  onInputChange({ target: { name: 'ativo', value: isActive } });
+                  const value = e.target.value === 'active';
+                  const event = {
+                    ...e,
+                    target: {
+                      ...e.target,
+                      value,
+                    },
+                  } as unknown as React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
+  
+                  onInputChange(event);
                 }}
                 options={[
                   { value: 'active', label: 'Ativo' },
-                  { value: 'inactive', label: 'Inativo'},
+                  { value: 'inactive', label: 'Inativo' },
                 ]}
               />
             </div>
 
             <div className='grid grid-cols-2 gap-2'>
               {formData.descricaoTipoCliente === 'PESSOA_FISICA' ? (
-                  <>
-                    <Input
-                      label="Nome *"
-                      name="nomeCompleto"
-                      value={formData.nomeCompleto}
-                      onChange={onInputChange}
-                      required
-                    />
-                    <Input
-                      label="CPF *"
-                      name="documento"
-                      value={formData.documento}
-                      onChange={onInputChangeDocumento}
-                      maxLength={14}
-                      error={documentoError}
-                      required
-                      disabled={disabled}
-                    />
-                  </>
+                <>
+                  <Input
+                    label="Nome *"
+                    name="nomeCompleto"
+                    value={formData.nomeCompleto}
+                    onChange={onInputChange}
+                    required
+                  />
+                  <Input
+                    label="CPF *"
+                    name="documento"
+                    value={formData.documento}
+                    onChange={onInputChange}
+                    maxLength={14}
+                    error={documentoError}
+                    required
+                    disabled={disabled}
+                  />
+                </>
                 ) : (
                   <>
                     <Input
@@ -152,7 +158,7 @@ export const ClientForm: React.FC<ClientFormProps> = ({
                       name="documento"
                       value={formData.documento}
                       onBlur={onBlurCNPJ}
-                      onChange={onInputChangeDocumento}
+                      onChange={onInputChange}
                       maxLength={18}
                       required
                       disabled={disabled}
@@ -195,7 +201,7 @@ export const ClientForm: React.FC<ClientFormProps> = ({
                 type="email"
                 name="email"
                 value={formData.email}
-                onChange={onInputChangeEmailCliente}
+                onChange={onInputChange}
                 error={emailError}
                 required
               />
@@ -204,7 +210,7 @@ export const ClientForm: React.FC<ClientFormProps> = ({
                 type="tel"
                 name="telefone"
                 value={formData.telefone}
-                onChange={onInputChangeTelefone}
+                onChange={onInputChange}
                 maxLength={15}
                 error={telefoneError}
                 required

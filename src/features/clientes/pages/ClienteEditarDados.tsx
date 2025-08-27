@@ -2,9 +2,8 @@ import { ArrowLeft, Users } from 'lucide-react'
 import { ClientForm } from '../components/ClienteForm'
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
-import { infosClientes } from '../../../services/infosClientes';
 import { Cliente } from '../types/types';
-import { ChangeEvent, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FormatInfos } from '../../../services/FormatInfos';
 import { ValidateInfos } from '../../../services/ValidateInfos';
 import Popup from '../../../components/layout/CustomPopUp';
@@ -19,13 +18,16 @@ interface PopupState {
   isOpen: boolean;
 }
 
+type FormInputEvent =
+  | React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  | { target: { name: 'ativo'; value: boolean } }
+  | { target: { name: string; value: string } };
+
+
 export function ClienteEditarDados() {
    const navigate = useNavigate();
    const { userData, setClienteData, clienteData} = useAuth(); 
    const [formData, setFormData] = useState<Cliente>({} as Cliente);
-   const [originalData, setOriginalData] = useState<Cliente>({} as Cliente);
-   const [infosAdicionais, setInfosAdicionais] = useState(false);
-   const [displayDocumento, setDisplayDocumento] = useState(''); 
    const [documentoError, setDocumentoError] = useState('');
    const [emailError, setEmailError] = useState('');
    const [telefoneError, setTelefoneError] = useState('');
@@ -36,17 +38,17 @@ export function ClienteEditarDados() {
       message: '',
       isOpen: false
    });
+   const [abaAtiva, setAbaAtiva] = useState<"pessoais" | "endereço">("pessoais");
+
+   useEffect(()=>{ 
+      if (clienteData) {
+         setFormData(clienteData);
+      }
+   }, [])
    
    const handleClickBack = () =>{
       navigate('/clientes');
       setClienteData(undefined)
-   }
-   const handleClickInfosGerais = () =>{
-      setInfosAdicionais(false)
-   }
-
-   const handleClickInfosAdicionais = () =>{
-      setInfosAdicionais(true)
    }
 
    const handleBlurCEP = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,9 +62,9 @@ export function ClienteEditarDados() {
          if (data) {
             data.enderecoCep = FormatInfos.formatCep(data.enderecoCep);
 
-            if (clienteData) {
-               setClienteData({
-                 ...clienteData,
+            if (formData) {
+               setFormData({
+                 ...formData,
                  ...data
                });
             }
@@ -100,9 +102,9 @@ export function ClienteEditarDados() {
             data.enderecoCep = FormatInfos.formatCep(data.enderecoCep);
             data.telefone = FormatInfos.formatTelefone(data.telefone);
    
-            if (clienteData) {
-               setClienteData({
-                 ...clienteData,
+            if (formData) {
+               setFormData({
+                 ...formData,
                  ...data
                });
             }
@@ -138,134 +140,86 @@ export function ClienteEditarDados() {
       }
    };
 
-   const handleInputChange = async (
-      e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-   ) => {
-      const { name, value } = e.target;
+   const handleInputChange = async (event: FormInputEvent) => {
+      const { name, value } = event.target;
 
-      if (name === 'enderecoCep') {
-         const formattedCEP = FormatInfos.formatCep(value); // TODO
-         if (clienteData) {
-            setClienteData({
-               ...clienteData,
-               ['enderecoCep']: formattedCEP,
-             });
-         }
-      } else {
-         if (clienteData) {
-            setClienteData({
-              ...clienteData,
-              [name]: value,
-            });
-         }
-         
+      if (name === 'ativo') {
+         const isActive = value === 'active';
+         setFormData(current => ({
+            ...current,
+            ativo: isActive, 
+         }));
+         return; 
       }
+
+      let dado: string  = value as string
+
+      if (name == 'enderecoCep'){
+         dado = FormatInfos.formatCep(value);
+      }
+
+      if (name == 'telefone'){
+         dado = FormatInfos.formatTelefone(value);
+         validateTelefone(dado)
+      }
+
+      if (name == 'email'){
+         validateEmail(dado)
+      }
+
+      if (name == 'cnpj'){
+         dado = FormatInfos.formatCNPJ(value);
+      }
+
+      if (formData.descricaoTipoCliente === 'PESSOA_FISICA' && name == 'documento') {
+         dado = FormatInfos.formatCPF(dado);
+         validateCPF(dado)
+      } 
+
+      if (formData.descricaoTipoCliente === 'PESSOA_JURIDICA' && name == 'documento') {
+         dado = FormatInfos.formatCNPJ(dado);
+      } 
+
+      setFormData(current => ({
+         ...current,
+         [name]: dado,
+      }));
    };
 
-   const handleInputChangeDocumento = async (
-      e: ChangeEvent<HTMLInputElement>
-   ) => {
-      const {value} = e.target;
-      const resp = await setInputDocumento(value)
-      if(resp){
-         return
-      }
-   }
-
-   const setInputDocumento = async (value: string) =>{
-      const documentoDigitos = value.replace(/\D/g, '');
-      let formattedDoc = '';
-
-      if (formData.descricaoTipoCliente === 'PESSOA_FISICA') {
-         formattedDoc = FormatInfos.formatCPF(value);
-         setDisplayDocumento(formattedDoc);
-
-         if (!value) {
-            setDocumentoError('');
-            return false; 
-         }
-
-         if (!ValidateInfos.validateCPF(documentoDigitos)) { 
-            setDocumentoError('CPF inválido'); 
-         } else {
-            setDocumentoError('');
-         }
-
+   const validateCPF = (dado: string) =>{
+       if (!dado || !ValidateInfos.validateCPF(dado)) {
+         setDocumentoError(dado ? 'CPF inválido' : '');
       } else {
-         formattedDoc = FormatInfos.formatCNPJ(value);
-         setDisplayDocumento(formattedDoc);
+         setDocumentoError('');
       }
-
-
-      setFormData(current => {
-         if (current) {
-            return {
-               ...current,
-               documento: documentoDigitos,
-            };
-         }
-         return current; 
-      });
-      return true
    }
 
-   const handleInputChangeEmailCliente = (
-         e: ChangeEvent<HTMLInputElement> 
-      ) => {
-      const {name, value } = e.target;
-
-      if (clienteData) {
-         setClienteData({
-           ...clienteData,
-           [name]: value,
-         });
+   const validateTelefone = (dado: string) =>{
+      if (!ValidateInfos.validateTelefone(dado)) {
+         setTelefoneError('Telefone inválido');
+      } else {
+         setTelefoneError('');
       }
+   }
 
-      if (!value) {
-         setEmailError('');
-         return;
-      }
-
-      if (!ValidateInfos.validateEmail(value)) {
+   const validateEmail = (dado: string) =>{
+      if (!ValidateInfos.validateEmail(dado)) {
          setEmailError('Email inválido');
       } else {
          setEmailError('');
       }
    }
 
-   const handleInputChangeTelefone = (
-         e: ChangeEvent<HTMLInputElement> 
-      ) => {
-      const { name, value } = e.target;
-      const formattedTelefone = FormatInfos.formatTelefone(value);
-
-      if (!ValidateInfos.validateTelefone(formattedTelefone)) {
-         setTelefoneError('Telefone inválido');
-      } else {
-         setTelefoneError('');
+   const validateInfos = () =>{
+      if (!ValidateInfos.validateEmail(formData.email) && formData.email != "") { 
+         return false;
       }
-
-      if (clienteData) {
-         setClienteData({
-           ...clienteData,
-           [name]: formattedTelefone,
-         });
+      
+      if (!ValidateInfos.validateTelefone(formData.telefone)) {
+         return false;
       }
-   }
-
-   const handleInputChangeEnderecoCep = (
-      e: ChangeEvent<HTMLInputElement> 
-   ) => {
-      const { name, value } = e.target;
-
-      const formattedCEP = FormatInfos.formatCep(value);
-      if (clienteData) {
-         setClienteData({
-           ...clienteData,
-           [name]: formattedCEP,
-         });
-      }
-
+      
+      return true
    }
 
    const handleSubmit = async (e: React.FormEvent) => {
@@ -276,7 +230,21 @@ export function ClienteEditarDados() {
          return;
       }
 
-      updateCliente(updatedFields)
+      if(!validateInfos()){
+         return 
+      }
+
+       try {
+         await updateCliente(updatedFields)
+         setClienteData({
+            ...clienteData,
+            ...updatedFields,
+         } as Cliente);
+         handleApiResponse("sucess", "Cliente atualizado com sucesso");
+      } catch (error) {
+         console.error(error);
+         handleApiResponse("error", "Erro ao atualizar informações do cliente");
+      }
    }
 
    const updateCliente = async (updatedFields: Partial<Cliente> ) => {
@@ -299,17 +267,13 @@ export function ClienteEditarDados() {
 
    const getUpdatedFields = (): Partial<Cliente> => {
       const updatedFields: Partial<Cliente> = {};
+      
       for (const key in clienteData) {
-         const newValue = clienteData[key as keyof Cliente];
-         const originalValue = originalData[key as keyof Cliente];
+         const originalValue = clienteData[key as keyof Cliente];
+         const newValue = formData[key as keyof Cliente];
 
-   
-         if (newValue !== originalValue) {
+         if (newValue !== undefined && newValue !== originalValue) {
             updatedFields[key as keyof Cliente] = newValue as any;
-            setOriginalData(current => ({
-               ...current,
-               [key]: newValue,
-            }));
          }
       }
       return updatedFields;
@@ -365,36 +329,33 @@ export function ClienteEditarDados() {
                         <h1 className="text-2xl font-semibold text-gray-800"> Editar Cliente </h1>
                      </div>
                   </div>
-                  <div className='flex items-center gap-5 mb-5 text-center bg-gray-200 p-1 rounded-lg'>
-                     <p 
-                        className={`${infosAdicionais ? "bg-gray-200": "bg-gray-100 "} text-sm font-medium text-gray-700 p-2 w-3/6 cursor-pointer rounded-lg transition duration-300`}
-                        onClick={handleClickInfosGerais}
+                  <div className="flex space-x-2 mb-6 ">
+                     <button
+                        className={`flex-1 w-full px-4 py-2 rounded ${abaAtiva === "pessoais" ? "bg-blue-600 text-white" : "bg-white"}`}
+                        onClick={() => setAbaAtiva("pessoais")}
                      >
-                        Dados Pessoais
-                     </p>
-                     <p 
-                        className={`${infosAdicionais ? "bg-gray-100": "bg-gray-200"} rounded-lg text-sm font-medium text-gray-700 p-2 w-3/6 cursor-pointer duration-300`} 
-                        onClick={handleClickInfosAdicionais}>
-                        Informações Adicionais
-                     </p>
+                     Dados Pessoais
+                     </button>
+                     <button
+                        className={`flex-1 w-full px-4 py-2 rounded ${abaAtiva === "endereço" ? "bg-blue-600 text-white" : "bg-white"}`}
+                        onClick={() => setAbaAtiva("endereço")}
+                     >
+                     Endereço
+                     </button>
                   </div>
 
                   <ClientForm
-                     formData={clienteData as Cliente}
+                     formData={formData as Cliente}
                      buttonText="Salvar"
                      onBlurCEP={handleBlurCEP}
                      onBlurCNPJ={handleBlurCNPJ}
                      onInputChange={handleInputChange}
-                     onInputChangeDocumento={handleInputChangeDocumento}
-                     onInputChangeEmailCliente={handleInputChangeEmailCliente}
-                     onInputChangeTelefone={handleInputChangeTelefone}
-                     onInputChangeEnderecoCep={handleInputChangeEnderecoCep}
                      documentoError={documentoError}
                      emailError={emailError}
                      telefoneError={telefoneError}
                      onSubmit={handleSubmit}
                      disabled={true}
-                     infosAdicionais={infosAdicionais}
+                     abaAtiva={abaAtiva}
                   />
 
                </div>

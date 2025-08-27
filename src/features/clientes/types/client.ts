@@ -55,13 +55,9 @@ export interface ClientFormProps {
    buttonText: string;
    telefoneError?: string;
    disabled?: boolean;
-   infosAdicionais?: boolean;
+   abaAtiva?: string;
    onSubmit: (e: React.FormEvent) => void;
    onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
-   onInputChangeDocumento: (e: React.ChangeEvent<HTMLInputElement>) => void;
-   onInputChangeEmailCliente: (e: React.ChangeEvent<HTMLInputElement>) => void;
-   onInputChangeTelefone: (e: React.ChangeEvent<HTMLInputElement>) => void;
-   onInputChangeEnderecoCep: (e: React.ChangeEvent<HTMLInputElement>) => void;
    onBlurCEP: (e: React.FocusEvent<HTMLInputElement>) => void;
    onBlurCNPJ: (e: React.FocusEvent<HTMLInputElement>) => void;
 }
