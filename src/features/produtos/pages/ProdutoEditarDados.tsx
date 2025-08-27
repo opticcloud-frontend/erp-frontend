@@ -205,6 +205,8 @@ export function ProdutoEditarDados() {
       return updatedFields;
    };
 
+   console.log(formData)
+
    const handleApiResponse = (typePopPup: string = "", message: string) => {
       if(typePopPup == "alert"){
          setPopup({
