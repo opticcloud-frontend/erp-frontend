@@ -25,6 +25,8 @@ import { ClienteEditarDados } from './features/clientes/pages/ClienteEditarDados
 import { ProdutoEditarDados } from './features/produtos/pages/ProdutoEditarDados';
 import FornecedoresCadastro from './features/fornecedores/pages/FornecedoresCadastro';
 import { FornecedorEditarDados } from './features/fornecedores/pages/FornecedoresEditarDados';
+import { Oftalmologista } from './features/oftalmologista/pages/Oftalmologista';
+import OftamologistaCadastro from './features/oftalmologista/pages/OftamologistaCadastro';
 
 function App() {
   
@@ -54,6 +56,9 @@ function App() {
           <Route path="/fornecedores/cadastrar" element={<FornecedoresCadastro />} />
           <Route path="/fornecedores/editar" element={<FornecedorEditarDados />} />
           <Route path="/fornecedores" element={<FornecedoresPage />} />
+          <Route path="/oftalmologista/editar" element={<FornecedorEditarDados />} />
+          <Route path="/oftalmologista" element={<Oftalmologista />} />
+          <Route path="/oftamologista/cadastrar" element={<OftamologistaCadastro />} />
 
 
           <Route path="*" element={<Navigate to="/" replace />} />
