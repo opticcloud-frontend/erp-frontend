@@ -23,7 +23,7 @@ type FormInputEvent =
   | { target: { name: 'ativo'; value: boolean } }
   | { target: { name: string; value: string } };
 
-export function OftamplogistaEditarDados() {
+export function OftalmogistaEditarDados() {
    const navigate = useNavigate();
    const { userData, setOftalmologistaData, oftalmologistaData} = useAuth(); 
    const [formData, setFormData] = useState<Oftalmologista>({} as Oftalmologista);
@@ -46,7 +46,7 @@ export function OftamplogistaEditarDados() {
    }, [])
    
    const handleClickBack = () =>{
-      navigate('/fornecedores');
+      navigate('/oftalmologista');
       setOftalmologistaData(undefined)
    }
 
@@ -130,7 +130,7 @@ export function OftamplogistaEditarDados() {
    const updateCliente = async (updatedFields: Partial<Oftalmologista> ) => {
       const idOtica = userData?.id_oticas[0]
 
-      const response = await fetch(`${apiUrl}fornecedores?idOtica=${idOtica}&cnpj=${oftalmologistaData?.crm.replace(/\D/g, '')}` , {
+      const response = await fetch(`${apiUrl}oftalmologistas?idOtica=${idOtica}&nome=${oftalmologistaData?.crm}` , {
          method: 'PATCH',
          headers: {
             'Content-Type': 'application/json',

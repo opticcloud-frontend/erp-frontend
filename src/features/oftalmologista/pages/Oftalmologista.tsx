@@ -129,7 +129,7 @@ export function Oftalmologista() {
       const infoPesquisa = infoBuscaOftalmologista.replace(/[\\/.-]/g, '');
 
 
-      const response = await fetch(`${apiUrl}Oftalmologista?idOtica=${idOtica}&cnpj=${infoPesquisa}&page=${currentPage}&size=${OftalmologistaPerPage}` , {
+      const response = await fetch(`${apiUrl}oftalmologistas?idOtica=${idOtica}&nome=${infoPesquisa}&page=${currentPage}&size=${OftalmologistaPerPage}` , {
          method: 'GET',
          headers: {
            'Content-Type': 'application/json',
@@ -138,10 +138,12 @@ export function Oftalmologista() {
       });
 
       if (!response.ok) {
-        throw new Error('Cliente não encontrado');
+        throw new Error('Oftalmologista não encontrado');
       }
       
       const data = await response.json();
+
+      console.log(data)
 
       settotalOftalmologista(data.totalElements)
       setTotalPage(data.totalPages)
