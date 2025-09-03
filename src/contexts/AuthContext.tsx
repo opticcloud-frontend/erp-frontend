@@ -2,6 +2,7 @@ import React, { createContext, useContext, ReactNode, useState, useEffect } from
 import { User, AuthContextType, Cliente } from '../types/auth';
 import { Produto } from '../features/produtos/types/produto';
 import { Fornecedor } from '../features/fornecedores/types/types';
+import { Oftalmologista } from '../features/oftalmologista/types/types';
  
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -14,6 +15,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [clienteData, setClienteData] = useState<Cliente | undefined>(undefined)
   const [produtoData, setProdutoData] = useState<Produto | undefined>(undefined)
   const [fornecedorData, setFornecedorData] = useState<Fornecedor | undefined>(undefined)
+  const [oftalmologistaData, setOftalmologistaData] = useState<Oftalmologista | undefined>(undefined)
 
   const removeCliente = () => {
     setClienteData(undefined);
@@ -56,7 +58,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         produtoData, 
         setProdutoData,
         fornecedorData, 
-        setFornecedorData  
+        setFornecedorData,
+        oftalmologistaData,
+        setOftalmologistaData
       }
     }>
       {children}
