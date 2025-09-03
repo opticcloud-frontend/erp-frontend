@@ -103,7 +103,7 @@ export function FornecedoresPage() {
       setError('')
    }
 
-   const getFornecedorelecionado = (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+   const getFornecedorSelecionado = (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
       const clienteDocumento = e.currentTarget.getAttribute("data-id")
       setFornecedores([])
       setInfoBuscaFornecedores('')
@@ -246,7 +246,7 @@ export function FornecedoresPage() {
                            <h2 className=''>Nenhum registro encontrado</h2>
                         </div>
                      ):(
-                        <FornecedoresBox clientes={clientes} handleClick={getFornecedorelecionado}/>
+                        <FornecedoresBox clientes={clientes} handleClick={getFornecedorSelecionado}/>
                      )}
                      {clientes.length > 0 && (
                         <div className='w-full bg-white-300 gap-2 flex justify-between p-1'>

@@ -2,9 +2,8 @@ import { ArrowLeft, Users } from 'lucide-react'
 import { OftamologistaForm } from '../components/OftamologistaForm'
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
-import { infosClientes } from '../../../services/infosClientes';
-import { Oftalmologista } from '../types/types';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { Oftalmologista, OftalmologistaEditar } from '../types/types';
+import {  useEffect, useState } from 'react';
 import { FormatInfos } from '../../../services/FormatInfos';
 import { ValidateInfos } from '../../../services/ValidateInfos';
 import Popup from '../../../components/layout/CustomPopUp';
@@ -26,10 +25,9 @@ type FormInputEvent =
 export function OftalmogistaEditarDados() {
    const navigate = useNavigate();
    const { userData, setOftalmologistaData, oftalmologistaData} = useAuth(); 
-   const [formData, setFormData] = useState<Oftalmologista>({} as Oftalmologista);
+   const [formData, setFormData] = useState<Oftalmologista | OftalmologistaEditar>({} as Oftalmologista);
    const [emailError, setEmailError] = useState('');
    const [telefoneError, setTelefoneError] = useState('');
-   const [cnpjError, setCnpjError] = useState('');
    const apiUrl = import.meta.env.VITE_API_URL;
    const [popup, setPopup] = useState<PopupState>({
       type: null,
@@ -37,7 +35,6 @@ export function OftalmogistaEditarDados() {
       message: '',
       isOpen: false
    });
-   const [abaAtiva, setAbaAtiva] = useState<"pessoais" | "endereços">("pessoais");
 
    useEffect(()=>{ 
       if (oftalmologistaData) {
@@ -86,17 +83,14 @@ export function OftalmogistaEditarDados() {
       }
    }
 
-   const getDIgitosDados =(dados: string) =>{
-      return dados.replace(/[^\d]/g, '');
-   }
 
    const validateInfos = () =>{
       if (!ValidateInfos.validateEmail(formData.email) && formData.email != "") { 
-      return false;
+         return false;
       }
       
       if (!ValidateInfos.validateTelefone(formData.telefone)) {
-      return false;
+         return false;
       }
       
       return true
@@ -109,6 +103,7 @@ export function OftalmogistaEditarDados() {
          handleApiResponse( "alert", "Não há dados para atualizar")
          return;
       }
+
 
       if(!validateInfos()){
          return 
@@ -128,9 +123,7 @@ export function OftalmogistaEditarDados() {
    }
 
    const updateCliente = async (updatedFields: Partial<Oftalmologista> ) => {
-      const idOtica = userData?.id_oticas[0]
-
-      const response = await fetch(`${apiUrl}oftalmologistas?idOtica=${idOtica}&nome=${oftalmologistaData?.crm}` , {
+      const response = await fetch(`${apiUrl}oftalmologistas/${oftalmologistaData?.id}` , {
          method: 'PATCH',
          headers: {
             'Content-Type': 'application/json',
@@ -209,20 +202,6 @@ export function OftalmogistaEditarDados() {
                         <h1 className="text-2xl font-semibold text-gray-800"> Editar Fornecedor </h1>
                      </div>
                   </div>
-                  {/* <div className="flex space-x-2 mb-6 ">
-                     <button
-                        className={`flex-1 w-full px-4 py-2 rounded ${abaAtiva === "pessoais" ? "bg-blue-600 text-white" : "bg-white"}`}
-                        onClick={() => setAbaAtiva("pessoais")}
-                     >
-                     Dados Pessoais
-                     </button>
-                     <button
-                        className={`flex-1 w-full px-4 py-2 rounded ${abaAtiva === "endereços" ? "bg-blue-600 text-white" : "bg-white"}`}
-                        onClick={() => setAbaAtiva("endereços")}
-                     >
-                     Endereço
-                     </button>
-                  </div> */}
 
                   <OftamologistaForm
                      formData={formData}

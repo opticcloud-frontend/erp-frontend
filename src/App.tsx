@@ -25,9 +25,9 @@ import { ClienteEditarDados } from './features/clientes/pages/ClienteEditarDados
 import { ProdutoEditarDados } from './features/produtos/pages/ProdutoEditarDados';
 import FornecedoresCadastro from './features/fornecedores/pages/FornecedoresCadastro';
 import { FornecedorEditarDados } from './features/fornecedores/pages/FornecedoresEditarDados';
-import { Oftalmologista } from './features/oftalmologista/pages/Oftalmologista';
 import OftamologistaCadastro from './features/oftalmologista/pages/OftamologistaCadastro';
 import { OftalmogistaEditarDados } from './features/oftalmologista/pages/OftalmogistaEditarDados';
+import OftalmologistaPage from './features/oftalmologista/pages/Oftalmologista';
 
 function App() {
   
@@ -58,7 +58,7 @@ function App() {
           <Route path="/fornecedores/editar" element={<FornecedorEditarDados />} />
           <Route path="/fornecedores" element={<FornecedoresPage />} />
           <Route path="/oftalmologista/editar" element={<OftalmogistaEditarDados />} />
-          <Route path="/oftalmologista" element={<Oftalmologista />} />
+          <Route path="/oftalmologista" element={<OftalmologistaPage />} />
           <Route path="/oftamologista/cadastrar" element={<OftamologistaCadastro />} />
 
 

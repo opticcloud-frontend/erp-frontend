@@ -1,15 +1,14 @@
 import React, { useState, ChangeEvent  } from 'react';
 import { Users } from 'lucide-react';
-import type { Oftalmologista } from '../types/types';
-import { OftalmologistaBox } from '../components/OftalmologistaBox';
+import type { OftalmologistaEditar } from '../types/types';
 import { SearchBar } from '../components/SearchBarProps';
 import {Sidebar} from '../../../components/layout/Sidebar'
 import { useAuth } from '../../../contexts/AuthContext'
-import { FormatInfos } from '../../../services/FormatInfos';
 import Popup from "../../../components/layout/CustomPopUp"
 import { Header } from '../../../components/layout/Header';
 import { useNavigate } from 'react-router-dom';
 import { useEffectSkipFirst } from '../../../components/ui/useEffectSkipFirst';
+import OftalmologistaBox from '../components/OftalmologistaBox';
 
 type PopupType = 'success' | 'error' | 'alert' | null;
 interface PopupState {
@@ -19,28 +18,28 @@ interface PopupState {
   isOpen: boolean;
 }
 
-const dadosClientes: Oftalmologista[] = [];
+const dadosoftalmologistas: OftalmologistaEditar[] = [];
 
-export function Oftalmologista() {
-   const [infoBuscaOftalmologista, setInfoBuscaOftalmologista] = useState('');
+export function OftalmologistaPage() {
+   const [infoBuscaoftalmologistas, setInfoBuscaoftalmologistas] = useState('');
    const [error, setError] = useState('');
    const [tipoFiltro, setTipoFiltro] = useState('nome');
    const apiUrl = import.meta.env.VITE_API_URL;
-   const [clientes, setOftalmologista] = useState<Oftalmologista[]>(dadosClientes);
+   const [oftalmologistas, setoftalmologistas] = useState<OftalmologistaEditar[]>(dadosoftalmologistas);
    const { userData, setOftalmologistaData} = useAuth(); 
    const [currentPage, setCurrentPage] = useState(0)
-   const OftalmologistaPerPage = 5
+   const oftalmologistasPerPage = 5
    const [hasNext, setHasNext] = useState(Boolean)
    const [hasPrevious, setHasPrevious] = useState(Boolean)
    const [totalPage, setTotalPage] = useState(0)
-   const [containsOftalmologista, setcontainsOftalmologista] = useState(true)
-   const [totalOftalmologista, settotalOftalmologista] = useState(0)
+   const [containsoftalmologistas, setcontainsoftalmologistas] = useState(true)
+   const [totaloftalmologistas, settotaloftalmologistas] = useState(0)
 
 
    useEffectSkipFirst(() => {
       if(currentPage >= 0 && currentPage < totalPage){
-         setcontainsOftalmologista(true)
-         getOftalmologista();
+         setcontainsoftalmologistas(true)
+         getOftalmologistas();
       }
    }, [currentPage])
 
@@ -91,45 +90,45 @@ export function Oftalmologista() {
       const { value } = event.target;
 
       setTipoFiltro(value);
-      setOftalmologista([])
-      setInfoBuscaOftalmologista('')
+      setoftalmologistas([])
+      setInfoBuscaoftalmologistas('')
    }
 
    const handleInputChangeSearch = (event: ChangeEvent<HTMLInputElement>) =>{
       const  value  = event.target.value;
 
-      setInfoBuscaOftalmologista(value)
+      setInfoBuscaoftalmologistas(value)
       setError('')
    }
 
-   const getOftalmologistaelecionado = (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
-      const OftamologistaCRM = e.currentTarget.getAttribute("data-id")
-      setOftalmologista([])
-      setInfoBuscaOftalmologista('')
+   const getOftalmologistaSelecionado = (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+      const oftalmologistasCRM = e.currentTarget.getAttribute("data-id")
+      setoftalmologistas([])
+      setInfoBuscaoftalmologistas('')
       
-      if(OftamologistaCRM){
+      if(oftalmologistasCRM){
          setError('')
-         const clienteEncontrado = clientes.find((cliente) => {
-            if( cliente.crm === OftamologistaCRM) {
-               return cliente
+         const oftalmologistaEncontrado = oftalmologistas.find((oftalmologista) => {
+            if( oftalmologista.crm === oftalmologistasCRM) {
+               return oftalmologista
             }
          });
    
-         if(clienteEncontrado){
-            setOftalmologistaData(clienteEncontrado)
+         if(oftalmologistaEncontrado){
+            setOftalmologistaData(oftalmologistaEncontrado)
          }
 
          navigate('/oftalmologista/editar')
       }
    }
    
-   const getOftalmologista = async () => {
+   const getOftalmologistas = async () => {
       const idOtica = userData?.id_oticas[0]
 
-      const infoPesquisa = infoBuscaOftalmologista.replace(/[\\/.-]/g, '');
+      const infoPesquisa = infoBuscaoftalmologistas.replace(/[\\/.-]/g, '');
 
 
-      const response = await fetch(`${apiUrl}oftalmologistas?idOtica=${idOtica}&nome=${infoPesquisa}&page=${currentPage}&size=${OftalmologistaPerPage}` , {
+      const response = await fetch(`${apiUrl}oftalmologistas?idOtica=${idOtica}&nome=${infoPesquisa}&page=${currentPage}&size=${oftalmologistasPerPage}` , {
          method: 'GET',
          headers: {
            'Content-Type': 'application/json',
@@ -138,30 +137,29 @@ export function Oftalmologista() {
       });
 
       if (!response.ok) {
-        throw new Error('Oftalmologista não encontrado');
+        throw new Error('oftalmologistas não encontrado');
       }
       
       const data = await response.json();
 
-      console.log(data)
-
-      settotalOftalmologista(data.totalElements)
+      
+      settotaloftalmologistas(data.totalElements)
       setTotalPage(data.totalPages)
       setHasNext(data.hasNext)
       setHasPrevious(data.hasPrevious)
-
-      const listClientes = data.content;
-      if (!listClientes.length){
-         handleApiResponse( "alert", "Nenhum cliente encontrado!")
-         setOftalmologista([])
-         setInfoBuscaOftalmologista('')
+      
+      const listoftalmologistas = data.content;
+      if (!listoftalmologistas.length){
+         handleApiResponse( "alert", "Nenhum oftalmologista encontrado!")
+         setoftalmologistas([])
+         setInfoBuscaoftalmologistas('')
          return
       }
-      setOftalmologista(listClientes)
+      setoftalmologistas(listoftalmologistas)
    }
 
    const handleClick = async () => {
-      getOftalmologista()
+      getOftalmologistas()
    }
 
    const previousPage = async () => {
@@ -171,7 +169,7 @@ export function Oftalmologista() {
          setCurrentPage(prev => prev -1)
       }
 
-      setcontainsOftalmologista(!!hasPrevious)
+      setcontainsoftalmologistas(!!hasPrevious)
    }
 
    const nextPage = async () => {
@@ -179,7 +177,7 @@ export function Oftalmologista() {
          setCurrentPage(prev => prev +1)
       }
 
-      setcontainsOftalmologista(!!hasNext)
+      setcontainsoftalmologistas(!!hasNext)
    }
 
    return (
@@ -195,11 +193,11 @@ export function Oftalmologista() {
                         <Users className="h-6 w-6 text-white" />
                         </div>
                         <h1 className="text-2xl font-semibold text-gray-800">
-                        Busca de Oftalmologista
+                        Busca de oftalmologistas
                         </h1>
                      </div>
                      <div className="text-sm text-gray-500">
-                        {clientes.length} Cliente(s) encontrado(s)
+                        {oftalmologistas.length} Cliente(s) encontrado(s)
                      </div>
                   </div>
                   <div className='flex items-center gap-5 mb-5'>
@@ -216,7 +214,7 @@ export function Oftalmologista() {
                      </select>
                      <div className="w-2/5">
                            <SearchBar
-                              value={infoBuscaOftalmologista}
+                              value={infoBuscaoftalmologistas}
                               onChange={(e) => handleInputChangeSearch(e)}
                               type= {tipoFiltro}
                               error={error}
@@ -231,17 +229,17 @@ export function Oftalmologista() {
                      </button>
                   </div>
                   <div className='w-full'>
-                     {!containsOftalmologista ?  (
+                     {!containsoftalmologistas ?  (
                         <div className='w-full text-center min-h-72 h-full flex justify-center items-center border-gray-300 shadow-sm border rounded-lg'>
                            <h2 className=''>Nenhum registro encontrado</h2>
                         </div>
                      ):(
-                        <OftalmologistaBox oftalmologistas={clientes} handleClick={getOftalmologistaelecionado}/>
+                        <OftalmologistaBox oftalmologistas={oftalmologistas} handleClick={getOftalmologistaSelecionado}/>
                      )}
-                     {clientes.length > 0 && (
+                     {oftalmologistas.length > 0 && (
                         <div className='w-full bg-white-300 gap-2 flex justify-between p-1'>
                            <div className=''>
-                              <p>Exibindo {OftalmologistaPerPage} de {totalOftalmologista}</p>
+                              <p>Exibindo {oftalmologistasPerPage} de {totaloftalmologistas}</p>
                            </div>
                            <div className='flex gap-2'>
                               <div className='cursor-pointer' onClick={previousPage}>
@@ -292,4 +290,4 @@ export function Oftalmologista() {
    )
 }
 
-export default Oftalmologista
+export default OftalmologistaPage

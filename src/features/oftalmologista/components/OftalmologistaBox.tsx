@@ -1,16 +1,16 @@
-import { User, Phone, Mail, MapPin, FileText, PencilIcon, ClipboardList    } from 'lucide-react';
-import type { Oftalmologista } from '../types/types';
+import {User, Phone, Mail, FileText, PencilIcon} from 'lucide-react';
+import type { Oftalmologista, OftalmologistaEditar } from '../types/types';
 import { FormatInfos } from '../../../services/FormatInfos';
 
 interface CustomerListProps {
-  oftalmologistas: Oftalmologista[];
+  oftalmologistas:( Oftalmologista |OftalmologistaEditar)[];
   handleClick: (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => void;
 }
 
 export function OftalmologistaBox({ oftalmologistas, handleClick }: CustomerListProps) {
 
-  const getNome = (cliente: Oftalmologista) =>{
-    return cliente.nomeCompleto
+  const getTelefone = (oftalmologista: Oftalmologista) =>{
+    return FormatInfos.formatTelefone(oftalmologista.telefone)
   }
   
   return ( 
@@ -28,7 +28,7 @@ export function OftalmologistaBox({ oftalmologistas, handleClick }: CustomerList
                   <User className="h-5 w-5 text-blue-500" />
                 </div>
                 <div>
-                  <h3 className="font-medium text-gray-900">{getNome(oftalmologista)}</h3>
+                  <h3 className="font-medium text-gray-900">{oftalmologista.nomeCompleto}</h3>
                   {/* <p className='font-normal text-gray-500'>{cliente.razaoSocial}</p> */}
                 </div>
               </div>
@@ -57,7 +57,7 @@ export function OftalmologistaBox({ oftalmologistas, handleClick }: CustomerList
                 </div>
                 <div className="flex items-center text-sm text-gray-500">
                   <FileText   className="h-4 w-4 mr-2" />
-                  {oftalmologista.telefone}
+                  {getTelefone(oftalmologista)}
                 </div>
                 
               </div>
@@ -68,7 +68,7 @@ export function OftalmologistaBox({ oftalmologistas, handleClick }: CustomerList
                     size={20} 
                     className="text-gray-700 cursor-pointer"
                     onClick={handleClick} 
-                    data-id={oftalmologista.email}
+                    data-id={oftalmologista.crm}
                   />
 
                   <div className="absolute right-full mt-2 bottom-1/2 -translate-y-1/2 whitespace-nowrap

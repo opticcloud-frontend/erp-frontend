@@ -21,3 +21,8 @@ export interface Oftalmologista {
   observacoes: string;
   status: boolean;
 }
+
+export interface OftalmologistaEditar extends Oftalmologista {
+  id: number
+}
+
