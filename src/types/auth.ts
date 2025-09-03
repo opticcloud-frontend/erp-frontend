@@ -1,4 +1,5 @@
 import { Fornecedor } from "../features/fornecedores/types/types";
+import { Oftalmologista } from "../features/oftalmologista/types/types";
 import { Produto } from "../features/produtos/types/produto";
 
 export interface Cliente {
@@ -55,4 +56,6 @@ export interface User {
    setProdutoData: (cliente: Produto | undefined) => void;
    fornecedorData: Fornecedor | undefined;
    setFornecedorData: (fornecedor: Fornecedor | undefined) => void;
+   oftalmologistaData: Oftalmologista | undefined;
+   setOftalmologistaData: (fornecedor: Oftalmologista | undefined) => void;
  }
