@@ -28,6 +28,7 @@ import { FornecedorEditarDados } from './features/fornecedores/pages/Fornecedore
 import OftamologistaCadastro from './features/oftalmologista/pages/OftamologistaCadastro';
 import { OftalmogistaEditarDados } from './features/oftalmologista/pages/OftalmogistaEditarDados';
 import OftalmologistaPage from './features/oftalmologista/pages/Oftalmologista';
+import ReceitasCadastro from './features/receitas/pages/ReceitasCadastro';
 
 function App() {
   
@@ -60,6 +61,7 @@ function App() {
           <Route path="/oftalmologista/editar" element={<OftalmogistaEditarDados />} />
           <Route path="/oftalmologista" element={<OftalmologistaPage />} />
           <Route path="/oftamologista/cadastrar" element={<OftamologistaCadastro />} />
+          <Route path="/receita/cadastrar" element={<ReceitasCadastro />} />
 
 
           <Route path="*" element={<Navigate to="/" replace />} />

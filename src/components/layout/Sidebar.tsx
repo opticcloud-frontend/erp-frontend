@@ -69,6 +69,14 @@ export function Sidebar() {
         { icon: TruckLoading, text: 'Cadastrar Oftalmologista', path: '/oftamologista/cadastrar' }
       ]
     },
+     { 
+      icon: Truck, 
+      text: 'Receitas', 
+      subMenus: [
+        { icon: Truck, text: 'Consultar Receita', path: '/receita' },
+        { icon: TruckLoading, text: 'Cadastrar Receita', path: '/receita/cadastrar' }
+      ]
+    },
     { icon: Settings, text: 'Configurações', path: '/configuracoes' },
   ];
 
